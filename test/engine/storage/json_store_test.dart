@@ -75,6 +75,18 @@ void main() {
     });
   });
 
+  group('active environment id', () {
+    test('is null when no settings file exists yet', () async {
+      expect(await store.readActiveEnvironmentId(), isNull);
+    });
+
+    test('round-trips through disk', () async {
+      await store.writeActiveEnvironmentId('env-1');
+
+      expect(await store.readActiveEnvironmentId(), 'env-1');
+    });
+  });
+
   group('collections', () {
     test('round-trips groups and endpoints through disk', () async {
       const groups = [Group(id: 'g-1', name: 'Authentication API')];

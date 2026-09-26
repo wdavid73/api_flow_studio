@@ -35,7 +35,7 @@ land, don't duplicate the detail here.
 
 ## Phase 3 — Environments + Collections (Persisted)
 
-- [ ] Task 3.1: Environments provider
+- [x] Task 3.1: Environments provider
 - [ ] Task 3.2: Environment manager screen
 - [ ] Task 3.3: Wire active-environment interpolation into request builder
 - [ ] Task 3.4: Collections provider

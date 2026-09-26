@@ -67,6 +67,15 @@ class JsonStore {
   Future<void> writeEnvironments(List<Environment> environments) =>
       _writeAtomic('environments.json', environments.map((e) => e.toJson()).toList());
 
+  Future<String?> readActiveEnvironmentId() => _readOrDefault(
+        'settings.json',
+        (decoded) => (decoded as Map<String, dynamic>)['activeEnvironmentId'] as String?,
+        null,
+      );
+
+  Future<void> writeActiveEnvironmentId(String? id) =>
+      _writeAtomic('settings.json', {'activeEnvironmentId': id});
+
   Future<({List<Group> groups, List<Endpoint> endpoints})> readCollections() => _readOrDefault(
         'collections.json',
         (decoded) {
