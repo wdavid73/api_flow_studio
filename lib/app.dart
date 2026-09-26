@@ -5,6 +5,7 @@ import 'ui/collections/sidebar_tree.dart';
 import 'ui/environments/active_environment_strip.dart';
 import 'ui/environments/environment_manager_screen.dart';
 import 'ui/environments/environment_switcher.dart';
+import 'ui/flows/flows_screen.dart';
 import 'ui/request_builder/request_bar.dart';
 import 'ui/theme/app_theme.dart';
 
@@ -132,6 +133,7 @@ class _DestinationBody extends StatelessWidget {
       case AppDestination.environments:
         return const EnvironmentManagerScreen();
       case AppDestination.flows:
+        return const FlowsScreen();
       case AppDestination.history:
         return Center(child: Text('${destination.label} placeholder'));
     }
