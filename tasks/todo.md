@@ -9,7 +9,7 @@ land, don't duplicate the detail here.
 
 - [x] Task 1.1: Core freezed models (`lib/engine/models/`)
 - [x] Task 1.2: Variable interpolator (`lib/engine/variables/interpolator.dart`)
-- [ ] Task 1.3: JSON on-disk store (`lib/engine/storage/json_store.dart`)
+- [x] Task 1.3: JSON on-disk store (`lib/engine/storage/json_store.dart`)
 - [ ] Task 1.4: Request executor (`lib/engine/http/request_executor.dart`)
 
 ### Checkpoint: After Phase 1
