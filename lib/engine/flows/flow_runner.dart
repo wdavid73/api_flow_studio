@@ -26,20 +26,26 @@ class FlowRunner {
     Flow flow, {
     required Map<String, Endpoint> endpoints,
     required Map<String, String> initialVariables,
+    void Function(int index, FlowStepResult result)? onStepResult,
   }) async {
     final results = <FlowStepResult>[];
     final variables = {...initialVariables};
     var stopped = false;
 
+    void record(FlowStepResult result) {
+      results.add(result);
+      onStepResult?.call(results.length - 1, result);
+    }
+
     for (final step in flow.steps) {
       if (stopped) {
-        results.add(const FlowStepResult(status: FlowStepStatus.skipped));
+        record(const FlowStepResult(status: FlowStepStatus.skipped));
         continue;
       }
 
       final endpoint = endpoints[step.endpointId];
       if (endpoint == null) {
-        results.add(FlowStepResult(
+        record(FlowStepResult(
           status: FlowStepStatus.failure,
           failureReason: 'Endpoint "${step.endpointId}" not found',
         ));
@@ -50,7 +56,7 @@ class FlowRunner {
       final response = await _executor.execute(endpoint, variables: variables);
 
       if (response.error != null) {
-        results.add(FlowStepResult(
+        record(FlowStepResult(
           status: FlowStepStatus.failure,
           response: response,
           failureReason: response.error,
@@ -84,7 +90,7 @@ class FlowRunner {
       }
 
       if (failureReason != null) {
-        results.add(FlowStepResult(
+        record(FlowStepResult(
           status: FlowStepStatus.failure,
           response: response,
           extractedVariables: extracted,
@@ -92,7 +98,7 @@ class FlowRunner {
         ));
         if (step.stopOnFailure) stopped = true;
       } else {
-        results.add(FlowStepResult(
+        record(FlowStepResult(
           status: FlowStepStatus.success,
           response: response,
           extractedVariables: extracted,

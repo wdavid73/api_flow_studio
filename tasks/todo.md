@@ -64,7 +64,7 @@ land, don't duplicate the detail here.
 - [x] Task 5.3: Flows provider
 - [x] Task 5.4a: Flow builder UI scaffold
 - [x] Task 5.4b: Flow builder — extract mapping & stop-on-failure editor
-- [ ] Task 5.5a: Flow run view — wiring & status icons
+- [x] Task 5.5a: Flow run view — wiring & status icons
 - [ ] Task 5.5b: Flow run view — detail panel, error diagnostics, re-run-from-step
 
 ### Checkpoint: After Phase 5

@@ -231,4 +231,33 @@ void main() {
     ).captured.single as Map<String, String>;
     expect(variablesAtStep3['user_id'], 'u-1');
   });
+
+  test('onStepResult reports each result immediately, in step order, including skips', () async {
+    when(() => executor.execute(checkUser, variables: any(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 404));
+
+    final flow = Flow(
+      id: 'f-1',
+      name: 'Flow',
+      steps: [
+        const FlowStep(
+          endpointId: 'e-check',
+          assertField: 'response.status',
+          assertExpected: '200',
+        ),
+        const FlowStep(endpointId: 'e-otp'),
+      ],
+    );
+
+    final reported = <int, FlowStepStatus>{};
+    final result = await runner.run(
+      flow,
+      endpoints: endpoints,
+      initialVariables: const {},
+      onStepResult: (index, stepResult) => reported[index] = stepResult.status,
+    );
+
+    expect(reported, {0: FlowStepStatus.failure, 1: FlowStepStatus.skipped});
+    expect(reported.length, result.stepResults.length);
+  });
 }

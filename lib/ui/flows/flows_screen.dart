@@ -5,6 +5,7 @@ import '../../engine/models/models.dart';
 import '../collections/collections_provider.dart';
 import '../theme/app_spacing.dart';
 import 'add_step_picker.dart';
+import 'flow_run_view_screen.dart';
 import 'flows_provider.dart';
 import 'step_card.dart';
 
@@ -148,7 +149,13 @@ class _FlowBuilder extends ConsumerWidget {
               const SizedBox(width: AppSpacing.sm),
               FilledButton(
                 key: const Key('run-flow-button'),
-                onPressed: flow.steps.isEmpty ? null : () {},
+                onPressed: flow.steps.isEmpty
+                    ? null
+                    : () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => FlowRunViewScreen(flow: flow, endpoints: endpoints),
+                          ),
+                        ),
                 child: const Text('Run Flow'),
               ),
             ],
