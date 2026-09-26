@@ -59,7 +59,7 @@ land, don't duplicate the detail here.
 
 ## Phase 5 — Flows
 
-- [ ] Task 5.1: `value_extractor` (dot-notation)
+- [x] Task 5.1: `value_extractor` (dot-notation)
 - [ ] Task 5.2: `flow_runner`
 - [ ] Task 5.3: Flows provider
 - [ ] Task 5.4a: Flow builder UI scaffold
