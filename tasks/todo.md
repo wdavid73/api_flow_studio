@@ -21,7 +21,7 @@ land, don't duplicate the detail here.
 
 ## Phase 2 — UI Shell, Theme, First Vertical Slice
 
-- [ ] Task 2.1: App shell & navigation skeleton
+- [x] Task 2.1: App shell & navigation skeleton
 - [ ] Task 2.2: Theme tokens from DESIGN.md (incl. font download — confirm exact filenames/source/size with user before fetching)
 - [ ] Task 2.3: Minimal request bar + real Send + response viewer (first vertical slice)
 - [ ] Task 2.4: Full request builder tabs (Params/Headers/Body/Auth)
