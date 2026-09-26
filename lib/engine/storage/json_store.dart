@@ -19,12 +19,22 @@ class JsonStore {
 
   final Directory? _directoryOverride;
 
-  /// Serializes writes per filename: without this, two overlapping writes
-  /// to the same file (e.g. two keystrokes' worth of state changes firing
-  /// before the first write finishes) can race on the same `.tmp` path and
-  /// make one rename fail with "file not found" -- caught by a real test
-  /// here, not a hypothetical.
-  final Map<String, Future<void>> _writeQueues = {};
+  /// Serializes operations per filename: without this, two overlapping
+  /// writes to the same file (e.g. two keystrokes' worth of state changes
+  /// firing before the first write finishes) can race on the same `.tmp`
+  /// path and make one rename fail with "file not found" -- caught by a
+  /// real test here, not a hypothetical. Read-modify-write helpers like
+  /// [appendHistoryEntry] chain onto the same per-filename queue so a
+  /// "read old, append, write" cycle can't interleave with a sibling call
+  /// and silently drop one of the two appends.
+  final Map<String, Future<void>> _queues = {};
+
+  Future<T> _serialized<T>(String filename, Future<T> Function() action) {
+    final previous = _queues[filename] ?? Future<void>.value();
+    final result = previous.then((_) => action());
+    _queues[filename] = result.then((_) {}, onError: (_) {});
+    return result;
+  }
 
   Future<Directory> _directory() async {
     final dir = _directoryOverride ??
@@ -42,15 +52,8 @@ class JsonStore {
     return File('${dir.path}${Platform.pathSeparator}$filename');
   }
 
-  Future<void> _writeAtomic(String filename, Object jsonValue) {
-    final previous = _writeQueues[filename] ?? Future<void>.value();
-    final next = previous.then((_) => _writeAtomicUnqueued(filename, jsonValue));
-    // Swallow the error here so it doesn't become an unhandled rejection
-    // sitting in the queue chain -- the real caller still awaits `next`
-    // directly below and sees the exception there.
-    _writeQueues[filename] = next.catchError((_) {});
-    return next;
-  }
+  Future<void> _writeAtomic(String filename, Object jsonValue) =>
+      _serialized(filename, () => _writeAtomicUnqueued(filename, jsonValue));
 
   Future<void> _writeAtomicUnqueued(String filename, Object jsonValue) async {
     final target = await _file(filename);
@@ -145,4 +148,40 @@ class JsonStore {
 
   Future<void> writeFlows(List<Flow> flows) =>
       _writeAtomic('flows.json', flows.map((f) => f.toJson()).toList());
+
+  Future<Map<String, List<HistoryEntry>>> _readAllHistory() => _readOrDefault(
+        'history.json',
+        (decoded) => {
+          for (final entry in (decoded as Map<String, dynamic>).entries)
+            entry.key: (entry.value as List)
+                .map((e) => HistoryEntry.fromJson(e as Map<String, dynamic>))
+                .toList(),
+        },
+        <String, List<HistoryEntry>>{},
+      );
+
+  Future<List<HistoryEntry>> readHistory(String endpointId) async =>
+      (await _readAllHistory())[endpointId] ?? const [];
+
+  /// Appends [entry] to [endpointId]'s history, trimming to the last
+  /// [maxPerEndpoint] (oldest evicted first). The read-modify-write cycle
+  /// runs inside [_serialized] on `history.json` -- two appends fired close
+  /// together (e.g. sending the same request twice in a row) must not both
+  /// read the same pre-append list and race to overwrite each other.
+  Future<void> appendHistoryEntry(
+    String endpointId,
+    HistoryEntry entry, {
+    int maxPerEndpoint = 20,
+  }) =>
+      _serialized('history.json', () async {
+        final all = await _readAllHistory();
+        final current = all[endpointId] ?? const <HistoryEntry>[];
+        final next = [...current, entry];
+        final trimmed =
+            next.length > maxPerEndpoint ? next.sublist(next.length - maxPerEndpoint) : next;
+        all[endpointId] = trimmed;
+        await _writeAtomicUnqueued('history.json', {
+          for (final e in all.entries) e.key: e.value.map((h) => h.toJson()).toList(),
+        });
+      });
 }
