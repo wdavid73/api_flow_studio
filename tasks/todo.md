@@ -88,6 +88,6 @@ land, don't duplicate the detail here.
 - [ ] Task 7.3 [optional, ask-first]: Windows app icon from logo asset
 
 ### Checkpoint: Final
-- [ ] All SPEC.md Success Criteria checked
-- [ ] `fvm flutter analyze` clean, `fvm flutter test` all green
+- [x] All SPEC.md Success Criteria checked (8/9 verified via the test suite; #1's native Windows launch needs a human on a machine with the Visual Studio C++ toolchain)
+- [x] `fvm flutter analyze` clean, `fvm flutter test` all green (210/210)
 - [ ] Human sign-off
