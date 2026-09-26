@@ -260,4 +260,60 @@ void main() {
     expect(reported, {0: FlowStepStatus.failure, 1: FlowStepStatus.skipped});
     expect(reported.length, result.stepResults.length);
   });
+
+  test('runFrom only executes steps from startIndex onward', () async {
+    when(() => executor.execute(sendOtp, variables: any(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 200));
+    when(() => executor.execute(createUser, variables: captureAny(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 201));
+
+    final flow = Flow(
+      id: 'f-1',
+      name: 'Flow',
+      steps: [
+        FlowStep(endpointId: checkUser.id),
+        FlowStep(endpointId: sendOtp.id),
+        const FlowStep(endpointId: 'e-create'),
+      ],
+    );
+
+    final result = await runner.runFrom(
+      flow,
+      startIndex: 1,
+      endpoints: endpoints,
+      seedVariables: {'user_id': 'u-1'},
+    );
+
+    expect(result.stepResults.length, 2);
+    expect(result.stepResults[0].status, FlowStepStatus.success);
+    expect(result.stepResults[1].status, FlowStepStatus.success);
+    verifyNever(() => executor.execute(checkUser, variables: any(named: 'variables')));
+
+    final variablesAtStep3 = verify(
+      () => executor.execute(createUser, variables: captureAny(named: 'variables')),
+    ).captured.single as Map<String, String>;
+    expect(variablesAtStep3['user_id'], 'u-1');
+  });
+
+  test('runFrom reports onStepResult with real (offset) step indices', () async {
+    when(() => executor.execute(sendOtp, variables: any(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 200));
+
+    final flow = Flow(
+      id: 'f-1',
+      name: 'Flow',
+      steps: [FlowStep(endpointId: checkUser.id), FlowStep(endpointId: sendOtp.id)],
+    );
+
+    final reported = <int, FlowStepStatus>{};
+    await runner.runFrom(
+      flow,
+      startIndex: 1,
+      endpoints: endpoints,
+      seedVariables: const {},
+      onStepResult: (index, stepResult) => reported[index] = stepResult.status,
+    );
+
+    expect(reported, {1: FlowStepStatus.success});
+  });
 }

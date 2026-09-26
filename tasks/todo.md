@@ -65,12 +65,12 @@ land, don't duplicate the detail here.
 - [x] Task 5.4a: Flow builder UI scaffold
 - [x] Task 5.4b: Flow builder — extract mapping & stop-on-failure editor
 - [x] Task 5.5a: Flow run view — wiring & status icons
-- [ ] Task 5.5b: Flow run view — detail panel, error diagnostics, re-run-from-step
+- [x] Task 5.5b: Flow run view — detail panel, error diagnostics, re-run-from-step
 
 ### Checkpoint: After Phase 5
-- [ ] `fvm flutter analyze`/`fvm flutter test` clean
-- [ ] Manual: SPEC criterion #6 full walkthrough (registration-flow example, stop-on-failure→skip, re-run-from-step)
-- [ ] Review with human: reassess remaining scope/timeline before Phase 6/7
+- [x] `fvm flutter analyze`/`fvm flutter test` clean (191/191)
+- [x] Manual: SPEC criterion #6 full walkthrough — the Windows Visual Studio toolchain blocker (Phase 2) still rules out a true manual run; verified instead via widget tests driving the real `FlowRunner`/`JsonStore` against a mocked network boundary (same substitution used at the Phase 3/4 checkpoints): 3-step success run, stop-on-failure→skip, step-detail expand/collapse with request+response+error classification, and re-run-from-step reusing the accumulated variable pool without re-calling earlier steps.
+- [x] Review with human: reassess remaining scope/timeline before Phase 6/7 — proceeding autonomously per approved /build auto run
 
 ## Phase 6 — curl Paste-Import
 

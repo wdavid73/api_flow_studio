@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/flows/flow_runner.dart';
 import '../../engine/flows/flow_step_result.dart';
 import '../../engine/models/models.dart';
+import '../../engine/variables/interpolator.dart';
 import '../environments/environments_provider.dart';
 import '../request_builder/send_provider.dart' show requestExecutorProvider;
 import '../theme/app_colors.dart';
@@ -25,6 +26,8 @@ class FlowRunViewScreen extends ConsumerStatefulWidget {
 
 class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
   List<FlowStepResult?> _results = const [];
+  Map<String, String> _initialVariables = const {};
+  Set<int> _expandedSteps = {};
   bool _running = false;
 
   @override
@@ -33,10 +36,33 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
     _run();
   }
 
+  /// The variable pool as it stood right before [index] executed: the
+  /// run's initial (environment) variables plus every earlier step's
+  /// extracted variables -- reconstructed the same way [FlowRunner]
+  /// accumulates them internally, so a step can be re-run in isolation
+  /// with the exact pool it originally saw.
+  Map<String, String> _variablesEnteringStep(int index) {
+    final variables = {..._initialVariables};
+    for (var i = 0; i < index; i++) {
+      final result = i < _results.length ? _results[i] : null;
+      if (result != null) variables.addAll(result.extractedVariables);
+    }
+    return variables;
+  }
+
+  String? _requestUrlFor(int index) {
+    final result = index < _results.length ? _results[index] : null;
+    if (result == null || result.status == FlowStepStatus.skipped) return null;
+    final endpoint = widget.endpoints[widget.flow.steps[index].endpointId];
+    if (endpoint == null) return null;
+    return interpolate(endpoint.url, _variablesEnteringStep(index));
+  }
+
   Future<void> _run() async {
     setState(() {
       _running = true;
       _results = List<FlowStepResult?>.filled(widget.flow.steps.length, null);
+      _expandedSteps = {};
     });
 
     final executor = ref.read(requestExecutorProvider);
@@ -47,11 +73,38 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
     // read that resolves it.
     final environments = await ref.read(environmentsProvider.future);
     final variables = environments.active?.resolvedVariables ?? const {};
+    _initialVariables = variables;
 
     await runner.run(
       widget.flow,
       endpoints: widget.endpoints,
       initialVariables: variables,
+      onStepResult: (index, result) {
+        if (!mounted) return;
+        setState(() => _results[index] = result);
+      },
+    );
+
+    if (mounted) setState(() => _running = false);
+  }
+
+  Future<void> _rerunFromStep(int startIndex) async {
+    final seed = _variablesEnteringStep(startIndex);
+    setState(() {
+      _running = true;
+      for (var i = startIndex; i < _results.length; i++) {
+        _results[i] = null;
+      }
+    });
+
+    final executor = ref.read(requestExecutorProvider);
+    final runner = FlowRunner(executor: executor);
+
+    await runner.runFrom(
+      widget.flow,
+      startIndex: startIndex,
+      endpoints: widget.endpoints,
+      seedVariables: seed,
       onStepResult: (index, result) {
         if (!mounted) return;
         setState(() => _results[index] = result);
@@ -118,6 +171,12 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
                     index: index,
                     endpoint: widget.endpoints[step.endpointId],
                     result: index < _results.length ? _results[index] : null,
+                    requestUrl: _requestUrlFor(index),
+                    expanded: _expandedSteps.contains(index),
+                    onToggleExpanded: () => setState(() {
+                      if (!_expandedSteps.remove(index)) _expandedSteps.add(index);
+                    }),
+                    onRerunFromHere: () => _rerunFromStep(index),
                   );
                 },
               ),

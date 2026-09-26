@@ -27,17 +27,40 @@ class FlowRunner {
     required Map<String, Endpoint> endpoints,
     required Map<String, String> initialVariables,
     void Function(int index, FlowStepResult result)? onStepResult,
+  }) =>
+      runFrom(
+        flow,
+        startIndex: 0,
+        endpoints: endpoints,
+        seedVariables: initialVariables,
+        onStepResult: onStepResult,
+      );
+
+  /// Re-executes only [flow]'s steps from [startIndex] onward, seeding the
+  /// variable pool with [seedVariables] -- the pool as it stood entering
+  /// that step in a previous run (initial variables plus every preceding
+  /// step's [FlowStepResult.extractedVariables], which the UI reconstructs
+  /// since that's exactly how [run] accumulates it). Steps before
+  /// [startIndex] are not touched or re-executed; [onStepResult] still
+  /// reports real step indices (offset by [startIndex]), so callers can
+  /// write results straight back into a full-flow results list.
+  Future<FlowRunResult> runFrom(
+    Flow flow, {
+    required int startIndex,
+    required Map<String, Endpoint> endpoints,
+    required Map<String, String> seedVariables,
+    void Function(int index, FlowStepResult result)? onStepResult,
   }) async {
     final results = <FlowStepResult>[];
-    final variables = {...initialVariables};
+    final variables = {...seedVariables};
     var stopped = false;
 
     void record(FlowStepResult result) {
       results.add(result);
-      onStepResult?.call(results.length - 1, result);
+      onStepResult?.call(startIndex + results.length - 1, result);
     }
 
-    for (final step in flow.steps) {
+    for (final step in flow.steps.skip(startIndex)) {
       if (stopped) {
         record(const FlowStepResult(status: FlowStepStatus.skipped));
         continue;
