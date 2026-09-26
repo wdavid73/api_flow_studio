@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'ui/environments/active_environment_strip.dart';
+import 'ui/environments/environment_manager_screen.dart';
+import 'ui/environments/environment_switcher.dart';
 import 'ui/request_builder/request_bar.dart';
 import 'ui/theme/app_theme.dart';
 
@@ -43,6 +46,7 @@ class AppShell extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
+          const ActiveEnvironmentStrip(),
           _NavBar(selected: selected),
           Expanded(child: _DestinationBody(destination: selected)),
         ],
@@ -72,6 +76,8 @@ class _NavBar extends ConsumerWidget {
                 isSelected: destination == selected,
                 onTap: () => ref.read(selectedDestinationProvider.notifier).state = destination,
               ),
+            const Spacer(),
+            const EnvironmentSwitcher(),
           ],
         ),
       ),
@@ -112,9 +118,14 @@ class _DestinationBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (destination == AppDestination.workspace) {
-      return const RequestBar();
+    switch (destination) {
+      case AppDestination.workspace:
+        return const RequestBar();
+      case AppDestination.environments:
+        return const EnvironmentManagerScreen();
+      case AppDestination.flows:
+      case AppDestination.history:
+        return Center(child: Text('${destination.label} placeholder'));
     }
-    return Center(child: Text('${destination.label} placeholder'));
   }
 }

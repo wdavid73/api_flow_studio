@@ -8,6 +8,7 @@ import 'tabs/auth_tab.dart';
 import 'tabs/body_tab.dart';
 import 'tabs/headers_tab.dart';
 import 'tabs/params_tab.dart';
+import 'url_field.dart';
 
 const _methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -43,13 +44,7 @@ class RequestBar extends ConsumerWidget {
                 },
               ),
               const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  key: const Key('request-url-field'),
-                  decoration: const InputDecoration(hintText: 'https://api.example.com/users'),
-                  onChanged: (value) => ref.read(requestDraftProvider.notifier).setUrl(value),
-                ),
-              ),
+              const Expanded(child: UrlField()),
               const SizedBox(width: 12),
               FilledButton(
                 onPressed: sendState.loading

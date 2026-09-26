@@ -52,4 +52,39 @@ void main() {
     expect((spans.single as TextSpan).text, 'not json');
     expect(spans.single.style?.color, AppColors.onSurface);
   });
+
+  group('tokenizeVariablesOnly', () {
+    test('colors a resolved variable cyan', () {
+      final spans = tokenizeVariablesOnly(
+        '{{base_url}}/users',
+        baseStyle: base,
+        resolvedVariables: {'base_url': 'https://api.dev'},
+      );
+
+      expect(colorOf(spans, '{{base_url}}'), AppColors.variableResolvedText);
+    });
+
+    test('colors an unresolved variable amber', () {
+      final spans = tokenizeVariablesOnly(
+        '{{nope}}/users',
+        baseStyle: base,
+        resolvedVariables: {'base_url': 'https://api.dev'},
+      );
+
+      expect(colorOf(spans, '{{nope}}'), AppColors.variableUnresolvedText);
+    });
+
+    test('treats every variable as resolved when no map is given', () {
+      final spans = tokenizeVariablesOnly('{{anything}}', baseStyle: base);
+
+      expect(colorOf(spans, '{{anything}}'), AppColors.variableResolvedText);
+    });
+
+    test('leaves plain text (no variables) untouched', () {
+      final spans = tokenizeVariablesOnly('https://api.dev/users', baseStyle: base);
+
+      expect(spans, hasLength(1));
+      expect((spans.single as TextSpan).text, 'https://api.dev/users');
+    });
+  });
 }

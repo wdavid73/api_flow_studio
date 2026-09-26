@@ -74,3 +74,40 @@ List<InlineSpan> tokenizeJsonLike(String text, {required TextStyle baseStyle}) {
 /// Default base style for tokenized JSON-ish text: the code-md token plus
 /// the neutral on-surface color for anything not specifically colorized.
 TextStyle jsonBaseStyle() => AppTypography.codeMd.copyWith(color: AppColors.onSurface);
+
+/// Highlights `{{var}}` tokens in plain (non-JSON) text -- the URL bar --
+/// leaving everything else in [baseStyle]. When [resolvedVariables] is
+/// given, a token colors cyan if its name is a key in the map (resolved
+/// against the active environment) or amber if it isn't (per DESIGN.md's
+/// "Variable Chips" resolved/unresolved states); with no map, every token
+/// is colored as resolved.
+List<InlineSpan> tokenizeVariablesOnly(
+  String text, {
+  required TextStyle baseStyle,
+  Map<String, String>? resolvedVariables,
+}) {
+  final spans = <InlineSpan>[];
+  var lastEnd = 0;
+
+  for (final match in _variablePattern.allMatches(text)) {
+    if (match.start > lastEnd) {
+      spans.add(TextSpan(text: text.substring(lastEnd, match.start), style: baseStyle));
+    }
+    final varName = text.substring(match.start + 2, match.end - 2);
+    final resolved = resolvedVariables == null || resolvedVariables.containsKey(varName);
+    spans.add(TextSpan(
+      text: match[0],
+      style: baseStyle.copyWith(
+        color: resolved ? AppColors.variableResolvedText : AppColors.variableUnresolvedText,
+        fontWeight: FontWeight.w600,
+      ),
+    ));
+    lastEnd = match.end;
+  }
+
+  if (lastEnd < text.length) {
+    spans.add(TextSpan(text: text.substring(lastEnd), style: baseStyle));
+  }
+
+  return spans;
+}

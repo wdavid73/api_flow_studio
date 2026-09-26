@@ -11,8 +11,6 @@ import 'environments_provider.dart';
 /// which is the one requests actually resolve variables against).
 final selectedEnvironmentIdProvider = StateProvider<String?>((ref) => null);
 
-const _dotColors = [AppColors.tertiary, AppColors.secondary, AppColors.error];
-
 class EnvironmentManagerScreen extends ConsumerWidget {
   const EnvironmentManagerScreen({super.key});
 
@@ -103,7 +101,7 @@ class _EnvironmentList extends ConsumerWidget {
                       selected: env.id == selectedId,
                       leading: CircleAvatar(
                         radius: 5,
-                        backgroundColor: _dotColors[index % _dotColors.length],
+                        backgroundColor: AppColors.environmentDotColor(index),
                       ),
                       title: Text(env.name),
                       subtitle: Text('${env.variables.length} variables'),

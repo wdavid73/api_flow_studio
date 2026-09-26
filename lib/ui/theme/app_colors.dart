@@ -71,4 +71,9 @@ class AppColors {
   static const Color variableResolvedBorder = Color(0x4706B6D4); // ~28% alpha
   static const Color variableUnresolvedText = Color(0xFFF59E0B);
   static const Color variableUnresolvedBg = Color(0x26F59E0B); // ~15% alpha
+
+  static const List<Color> environmentDotPalette = [tertiary, secondary, error];
+
+  static Color environmentDotColor(int index) =>
+      environmentDotPalette[index % environmentDotPalette.length];
 }
