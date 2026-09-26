@@ -19,6 +19,13 @@ class JsonStore {
 
   final Directory? _directoryOverride;
 
+  /// Serializes writes per filename: without this, two overlapping writes
+  /// to the same file (e.g. two keystrokes' worth of state changes firing
+  /// before the first write finishes) can race on the same `.tmp` path and
+  /// make one rename fail with "file not found" -- caught by a real test
+  /// here, not a hypothetical.
+  final Map<String, Future<void>> _writeQueues = {};
+
   Future<Directory> _directory() async {
     final dir = _directoryOverride ??
         Directory(
@@ -35,11 +42,39 @@ class JsonStore {
     return File('${dir.path}${Platform.pathSeparator}$filename');
   }
 
-  Future<void> _writeAtomic(String filename, Object jsonValue) async {
+  Future<void> _writeAtomic(String filename, Object jsonValue) {
+    final previous = _writeQueues[filename] ?? Future<void>.value();
+    final next = previous.then((_) => _writeAtomicUnqueued(filename, jsonValue));
+    // Swallow the error here so it doesn't become an unhandled rejection
+    // sitting in the queue chain -- the real caller still awaits `next`
+    // directly below and sees the exception there.
+    _writeQueues[filename] = next.catchError((_) {});
+    return next;
+  }
+
+  Future<void> _writeAtomicUnqueued(String filename, Object jsonValue) async {
     final target = await _file(filename);
-    final tmp = File('${target.path}.tmp');
+    // Unique per write, not a fixed `<file>.tmp` -- avoids two writes ever
+    // colliding on the same temp path even if queueing above had a bug.
+    final tmp = File('${target.path}.tmp-${DateTime.now().microsecondsSinceEpoch}');
     await tmp.writeAsString(jsonEncode(jsonValue), flush: true);
-    await tmp.rename(target.path);
+
+    // On Windows, renaming over an existing file can transiently fail with
+    // a sharing violation (errno 32) if something else -- most often
+    // antivirus/Windows Search briefly scanning the just-written file --
+    // still has a handle open. That handle is normally released within
+    // milliseconds, so a short bounded retry is the standard mitigation
+    // rather than a real correctness problem.
+    const maxAttempts = 5;
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        await tmp.rename(target.path);
+        return;
+      } on FileSystemException {
+        if (attempt == maxAttempts) rethrow;
+        await Future<void>.delayed(Duration(milliseconds: 20 * attempt));
+      }
+    }
   }
 
   Future<T> _readOrDefault<T>(String filename, T Function(dynamic decoded) parse, T fallback) async {

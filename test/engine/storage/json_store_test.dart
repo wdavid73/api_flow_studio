@@ -134,10 +134,29 @@ void main() {
   test('writes are atomic: no .tmp file survives a successful write', () async {
     await store.writeEnvironments(const [Environment(id: 'env-1', name: 'Development')]);
 
-    final tmp = File('${tempDir.path}${Platform.pathSeparator}environments.json.tmp');
-    expect(await tmp.exists(), isFalse);
+    final leftoverTmp = await tempDir
+        .list()
+        .where((e) => e.path.contains('environments.json.tmp'))
+        .toList();
+    expect(leftoverTmp, isEmpty);
 
     final target = File('${tempDir.path}${Platform.pathSeparator}environments.json');
     expect(jsonDecode(await target.readAsString()), isA<List>());
+  });
+
+  test('overlapping writes to the same file are serialized, not racing on the same tmp path',
+      () async {
+    final writes = [
+      for (var i = 0; i < 10; i++)
+        store.writeEnvironments([Environment(id: 'env-$i', name: 'Env $i')]),
+    ];
+
+    await Future.wait(writes);
+
+    // Whichever write finished last "wins" -- the point isn't which one,
+    // it's that every write completed without throwing and the file is
+    // left in a valid, non-corrupted state.
+    final result = await store.readEnvironments();
+    expect(result, hasLength(1));
   });
 }

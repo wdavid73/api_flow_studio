@@ -809,6 +809,35 @@ Phase 7 — Polish
 
 ---
 
+## Testing Note: widget tests + real JsonStore I/O (found during Task 3.2)
+
+Any `testWidgets()` test that pumps a widget backed by a provider doing
+real `dart:io` work (any `AsyncNotifier` reading/writing through
+`JsonStore` -- environments, and from Phase 3 onward collections, flows,
+history) **hangs forever** unless the whole body runs inside
+`tester.runAsync()`. `testWidgets()` runs in a synchronous/fake-time zone
+by default; real file I/O's `Future` never completes there. Plain
+`test()` (used by `json_store_test.dart`, `environments_provider_test.dart`)
+doesn't need this -- it runs in a normal zone. `pumpAndSettle()` also
+doesn't reliably detect the loading -> data transition even inside
+`runAsync` -- use a short real delay (`Future.delayed`) plus one or two
+plain `pump()`s instead. Every widget test file for Collections/Flows/
+History providers (Tasks 3.5, 5.3-5.5, 4.3) needs this same pattern.
+
+Two more real bugs `environment_manager_screen_test.dart` caught while
+building the pattern above, both fixed in `JsonStore`/`EnvironmentsNotifier`
+and worth remembering for the same classes going forward:
+- `File.rename()` overwriting an existing file can transiently fail on
+  Windows with a sharing violation (antivirus/Search briefly holding a
+  handle) -- `JsonStore._writeAtomicUnqueued` now retries with backoff.
+- Two overlapping async mutations (e.g. two fast field edits before a
+  rebuild) can both read the same pre-mutation state and race to
+  overwrite each other -- both `JsonStore` (per-filename write queue) and
+  `EnvironmentsNotifier` (per-notifier mutation queue) now serialize
+  their operations. Any future *Notifier following this CRUD-over-JsonStore
+  shape should use the same queued-mutation pattern, not `await future`
+  followed by an unguarded `state = ...`.
+
 ## Risks and Mitigations
 
 | # | Risk | Impact | Mitigation |
