@@ -3,13 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'request_draft_provider.dart';
 import 'send_provider.dart';
+import 'tabs/auth_tab.dart';
+import 'tabs/body_tab.dart';
+import 'tabs/headers_tab.dart';
+import 'tabs/params_tab.dart';
 
 const _methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
-/// First vertical slice of the request builder: a method dropdown, a URL
-/// field, a Send button wired to the real [RequestExecutor], and a plain
-/// status/body view of the result. Params/Headers/Body/Auth tabs and
-/// environment-variable interpolation come in later tasks (2.4, 3.3).
+/// The request builder: a method dropdown, a URL field, a Send button
+/// wired to the real [RequestExecutor], Params/Headers/Body/Auth tabs
+/// (Tests/Settings are out of MVP scope -- stub placeholders), and a plain
+/// status/body view of the result. Environment-variable interpolation
+/// comes in Task 3.3.
 class RequestBar extends ConsumerWidget {
   const RequestBar({super.key});
 
@@ -58,6 +63,41 @@ class RequestBar extends ConsumerWidget {
                     : const Text('Send'),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: DefaultTabController(
+              length: 6,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const TabBar(
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
+                    tabs: [
+                      Tab(text: 'Params'),
+                      Tab(text: 'Headers'),
+                      Tab(text: 'Body'),
+                      Tab(text: 'Auth'),
+                      Tab(text: 'Tests'),
+                      Tab(text: 'Settings'),
+                    ],
+                  ),
+                  const Expanded(
+                    child: TabBarView(
+                      children: [
+                        ParamsTab(),
+                        HeadersTab(),
+                        BodyTab(),
+                        AuthTab(),
+                        Center(child: Text('Tests are out of MVP scope')),
+                        Center(child: Text('Settings are out of MVP scope')),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           Expanded(child: _ResponseArea(sendState: sendState)),

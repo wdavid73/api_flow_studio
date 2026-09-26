@@ -82,4 +82,62 @@ void main() {
     expect(find.textContaining('Connection refused'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('a header added on the Headers tab is part of what gets sent', (tester) async {
+    when(() => executor.execute(any(), variables: any(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 200));
+
+    await pumpRequestBar(tester);
+    await tester.tap(find.text('Headers'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add row'));
+    await tester.pump();
+    await tester.enterText(find.byKey(const Key('kv-key-field')), 'X-Test');
+    await tester.enterText(find.byKey(const Key('kv-value-field')), '123');
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    final endpoint = verify(
+      () => executor.execute(captureAny(), variables: any(named: 'variables')),
+    ).captured.single as Endpoint;
+    expect(endpoint.headers, [const KeyValueEntry(key: 'X-Test', value: '123')]);
+  });
+
+  testWidgets('switching Body to JSON and typing sends that raw body', (tester) async {
+    when(() => executor.execute(any(), variables: any(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 201));
+
+    await pumpRequestBar(tester);
+    await tester.tap(find.text('Body'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('JSON'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('json-body-field')), '{"a":1}');
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    final endpoint = verify(
+      () => executor.execute(captureAny(), variables: any(named: 'variables')),
+    ).captured.single as Endpoint;
+    expect(endpoint.body, const RequestBody.json('{"a":1}'));
+  });
+
+  testWidgets('switching Auth to Bearer and typing a token sends that AuthConfig', (tester) async {
+    when(() => executor.execute(any(), variables: any(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 200));
+
+    await pumpRequestBar(tester);
+    await tester.tap(find.text('Auth'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bearer'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('auth-token-field')), 'abc123');
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    final endpoint = verify(
+      () => executor.execute(captureAny(), variables: any(named: 'variables')),
+    ).captured.single as Endpoint;
+    expect(endpoint.authConfig, const AuthConfig.bearer(token: 'abc123'));
+  });
 }
