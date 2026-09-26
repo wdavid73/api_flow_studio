@@ -38,9 +38,9 @@ Dart**, sin mantener dos runtimes (frontend JS + backend).
 - **`freezed`** + **`json_serializable`** — modelos inmutables con
   `copyWith`/`toJson`/`fromJson` para Environment, Group, Endpoint, Flow,
   FlowStep, HistoryEntry.
-- **Persistencia:** JSON plano en disco vía `dart:io` + `path_provider`
-  (carpeta de datos de la app). Versionable a mano, inspeccionable, sin
-  motor de base de datos.
+- **Persistencia:** JSON plano en disco vía `dart:io` puro, en una carpeta
+  junto al ejecutable (app portable, sin instalador). Versionable a mano,
+  inspeccionable, sin motor de base de datos.
 - **`uuid`** — ids de entidades.
 - **`mocktail`** + `flutter_test` — tests del motor (engine) aislado de la UI.
 - Nada de Node, Electron, ni base de datos.

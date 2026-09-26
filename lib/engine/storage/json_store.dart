@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
-
 import '../models/models.dart';
 
 /// Reads and writes the app's collections/environments/flows as plain JSON
-/// files on disk, under the OS standard app-data folder by default (inject
-/// [directory] to point at a different location, e.g. a temp dir in tests).
+/// files on disk, under a folder next to the running executable by default
+/// (inject [directory] to point at a different location, e.g. a temp dir in
+/// tests) -- this keeps the app portable: copy the build output folder
+/// anywhere (a USB drive, a zip to share) and its data travels with it,
+/// rather than being tied to the installing machine's per-user profile.
 ///
 /// Writes are atomic (write to `<file>.tmp`, then rename over the target)
 /// so a crash mid-write can never leave a half-written file in place.
@@ -39,7 +40,8 @@ class JsonStore {
   Future<Directory> _directory() async {
     final dir = _directoryOverride ??
         Directory(
-          '${(await getApplicationSupportDirectory()).path}${Platform.pathSeparator}api_flow_studio',
+          '${File(Platform.resolvedExecutable).parent.path}'
+          '${Platform.pathSeparator}api_flow_studio_data',
         );
     if (!await dir.exists()) {
       await dir.create(recursive: true);

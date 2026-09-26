@@ -29,9 +29,10 @@ app — todo sin abrir Postman.
 - **`freezed`** `^2.5.7` + **`json_serializable`** `^6.8.0` — modelos
   inmutables (Environment, Group, Endpoint, Flow, FlowStep, HistoryEntry)
   con `copyWith`/`toJson`/`fromJson`.
-- **Persistencia:** JSON plano en disco vía `dart:io` + `path_provider`,
-  en la carpeta de datos estándar del SO (`getApplicationSupportDirectory()`
-  → en Windows, `%APPDATA%/api_flow_studio/`). No es versionable con git
+- **Persistencia:** JSON plano en disco vía `dart:io` puro, en una carpeta
+  `api_flow_studio_data/` junto al ejecutable (no en la carpeta de datos
+  del SO) — así la app es portable: copiar la carpeta del build (a un USB,
+  para compartir) se lleva los datos con ella. No es versionable con git
   automáticamente; queda como limitación conocida (ver Open Questions).
 - **`uuid`** `^4.5.1` — ids de entidades.
 - **`mocktail`** `^1.0.4` + `flutter_test` — tests del motor (`engine/`),
@@ -80,7 +81,7 @@ lib/
       flow_runner.dart          # ejecuta pasos en orden, resuelve variables entre pasos
       value_extractor.dart      # dot-notation: "response.body.data.otp" -> valor
     storage/
-      json_store.dart           # lee/escribe colecciones/entornos/flujos en disco (path_provider)
+      json_store.dart           # lee/escribe colecciones/entornos/flujos en disco (portable, junto al .exe)
     curl/
       curl_parser.dart          # parsea un comando curl pegado a un Endpoint
   ui/                            # feature-first, consume engine/ vía Riverpod providers
@@ -184,7 +185,7 @@ String interpolate(String template, Map<String, String> variables) {
       resuelve `{{variable}}` con el valor del entorno activo.
 - [ ] Se puede crear una colección con carpeta anidada + endpoint, guardar
       el request, cerrar y reabrir la app, y que siga ahí (persistencia en
-      `%APPDATA%/api_flow_studio/`).
+      `api_flow_studio_data/` junto al ejecutable).
 - [ ] Enviar un request muestra status, tiempo, tamaño y el body con
       resaltado de sintaxis JSON.
 - [ ] El historial de un endpoint muestra sus últimas N respuestas.
@@ -202,11 +203,13 @@ String interpolate(String template, Map<String, String> variables) {
 
 ## Open Questions
 
-- **Storage no versionable con git:** al vivir en `%APPDATA%`, las
-  colecciones no quedan en el repo por defecto. Si en algún momento se
-  quiere versionar (compartir entre máquinas, backup en git), se resuelve
-  con import/export manual de JSON — no está en el alcance de v1, queda
-  anotado para revisar si se vuelve necesario.
+- **Storage no versionable con git:** al vivir en `api_flow_studio_data/`
+  junto al ejecutable (fuera del repo fuente), las colecciones no quedan
+  versionadas por defecto -- aunque sí viajan si se comparte la carpeta del
+  build completa. Si en algún momento se quiere versionar el JSON en sí
+  (compartir entre máquinas sin copiar el build, backup en git), se resuelve
+  con import/export manual — no está en el alcance de v1, queda anotado
+  para revisar si se vuelve necesario.
 - **Logo:** existe un asset exportado en `design/api_flow_studio_logo/`
   sin definir todavía dónde se usa (icono de la ventana/taskbar vs. solo
   dentro de la UI) — resolver al implementar `windows/runner` icon.
