@@ -10,13 +10,13 @@ land, don't duplicate the detail here.
 - [x] Task 1.1: Core freezed models (`lib/engine/models/`)
 - [x] Task 1.2: Variable interpolator (`lib/engine/variables/interpolator.dart`)
 - [x] Task 1.3: JSON on-disk store (`lib/engine/storage/json_store.dart`)
-- [ ] Task 1.4: Request executor (`lib/engine/http/request_executor.dart`)
+- [x] Task 1.4: Request executor (`lib/engine/http/request_executor.dart`)
 
 ### Checkpoint: After Phase 1
-- [ ] `fvm dart run build_runner build --delete-conflicting-outputs` clean
-- [ ] `fvm flutter analyze` clean
-- [ ] `fvm flutter test test/engine` all green
-- [ ] `grep -r "package:flutter" lib/engine` empty
+- [x] `fvm dart run build_runner build --delete-conflicting-outputs` clean
+- [x] `fvm flutter analyze` clean
+- [x] `fvm flutter test test/engine` all green (53/53)
+- [x] `grep -r "package:flutter" lib/engine` empty
 - [x] Architecture Decisions #1 (palette) and #2 (fonts) confirmed with human — resolved 2026-09-26
 
 ## Phase 2 — UI Shell, Theme, First Vertical Slice
