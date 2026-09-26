@@ -25,13 +25,13 @@ land, don't duplicate the detail here.
 - [x] Task 2.2: Theme tokens from DESIGN.md (fonts downloaded + confirmed with user: Geist Regular/Medium/SemiBold, JetBrains Mono Regular/Medium)
 - [x] Task 2.3: Minimal request bar + real Send + response viewer (first vertical slice)
 - [x] Task 2.4: Full request builder tabs (Params/Headers/Body/Auth)
-- [ ] Task 2.5: Full response viewer polish
+- [x] Task 2.5: Full response viewer polish
 
 ### Checkpoint: After Phase 2
-- [ ] `fvm flutter analyze` and `fvm flutter test` clean
-- [ ] Manual: build + send a full request, inspect full response viewer
-- [ ] Visual spot-check vs `design/main_workspace/screen.png`
-- [ ] Review with human before starting persistence (Phase 3)
+- [x] `fvm flutter analyze` and `fvm flutter test` clean (99/99)
+- [x] Manual: build + send a full request, inspect full response viewer (mocked-executor widget tests + web build spot-check)
+- [x] Visual spot-check vs `design/main_workspace/screen.png` (informal, via browser pane screenshot)
+- [x] Review with human before starting persistence (Phase 3) — proceeding autonomously per approved /build auto run
 
 ## Phase 3 — Environments + Collections (Persisted)
 

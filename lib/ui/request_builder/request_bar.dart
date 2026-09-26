@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../response_viewer/response_panel.dart';
 import 'request_draft_provider.dart';
 import 'send_provider.dart';
 import 'tabs/auth_tab.dart';
@@ -100,40 +101,7 @@ class RequestBar extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Expanded(child: _ResponseArea(sendState: sendState)),
-        ],
-      ),
-    );
-  }
-}
-
-class _ResponseArea extends StatelessWidget {
-  const _ResponseArea({required this.sendState});
-
-  final SendState sendState;
-
-  @override
-  Widget build(BuildContext context) {
-    final response = sendState.response;
-    if (response == null) {
-      return const Center(child: Text('Send a request to see the response'));
-    }
-    if (response.error != null) {
-      return Center(
-        key: const Key('response-error'),
-        child: Text('Error: ${response.error}'),
-      );
-    }
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${response.status} • ${response.elapsedMs}ms • ${response.sizeBytes}B',
-            key: const Key('response-meta'),
-          ),
-          const SizedBox(height: 8),
-          Text('${response.body}', key: const Key('response-body')),
+          Expanded(child: ResponsePanel(sendState: sendState)),
         ],
       ),
     );

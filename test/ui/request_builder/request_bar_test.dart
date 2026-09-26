@@ -50,7 +50,8 @@ void main() {
 
     expect(find.textContaining('200'), findsOneWidget);
     expect(find.textContaining('42'), findsOneWidget);
-    expect(find.textContaining('{"ok":true}'), findsOneWidget);
+    expect(find.textContaining('"ok"'), findsOneWidget);
+    expect(find.textContaining('true'), findsOneWidget);
   });
 
   testWidgets('sends the exact URL that was typed, with an empty variable map', (tester) async {
