@@ -75,11 +75,11 @@ land, don't duplicate the detail here.
 ## Phase 6 — curl Paste-Import
 
 - [x] Task 6.1: `curl_parser`
-- [ ] Task 6.2: Paste-curl UI hook
+- [x] Task 6.2: Paste-curl UI hook
 
 ### Checkpoint: After Phase 6
-- [ ] `fvm flutter analyze`/`fvm flutter test` clean
-- [ ] Manual: SPEC criterion #7 walkthrough
+- [x] `fvm flutter analyze`/`fvm flutter test` clean (206/206)
+- [x] Manual: SPEC criterion #7 walkthrough — same Windows-toolchain substitution as prior checkpoints: `curl_parser_test.dart` parses a real Chrome devtools "Copy as cURL (bash)" multi-line sample, and `paste_curl_dialog_test.dart` drives the actual dialog end-to-end (paste -> request draft prefilled with method/URL/headers/body, inline error + retry on a bad paste, cancel leaves the draft untouched).
 
 ## Phase 7 — Polish & Sign-off
 

@@ -7,6 +7,7 @@ import '../request_builder/request_draft_provider.dart';
 import '../theme/app_spacing.dart';
 import '../theme/widgets/method_badge.dart';
 import 'collections_provider.dart';
+import 'paste_curl_dialog.dart';
 
 /// Local UI-only state (not persisted, per SPEC 3.5's own acceptance
 /// criteria): which folders are expanded, and the current search text.
@@ -72,14 +73,27 @@ class _Loaded extends ConsumerWidget {
                 ),
         ),
         Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          child: TextButton.icon(
-            key: const Key('new-root-folder-button'),
-            onPressed: () => _promptNewFolder(context, ref, parentGroupId: null),
-            icon: const Icon(Icons.create_new_folder_outlined, size: 16),
-            label: const Text('New folder'),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextButton.icon(
+                  key: const Key('new-root-folder-button'),
+                  onPressed: () => _promptNewFolder(context, ref, parentGroupId: null),
+                  icon: const Icon(Icons.create_new_folder_outlined, size: 16),
+                  label: const Text('New folder'),
+                ),
+              ),
+              IconButton(
+                key: const Key('paste-curl-button'),
+                tooltip: 'Paste curl',
+                icon: const Icon(Icons.content_paste, size: 16),
+                onPressed: () => showPasteCurlDialog(context),
+              ),
+            ],
           ),
         ),
+        const SizedBox(height: AppSpacing.xs),
       ],
     );
   }
