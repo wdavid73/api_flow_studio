@@ -809,6 +809,208 @@ Phase 7 — Polish
 
 ---
 
+## Phase 8 — Visual Parity Pass vs. Stitch Designs
+
+**Context:** the MVP (Phases 1-7) is done and running natively on Windows.
+Comparing the real app against `design/*/screen.png`, the user flagged that
+it "doesn't look like the designs." That's real: every screen was
+deliberately built as a functional *subset* of the much more elaborate
+Stitch mockups (colors/typography/spacing tokens match per Task 7.1, but a
+lot of visual richness was left out as an explicitly-logged known gap, not
+a defect). This phase closes that gap with a pure visual/UI pass: it reuses
+data the app already has and does not add new backend capability. Where a
+mockup element implies a feature we don't have (multi-workspace switching,
+a Console feature, global search, user accounts, cloud sync, run
+history/run IDs, a scheduler, fabricated per-step latency), it's explicitly
+skipped per-task below rather than faked — if the user wants any of those
+as a real feature later, that's a separate scope decision.
+
+**Key finding:** the header + sidebar chrome is pixel-identical across all
+4 mockups. Task 8.1 fixes it once, which closes a large fraction of the gap
+on every screen simultaneously, before any screen-specific work starts.
+
+All existing widget-test `Key`/`ValueKey` identifiers must be preserved
+throughout (only layout/styling changes around them) so the current
+210-test suite stays green without rewrites; new elements get new keys and,
+where a real behavior (not just pixels) can be verified cheaply, a new
+test.
+
+### Task 8.1: Shared app shell (header + sidebar chrome)
+**Description:** Build `AppLogoMark` (a new hand-painted `CustomPainter`
+widget reproducing `design/api_flow_studio_logo/code.html`'s SVG exactly —
+no `flutter_svg` dependency, matches the project's existing hand-rolled
+JSON-syntax-highlighter pattern for small vector graphics). Restyle
+`_NavBar` in `lib/app.dart`: taller header (56px), `surfaceContainerLow`
+background, a thin `tertiary`-colored accent strip along the very top of
+the window, the new logo + wordmark, nav items get a rounded
+`surfaceContainerHigh` background pill when active (today: bold text only,
+no background), and the environment pill restyled (small pulsing dot +
+uppercase name + chevron) reusing the existing `EnvironmentSwitcher` logic.
+Restyle `SidebarTree`: width 280→256 (update the `SizedBox(width: 280)`
+call site in `app.dart`'s `_DestinationBody` too), an "EXPLORER" label row
+above the search field with the existing "New folder"/"Paste curl" icon
+actions relocated into it, top-level folder icons colored by cycling a
+small palette (new `AppColors.folderIconColor(index)` helper, same pattern
+as the existing `environmentDotColor`), and a slim footer showing the real
+app version ("API Flow Studio v1.0.0" from `pubspec.yaml`) in place of the
+mock's fake "Proxy: Localhost" line.
+
+**Out of scope (decorative-only in the mock, or implies a feature we don't
+have):** macOS-style traffic-light window dots (this is a Windows app with
+its own native title bar — fake traffic lights inside the content area
+would look wrong, not authentic), "Personal Workspace" dropdown (implies
+multi-workspace switching), Settings/Search header icons and the user
+avatar (no settings screen, global search, or user accounts exist), the
+"Console" nav item (no console feature).
+
+**Acceptance criteria:**
+- [ ] The header and sidebar visually match `design/*/code.html`'s shared
+      chrome (logo, header height/colors, active-tab pill, sidebar width,
+      EXPLORER header, colored folder icons, version footer) on all 4
+      screens, modulo the explicitly out-of-scope items above.
+- [ ] Every existing sidebar/header widget test still passes unmodified
+      (same `Key`s, just restyled/relocated).
+
+**Verification:**
+- [ ] `fvm flutter analyze` clean; `fvm flutter test` green (full 210-test
+      suite, unmodified).
+- [ ] Manual: the Task-7.1-style throwaway screenshot-capture harness
+      (`RepaintBoundary.toImage()` + real fonts via `FontLoader`, deleted
+      after use) on all 4 screens, eyeballed against `design/*/screen.png`.
+
+**Dependencies:** None (first task in this phase).
+
+**Files likely touched:**
+- `lib/ui/theme/widgets/app_logo.dart` (new)
+- `lib/app.dart` (`_NavBar`, `AppShell`, `_DestinationBody`'s sidebar width)
+- `lib/ui/collections/sidebar_tree.dart`
+- `lib/ui/theme/app_colors.dart` (new `folderIconColor` helper)
+
+**Estimated scope:** M
+
+---
+
+### Task 8.2: Environment Manager restyle
+**Description:** Per `design/environment_manager/code.html`: convert the
+environment list from plain `ListTile`s to card-style rows with a colored
+left-accent bar (`environmentDotColor`) and an "ACTIVE" badge on the
+selected one. Convert the variable editor into a real table with a header
+row (Name / Value / Secret / Actions — 4 columns; **no** "Initial vs
+Current Value" split, since `EnvironmentVariable` only ever had one
+`value` field and adding a second would be a data-model change, not a
+restyle). Add the static "Pro tip: reference variables with
+`{{variable_name}}`" callout.
+
+**Out of scope:** memory-footprint bar chart (fabricated metric), Import/
+Export .env (real feature), row checkboxes/bulk actions (real feature), a
+"Global Variables" pseudo-environment (product decision, not in SPEC),
+"Sync Cloud" button, Production "read-only lock" badge (would visually
+promise protection the app doesn't enforce).
+
+**Acceptance criteria:**
+- [ ] Environment list and variable table visually match the mock's
+      layout/structure (card rows, table header, pro-tip callout), modulo
+      the explicitly out-of-scope items above.
+- [ ] Every existing `environment_manager_screen_test.dart` test still
+      passes unmodified.
+
+**Verification:**
+- [ ] `fvm flutter analyze` clean; `fvm flutter test` green.
+- [ ] Manual: screenshot-capture harness vs `design/environment_manager/screen.png`.
+
+**Dependencies:** 8.1 (shares the restyled shell).
+
+**Files likely touched:**
+- `lib/ui/environments/environment_manager_screen.dart`
+
+**Estimated scope:** M
+
+---
+
+### Task 8.3: Flow Builder restyle
+**Description:** Per `design/flow_builder/code.html`: center the step
+column in a narrower max-width (~900px) instead of full width, with a
+small chevron-down connector between consecutive cards. Add a "TERMINAL"
+badge on the last step (computed from `isLast`, already available). Add a
+read-only "Payload Template" preview showing the referenced endpoint's
+`body` (via the existing `JsonView`/`prettyResponseBody` pattern) when
+it's JSON — this is exactly the "(optional read-only) payload-template
+preview" named in the original Task 5.4b description and never built; low
+effort since the data and rendering widget both already exist.
+
+**Out of scope:** per-step kebab menu (mock defines no real actions behind
+it), fabricated per-step Latency/Delay text (no data source before a run
+exists), "Schedule Run" button (implies a scheduler), the bottom "Empty
+Flow State Reference Card" (redundant with our real empty-state message).
+
+**Acceptance criteria:**
+- [ ] Step cards visually match the mock's centered pipeline layout,
+      connectors, TERMINAL badge, and payload preview, modulo the
+      explicitly out-of-scope items above.
+- [ ] Every existing flow-builder widget test (`flow_builder_screen_test.dart`,
+      `step_card_editor_test.dart`) still passes unmodified.
+
+**Verification:**
+- [ ] `fvm flutter analyze` clean; `fvm flutter test` green.
+- [ ] Manual: screenshot-capture harness vs `design/flow_builder/screen.png`.
+
+**Dependencies:** 8.1.
+
+**Files likely touched:**
+- `lib/ui/flows/step_card.dart`
+- `lib/ui/flows/flows_screen.dart`
+
+**Estimated scope:** M
+
+---
+
+### Task 8.4: Flow Run View restyle
+**Description:** Per `design/flow_run_view/code.html`: restructure from
+single-column-with-inline-expand into the mock's 2-panel layout — a left
+timeline list (status icon + method + path + code, no inline expansion)
+and a right detail panel for the *selected* step, reorganized into tabs
+(Error Details shown only when failed / Request Sent / Response Body /
+Headers) with `DefaultTabController`+`TabBar` — the same tab pattern
+already used in `RequestBar`/`ResponsePanel`. All the underlying data
+(request URL, response, `ErrorDetailPanel`) already exists; this only
+reorganizes how it's displayed. Restyle the summary strip and "Re-run From
+Step N" as small pill badges matching the mock.
+
+**Out of scope:** latency sparkline SVG, run IDs ("RUN #1048-DX",
+"run_exec_..."), "triggered by \<user\>" (no user-account concept in a
+single-user local app), "Export Run Log"/"Debug in Console" buttons, the
+"Failure Policy Triggered" + "Insert Step Here" suggested-fix card
+(speculative, out of scope), the round-trip latency Gantt breakdown
+(timing detail not measured at that granularity).
+
+**Acceptance criteria:**
+- [ ] The run view visually matches the mock's 2-panel + tabbed-inspector
+      layout, modulo the explicitly out-of-scope items above.
+- [ ] Every existing `flow_run_view_test.dart`/`flow_run_view_detail_test.dart`
+      test still passes, adapted only where the interaction model itself
+      changed (inline expand → select-to-view-detail) — re-run-from-step
+      and error classification must still be reachable and tested.
+
+**Verification:**
+- [ ] `fvm flutter analyze` clean; `fvm flutter test` green.
+- [ ] Manual: screenshot-capture harness vs `design/flow_run_view/screen.png`.
+
+**Dependencies:** 8.1.
+
+**Files likely touched:**
+- `lib/ui/flows/flow_run_view_screen.dart`
+- `lib/ui/flows/run_step_card.dart`
+
+**Estimated scope:** L (interaction-model change, not just restyle)
+
+### Checkpoint — After Phase 8
+- [ ] `fvm flutter analyze`/`fvm flutter test` clean (full suite).
+- [ ] `fvm flutter build windows` succeeds; user does a final visual pass
+      on the real running app against all 4 `design/*/screen.png`.
+- [ ] Human sign-off.
+
+---
+
 ## Testing Note: widget tests + real JsonStore I/O (found during Task 3.2)
 
 Any `testWidgets()` test that pumps a widget backed by a provider doing

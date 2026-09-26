@@ -91,3 +91,26 @@ land, don't duplicate the detail here.
 - [x] All SPEC.md Success Criteria checked (8/9 verified via the test suite; #1's native Windows launch needs a human on a machine with the Visual Studio C++ toolchain)
 - [x] `fvm flutter analyze` clean, `fvm flutter test` all green (210/210)
 - [ ] Human sign-off
+
+## Phase 8 — Visual Parity Pass vs. Stitch Designs
+
+User compared the real running app against `design/*/screen.png` and flagged
+it "doesn't look like the designs" — real gap, not a bug (see full context
+in tasks/plan.md's Phase 8 section, added 2026-09-26). Pure visual/UI pass:
+reuses existing data, adds no new backend features. Not started yet —
+queued to run the next session.
+
+- [ ] Task 8.1: Shared app shell (header + sidebar chrome) — highest
+      leverage, do first; closes most of the gap on all 4 screens at once
+- [ ] Task 8.2: Environment Manager restyle (card list + variable table +
+      pro-tip callout)
+- [ ] Task 8.3: Flow Builder restyle (centered pipeline + TERMINAL badge +
+      payload-template preview)
+- [ ] Task 8.4: Flow Run View restyle (2-panel layout + tabbed inspector)
+
+### Checkpoint: After Phase 8
+- [ ] `fvm flutter analyze`/`fvm flutter test` clean (full suite, unmodified
+      Keys)
+- [ ] `fvm flutter build windows` succeeds; user does a final visual pass
+      on the real app against all 4 `design/*/screen.png`
+- [ ] Human sign-off
