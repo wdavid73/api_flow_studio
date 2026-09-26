@@ -838,6 +838,22 @@ and worth remembering for the same classes going forward:
   shape should use the same queued-mutation pattern, not `await future`
   followed by an unguarded `state = ...`.
 
+One more, found during Task 4.3: jumping straight to a non-adjacent
+`TabBar`/`TabBarView` tab in a widget test (`tester.tap` on a tab far from
+the current one, or setting `TabController.index` directly) is animation-
+driven and, combined with the `runAsync` + real-I/O provider underneath it,
+didn't reliably settle no matter how the pump/settle calls were tuned --
+`pumpAndSettle()` timed out waiting on the *provider's* real I/O, and a
+fixed number of bare `pump()` calls never advanced the *animation* clock
+at all (that needs `pump(duration)`, not `pump()`). Rather than hand-tune
+this further, `history_panel_test.dart` tests `HistoryTab` directly
+against a pre-populated store instead of driving `RequestBar`'s tab bar
+end-to-end -- Send -> history persistence is already covered by
+`history_wiring_test.dart`. If Phase 5's flow builder/run screens need to
+test switching to a specific tab that isn't adjacent to the default one,
+budget time for this same friction, or prefer testing the target widget
+standalone like history_panel_test.dart does.
+
 ## Risks and Mitigations
 
 | # | Risk | Impact | Mitigation |

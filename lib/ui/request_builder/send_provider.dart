@@ -5,6 +5,7 @@ import '../../engine/http/executed_response.dart';
 import '../../engine/http/request_executor.dart';
 import '../../engine/models/models.dart';
 import '../environments/environments_provider.dart';
+import '../history/history_provider.dart';
 import '../response_viewer/response_body_tab.dart' show rawResponseBody;
 import 'request_draft_provider.dart';
 
@@ -52,6 +53,7 @@ class SendNotifier extends Notifier<SendState> {
               error: response.error,
             ),
           );
+      ref.invalidate(historyProvider(endpoint.id));
     }
   }
 }

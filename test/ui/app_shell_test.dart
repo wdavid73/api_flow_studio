@@ -42,7 +42,10 @@ void main() {
       expect(find.text('Workspace'), findsOneWidget);
       expect(find.text('Environments'), findsOneWidget);
       expect(find.text('Flows'), findsOneWidget);
-      expect(find.text('History'), findsOneWidget);
+      // "History" also labels a tab inside the Workspace's request
+      // builder (Task 4.3) -- at least one match (the nav item) is enough
+      // here; the request-builder tab's own presence is covered elsewhere.
+      expect(find.text('History'), findsWidgets);
     });
   });
 

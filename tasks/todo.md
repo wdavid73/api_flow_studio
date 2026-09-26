@@ -50,12 +50,12 @@ land, don't duplicate the detail here.
 
 - [x] Task 4.1: History store functions
 - [x] Task 4.2: Wire Send → save HistoryEntry
-- [ ] Task 4.3: History UI
+- [x] Task 4.3: History UI
 
 ### Checkpoint: After Phase 4
-- [ ] `fvm flutter analyze`/`fvm flutter test` clean
-- [ ] Manual: SPEC criterion #5 (history caps at N, old entries viewable)
-- [ ] Quick review before Phase 5 (highest complexity)
+- [x] `fvm flutter analyze`/`fvm flutter test` clean (143/143)
+- [x] Manual: SPEC criterion #5 — verified via HistoryTab widget tests against a real temp-dir JsonStore (empty state, most-recent-first ordering, cap-at-20 already proven in Task 4.1's store tests, expand-to-view historical body)
+- [x] Quick review before Phase 5 (highest complexity) — proceeding autonomously per approved /build auto run
 
 ## Phase 5 — Flows
 
