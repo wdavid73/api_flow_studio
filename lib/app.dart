@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'ui/theme/app_theme.dart';
+
 enum AppDestination {
   workspace('Workspace'),
   environments('Environments'),
@@ -21,10 +23,11 @@ class ApiFlowStudioApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'API Flow Studio',
       debugShowCheckedModeBanner: false,
-      home: AppShell(),
+      theme: AppTheme.dark(),
+      home: const AppShell(),
     );
   }
 }
