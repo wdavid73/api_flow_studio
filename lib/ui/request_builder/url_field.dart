@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../engine/models/models.dart';
 import '../environments/environments_provider.dart';
 import 'request_draft_provider.dart';
 import 'variable_highlighting_controller.dart';
@@ -18,11 +19,14 @@ class UrlField extends ConsumerStatefulWidget {
 
 class _UrlFieldState extends ConsumerState<UrlField> {
   late final VariableHighlightingController _controller;
+  late String _loadedEndpointId;
 
   @override
   void initState() {
     super.initState();
-    _controller = VariableHighlightingController(text: ref.read(requestDraftProvider).url);
+    final draft = ref.read(requestDraftProvider);
+    _controller = VariableHighlightingController(text: draft.url);
+    _loadedEndpointId = draft.id;
   }
 
   @override
@@ -33,6 +37,18 @@ class _UrlFieldState extends ConsumerState<UrlField> {
 
   @override
   Widget build(BuildContext context) {
+    // The field's own onChanged is the source of truth while editing the
+    // *current* draft (identity unchanged) -- don't fight the user's
+    // typing/cursor. Only resync the controller's text when a genuinely
+    // different endpoint gets loaded (sidebar click, or reset), which the
+    // field itself has no other way to learn about.
+    ref.listen<Endpoint>(requestDraftProvider, (previous, next) {
+      if (next.id != _loadedEndpointId) {
+        _loadedEndpointId = next.id;
+        _controller.text = next.url;
+      }
+    });
+
     final activeVariables =
         ref.watch(environmentsProvider).value?.active?.resolvedVariables ?? const {};
     _controller.updateResolvedVariables(activeVariables);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../collections/collections_provider.dart';
 import '../response_viewer/response_panel.dart';
 import 'request_draft_provider.dart';
 import 'send_provider.dart';
@@ -45,6 +46,18 @@ class RequestBar extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               const Expanded(child: UrlField()),
+              const SizedBox(width: 12),
+              OutlinedButton(
+                key: const Key('save-request-button'),
+                // Only a draft that already came from a saved Endpoint (via
+                // the sidebar's "+ Add request", which creates-then-loads
+                // it) can be saved -- there's no group to save an
+                // unassociated blank draft into. See sidebar_tree.dart.
+                onPressed: draft.id == draftEndpointId
+                    ? null
+                    : () => ref.read(collectionsProvider.notifier).updateEndpoint(draft),
+                child: const Text('Save'),
+              ),
               const SizedBox(width: 12),
               FilledButton(
                 onPressed: sendState.loading

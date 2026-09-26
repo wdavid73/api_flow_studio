@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'ui/collections/sidebar_tree.dart';
 import 'ui/environments/active_environment_strip.dart';
 import 'ui/environments/environment_manager_screen.dart';
 import 'ui/environments/environment_switcher.dart';
@@ -120,7 +121,14 @@ class _DestinationBody extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (destination) {
       case AppDestination.workspace:
-        return const RequestBar();
+        return const Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: 280, child: SidebarTree()),
+            VerticalDivider(width: 1),
+            Expanded(child: RequestBar()),
+          ],
+        );
       case AppDestination.environments:
         return const EnvironmentManagerScreen();
       case AppDestination.flows:

@@ -29,6 +29,14 @@ class RequestDraftNotifier extends Notifier<Endpoint> {
   void setBody(RequestBody body) => state = state.copyWith(body: body);
 
   void setAuthConfig(AuthConfig authConfig) => state = state.copyWith(authConfig: authConfig);
+
+  /// Replaces the whole draft with a saved [Endpoint] -- clicking a
+  /// sidebar row loads it wholesale, discarding whatever was being edited
+  /// (no unsaved-changes warning in v1, per SPEC).
+  void loadEndpoint(Endpoint endpoint) => state = endpoint;
+
+  /// Resets to a blank, unsaved draft (still `draftEndpointId`).
+  void reset() => state = build();
 }
 
 final requestDraftProvider = NotifierProvider<RequestDraftNotifier, Endpoint>(
