@@ -49,7 +49,7 @@ land, don't duplicate the detail here.
 ## Phase 4 — History
 
 - [x] Task 4.1: History store functions
-- [ ] Task 4.2: Wire Send → save HistoryEntry
+- [x] Task 4.2: Wire Send → save HistoryEntry
 - [ ] Task 4.3: History UI
 
 ### Checkpoint: After Phase 4
