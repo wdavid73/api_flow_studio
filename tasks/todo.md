@@ -83,7 +83,7 @@ land, don't duplicate the detail here.
 
 ## Phase 7 — Polish & Sign-off
 
-- [ ] Task 7.1: Visual QA pass vs `screen.png` for all 4 screens
+- [x] Task 7.1: Visual QA pass vs `screen.png` for all 4 screens — the native Windows build is still blocked (missing Visual Studio toolchain) and the web build still can't run past its splash screen (`JsonStore` needs real `dart:io` file access, unavailable in a browser, confirmed again here). Used a throwaway widget-test harness instead: `RepaintBoundary.toImage()` on each of the 4 screens seeded with realistic data (registration-flow example) and real app fonts loaded via `FontLoader`, captured to PNG and eyeballed against `design/*/screen.png` side by side, then deleted (not part of the app). Result: colors, spacing, method/status badge styling, and the JSON syntax highlighting all match the DESIGN.md tokens (Architecture Decision #1 confirmed); layout structure for the request bar, response panel, environment list, and flow-step editor (extract mapping, assert fields, stop-on-failure toggle) all match their reference screens closely. Known, already-reasoned gaps vs. the richer mockups (not bugs): no workspace-switcher/Console nav/user-avatar header chrome, no per-step payload-template preview or latency/delay metadata in the flow builder, and a single-column run view instead of a 2-pane timeline+inspector layout -- all deliberately out of SPEC's MVP scope per Architecture Decisions made in tasks/plan.md during Phases 2 and 5, not oversights.
 - [ ] Task 7.2: Success-criteria walkthrough & edge-case hardening
 - [ ] Task 7.3 [optional, ask-first]: Windows app icon from logo asset
 
