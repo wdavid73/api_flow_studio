@@ -18,6 +18,15 @@ void main() {
   }
 
   Future<JsonStore> pumpScreen(WidgetTester tester) async {
+    // Step cards (with the extract/assert/stop-on-failure editors) are taller
+    // than the default 800x600 test surface can show 3 of at once; size the
+    // surface like an actual desktop window so the pipeline list doesn't
+    // need scrolling for these tests to find every step-card.
+    tester.view.physicalSize = const Size(1600, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final tempDir = await Directory.systemTemp.createTemp('flow_builder_test_');
     addTearDown(() async {
       if (await tempDir.exists()) await tempDir.delete(recursive: true);

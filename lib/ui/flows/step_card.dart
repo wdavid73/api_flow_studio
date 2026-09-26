@@ -19,6 +19,7 @@ class StepCard extends StatelessWidget {
     required this.onMoveUp,
     required this.onMoveDown,
     required this.onRemove,
+    required this.onUpdateStep,
   });
 
   final int index;
@@ -29,9 +30,12 @@ class StepCard extends StatelessWidget {
   final VoidCallback onMoveUp;
   final VoidCallback onMoveDown;
   final VoidCallback onRemove;
+  final ValueChanged<FlowStep> onUpdateStep;
 
   @override
   Widget build(BuildContext context) {
+    final extractEntries = step.extract.entries.toList();
+
     return Card(
       key: ValueKey('step-card-$index'),
       margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
@@ -81,6 +85,113 @@ class StepCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+            const Divider(height: AppSpacing.lg * 2),
+            Text('Extract Output Variables', style: Theme.of(context).textTheme.labelMedium),
+            for (var i = 0; i < extractEntries.length; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        key: ValueKey('extract-name-$index-$i'),
+                        initialValue: extractEntries[i].key,
+                        decoration: const InputDecoration(hintText: 'variable_name', isDense: true),
+                        onChanged: (name) {
+                          final next = <String, String>{};
+                          for (final e in extractEntries) {
+                            next[e.key == extractEntries[i].key ? name : e.key] = e.value;
+                          }
+                          onUpdateStep(step.copyWith(extract: next));
+                        },
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                      child: Text('←'),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        key: ValueKey('extract-path-$index-$i'),
+                        initialValue: extractEntries[i].value,
+                        decoration:
+                            const InputDecoration(hintText: 'response.body.x.y', isDense: true),
+                        onChanged: (path) {
+                          final next = <String, String>{};
+                          for (final e in extractEntries) {
+                            next[e.key] = e.key == extractEntries[i].key ? path : e.value;
+                          }
+                          onUpdateStep(step.copyWith(extract: next));
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      key: ValueKey('remove-extract-$index-$i'),
+                      icon: const Icon(Icons.close, size: 14),
+                      onPressed: () {
+                        final next = {...step.extract}..remove(extractEntries[i].key);
+                        onUpdateStep(step.copyWith(extract: next));
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            TextButton.icon(
+              key: ValueKey('add-extract-$index'),
+              onPressed: () {
+                var name = 'variable';
+                var suffix = 1;
+                while (step.extract.containsKey(name)) {
+                  name = 'variable_$suffix';
+                  suffix++;
+                }
+                onUpdateStep(step.copyWith(extract: {...step.extract, name: ''}));
+              },
+              icon: const Icon(Icons.add, size: 14),
+              label: const Text('Add extracted variable'),
+            ),
+            const Divider(height: AppSpacing.lg * 2),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    key: ValueKey('assert-field-$index'),
+                    initialValue: step.assertField ?? '',
+                    decoration: const InputDecoration(
+                      labelText: 'Assert field (optional)',
+                      hintText: 'response.status',
+                      isDense: true,
+                    ),
+                    onChanged: (value) => onUpdateStep(
+                      step.copyWith(assertField: value.isEmpty ? null : value),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: TextFormField(
+                    key: ValueKey('assert-expected-$index'),
+                    initialValue: step.assertExpected ?? '',
+                    decoration: const InputDecoration(
+                      labelText: 'Expected value',
+                      hintText: '200',
+                      isDense: true,
+                    ),
+                    onChanged: (value) => onUpdateStep(
+                      step.copyWith(assertExpected: value.isEmpty ? null : value),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SwitchListTile(
+              key: ValueKey('stop-on-failure-$index'),
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Stop on failure'),
+              value: step.stopOnFailure,
+              onChanged: (value) => onUpdateStep(step.copyWith(stopOnFailure: value)),
+            ),
           ],
         ),
       ),

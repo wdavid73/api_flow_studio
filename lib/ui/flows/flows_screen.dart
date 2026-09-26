@@ -173,6 +173,7 @@ class _FlowBuilder extends ConsumerWidget {
                         onMoveUp: () => notifier.reorderStep(flow.id, index, index - 1),
                         onMoveDown: () => notifier.reorderStep(flow.id, index, index + 1),
                         onRemove: () => notifier.removeStep(flow.id, index),
+                        onUpdateStep: (updated) => notifier.updateStep(flow.id, index, updated),
                       );
                     },
                   ),
