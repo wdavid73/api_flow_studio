@@ -74,7 +74,7 @@ land, don't duplicate the detail here.
 
 ## Phase 6 — curl Paste-Import
 
-- [ ] Task 6.1: `curl_parser`
+- [x] Task 6.1: `curl_parser`
 - [ ] Task 6.2: Paste-curl UI hook
 
 ### Checkpoint: After Phase 6
