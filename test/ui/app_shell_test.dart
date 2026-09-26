@@ -21,10 +21,10 @@ void main() {
     expect(find.text('History'), findsOneWidget);
   });
 
-  testWidgets('starts on the Workspace destination', (tester) async {
+  testWidgets('starts on the Workspace destination showing the request builder', (tester) async {
     await pumpDesktopApp(tester);
 
-    expect(find.text('Workspace placeholder'), findsOneWidget);
+    expect(find.byKey(const Key('request-url-field')), findsOneWidget);
   });
 
   testWidgets('tapping a nav destination switches the visible body', (tester) async {
@@ -34,6 +34,6 @@ void main() {
     await tester.pump();
 
     expect(find.text('Environments placeholder'), findsOneWidget);
-    expect(find.text('Workspace placeholder'), findsNothing);
+    expect(find.byKey(const Key('request-url-field')), findsNothing);
   });
 }

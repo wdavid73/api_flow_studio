@@ -1,0 +1,85 @@
+import 'package:api_flow_studio/engine/http/executed_response.dart';
+import 'package:api_flow_studio/engine/http/request_executor.dart';
+import 'package:api_flow_studio/engine/models/models.dart';
+import 'package:api_flow_studio/ui/request_builder/request_bar.dart';
+import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockRequestExecutor extends Mock implements RequestExecutor {}
+
+class FakeEndpoint extends Fake implements Endpoint {}
+
+void main() {
+  setUpAll(() {
+    registerFallbackValue(FakeEndpoint());
+  });
+
+  late MockRequestExecutor executor;
+
+  Future<void> pumpRequestBar(WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [requestExecutorProvider.overrideWithValue(executor)],
+        child: const MaterialApp(home: Scaffold(body: RequestBar())),
+      ),
+    );
+  }
+
+  setUp(() {
+    executor = MockRequestExecutor();
+  });
+
+  testWidgets('typing a URL and tapping Send shows the response status/time/size/body',
+      (tester) async {
+    when(() => executor.execute(any(), variables: any(named: 'variables'))).thenAnswer(
+      (_) async => const ExecutedResponse(
+        status: 200,
+        body: '{"ok":true}',
+        elapsedMs: 42,
+        sizeBytes: 11,
+      ),
+    );
+
+    await pumpRequestBar(tester);
+    await tester.enterText(find.byKey(const Key('request-url-field')), 'https://httpbin.org/get');
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('200'), findsOneWidget);
+    expect(find.textContaining('42'), findsOneWidget);
+    expect(find.textContaining('{"ok":true}'), findsOneWidget);
+  });
+
+  testWidgets('sends the exact URL that was typed, with an empty variable map', (tester) async {
+    when(() => executor.execute(any(), variables: any(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 200));
+
+    await pumpRequestBar(tester);
+    await tester.enterText(find.byKey(const Key('request-url-field')), 'https://httpbin.org/get');
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    final captured = verify(
+      () => executor.execute(captureAny(), variables: captureAny(named: 'variables')),
+    ).captured;
+    expect((captured[0] as Endpoint).url, 'https://httpbin.org/get');
+    expect(captured[1], <String, String>{});
+  });
+
+  testWidgets('a transport error shows an inline error message, not a crash', (tester) async {
+    when(() => executor.execute(any(), variables: any(named: 'variables'))).thenAnswer(
+      (_) async => const ExecutedResponse(error: 'Connection refused'),
+    );
+
+    await pumpRequestBar(tester);
+    await tester.enterText(find.byKey(const Key('request-url-field')), 'https://bad.invalid');
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Connection refused'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+}

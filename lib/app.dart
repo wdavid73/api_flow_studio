@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'ui/request_builder/request_bar.dart';
 import 'ui/theme/app_theme.dart';
 
 enum AppDestination {
@@ -111,6 +112,9 @@ class _DestinationBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (destination == AppDestination.workspace) {
+      return const RequestBar();
+    }
     return Center(child: Text('${destination.label} placeholder'));
   }
 }

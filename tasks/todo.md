@@ -23,7 +23,7 @@ land, don't duplicate the detail here.
 
 - [x] Task 2.1: App shell & navigation skeleton
 - [x] Task 2.2: Theme tokens from DESIGN.md (fonts downloaded + confirmed with user: Geist Regular/Medium/SemiBold, JetBrains Mono Regular/Medium)
-- [ ] Task 2.3: Minimal request bar + real Send + response viewer (first vertical slice)
+- [x] Task 2.3: Minimal request bar + real Send + response viewer (first vertical slice)
 - [ ] Task 2.4: Full request builder tabs (Params/Headers/Body/Auth)
 - [ ] Task 2.5: Full response viewer polish
 
