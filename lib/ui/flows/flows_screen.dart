@@ -106,6 +106,17 @@ class _FlowList extends ConsumerWidget {
                       title: Text(flow.name),
                       subtitle: Text('${flow.steps.length} steps'),
                       onTap: () => ref.read(selectedFlowIdProvider.notifier).state = flow.id,
+                      trailing: IconButton(
+                        key: ValueKey('delete-flow-${flow.id}'),
+                        tooltip: 'Delete flow',
+                        icon: const Icon(Icons.delete_outline, size: 16),
+                        onPressed: () async {
+                          await ref.read(flowsProvider.notifier).deleteFlow(flow.id);
+                          if (selectedId == flow.id) {
+                            ref.read(selectedFlowIdProvider.notifier).state = null;
+                          }
+                        },
+                      ),
                     );
                   },
                 ),

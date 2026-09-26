@@ -149,4 +149,23 @@ void main() {
       expect((await store.readFlows()).single.name, 'User Registration Flow');
     });
   });
+
+  testWidgets('deleting the selected flow removes it, persists, and clears the builder',
+      (tester) async {
+    await tester.runAsync(() async {
+      final store = await pumpScreen(tester);
+      await tester.tap(find.byKey(const Key('new-flow-button')));
+      await settle(tester);
+
+      final flowId = (await store.readFlows()).single.id;
+      expect(find.byKey(const Key('empty-flow-state')), findsOneWidget);
+
+      await tester.tap(find.byKey(Key('delete-flow-$flowId')));
+      await settle(tester);
+
+      expect(find.byKey(const Key('no-flow-selected')), findsOneWidget);
+      expect(find.byKey(const Key('empty-flows-state')), findsOneWidget);
+      expect(await store.readFlows(), isEmpty);
+    });
+  });
 }

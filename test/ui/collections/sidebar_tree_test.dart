@@ -214,4 +214,98 @@ void main() {
       expect(persisted.endpoints.single.url, 'https://httpbin.org/get');
     });
   });
+
+  testWidgets('deleting an endpoint removes it from the tree and persists', (tester) async {
+    await tester.runAsync(() async {
+      final tempDir = await Directory.systemTemp.createTemp('sidebar_tree_test_');
+      addTearDown(() async {
+        if (await tempDir.exists()) await tempDir.delete(recursive: true);
+      });
+      final store = JsonStore(directory: tempDir);
+      await store.writeCollections(
+        groups: [const Group(id: 'g-1', name: 'Authentication API')],
+        endpoints: [
+          const Endpoint(id: 'e-1', groupId: 'g-1', name: 'Login', method: 'POST', url: '/login'),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [jsonStoreProvider.overrideWithValue(store)],
+          child: const MaterialApp(home: Scaffold(body: SizedBox(width: 280, child: SidebarTree()))),
+        ),
+      );
+      await settle(tester);
+      await tester.tap(find.byIcon(Icons.chevron_right));
+      await settle(tester);
+      expect(find.byKey(const Key('endpoint-row-e-1')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('delete-endpoint-e-1')));
+      await settle(tester);
+
+      expect(find.byKey(const Key('endpoint-row-e-1')), findsNothing);
+      expect((await store.readCollections()).endpoints, isEmpty);
+    });
+  });
+
+  testWidgets('deleting an empty folder removes it and persists', (tester) async {
+    await tester.runAsync(() async {
+      final tempDir = await Directory.systemTemp.createTemp('sidebar_tree_test_');
+      addTearDown(() async {
+        if (await tempDir.exists()) await tempDir.delete(recursive: true);
+      });
+      final store = JsonStore(directory: tempDir);
+      await store.writeCollections(
+        groups: [const Group(id: 'g-1', name: 'Empty Folder')],
+        endpoints: const [],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [jsonStoreProvider.overrideWithValue(store)],
+          child: const MaterialApp(home: Scaffold(body: SizedBox(width: 280, child: SidebarTree()))),
+        ),
+      );
+      await settle(tester);
+      expect(find.text('Empty Folder'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('delete-group-g-1')));
+      await settle(tester);
+
+      expect(find.text('Empty Folder'), findsNothing);
+      expect((await store.readCollections()).groups, isEmpty);
+    });
+  });
+
+  testWidgets('deleting a non-empty folder is blocked with a warning, not silently dropped',
+      (tester) async {
+    await tester.runAsync(() async {
+      final tempDir = await Directory.systemTemp.createTemp('sidebar_tree_test_');
+      addTearDown(() async {
+        if (await tempDir.exists()) await tempDir.delete(recursive: true);
+      });
+      final store = JsonStore(directory: tempDir);
+      await store.writeCollections(
+        groups: [const Group(id: 'g-1', name: 'Authentication API')],
+        endpoints: [
+          const Endpoint(id: 'e-1', groupId: 'g-1', name: 'Login', method: 'POST', url: '/login'),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [jsonStoreProvider.overrideWithValue(store)],
+          child: const MaterialApp(home: Scaffold(body: SizedBox(width: 280, child: SidebarTree()))),
+        ),
+      );
+      await settle(tester);
+
+      await tester.tap(find.byKey(const Key('delete-group-g-1')));
+      await settle(tester);
+
+      expect(find.text('Authentication API'), findsOneWidget);
+      expect(find.textContaining('contents first'), findsOneWidget);
+      expect((await store.readCollections()).groups, hasLength(1));
+    });
+  });
 }

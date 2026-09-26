@@ -198,6 +198,24 @@ class _FolderNode extends ConsumerWidget {
                   ref.read(requestDraftProvider.notifier).loadEndpoint(endpoint);
                 },
               ),
+              IconButton(
+                key: ValueKey('delete-group-${node.group.id}'),
+                tooltip: 'Delete folder',
+                icon: const Icon(Icons.delete_outline, size: 16),
+                onPressed: () async {
+                  try {
+                    await ref.read(collectionsProvider.notifier).deleteGroup(node.group.id);
+                  } on GroupNotEmptyException {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Delete this folder\'s contents first.'),
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
             ],
           ),
         ),
@@ -236,6 +254,12 @@ class _EndpointRow extends ConsumerWidget {
               MethodBadge(method: endpoint.method),
               const SizedBox(width: AppSpacing.sm),
               Expanded(child: Text(endpoint.name, overflow: TextOverflow.ellipsis)),
+              IconButton(
+                key: ValueKey('delete-endpoint-${endpoint.id}'),
+                tooltip: 'Delete request',
+                icon: const Icon(Icons.delete_outline, size: 14),
+                onPressed: () => ref.read(collectionsProvider.notifier).deleteEndpoint(endpoint.id),
+              ),
             ],
           ),
         ),
