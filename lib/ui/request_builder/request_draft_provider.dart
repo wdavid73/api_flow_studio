@@ -21,6 +21,8 @@ class RequestDraftNotifier extends Notifier<Endpoint> {
 
   void setUrl(String url) => state = state.copyWith(url: url);
 
+  void setDescription(String description) => state = state.copyWith(description: description);
+
   void setHeaders(List<KeyValueEntry> headers) => state = state.copyWith(headers: headers);
 
   void setQueryParams(List<KeyValueEntry> queryParams) =>

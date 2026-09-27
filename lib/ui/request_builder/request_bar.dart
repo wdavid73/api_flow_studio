@@ -8,6 +8,7 @@ import 'request_draft_provider.dart';
 import 'send_provider.dart';
 import 'tabs/auth_tab.dart';
 import 'tabs/body_tab.dart';
+import 'tabs/docs_tab.dart';
 import 'tabs/headers_tab.dart';
 import 'tabs/params_tab.dart';
 import 'url_field.dart';
@@ -15,7 +16,7 @@ import 'url_field.dart';
 const _methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 /// The request builder: a method dropdown, a URL field, a Send button
-/// wired to the real [RequestExecutor], Params/Headers/Body/Auth tabs
+/// wired to the real [RequestExecutor], Params/Headers/Body/Auth/Docs tabs
 /// (Tests/Settings are out of MVP scope -- stub placeholders), and a plain
 /// status/body view of the result. Environment-variable interpolation
 /// comes in Task 3.3.
@@ -77,7 +78,7 @@ class RequestBar extends ConsumerWidget {
           const SizedBox(height: 16),
           Expanded(
             child: DefaultTabController(
-              length: 7,
+              length: 8,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -85,6 +86,7 @@ class RequestBar extends ConsumerWidget {
                     isScrollable: true,
                     tabAlignment: TabAlignment.start,
                     tabs: [
+                      Tab(text: 'Docs'),
                       Tab(text: 'Params'),
                       Tab(text: 'Headers'),
                       Tab(text: 'Body'),
@@ -97,6 +99,7 @@ class RequestBar extends ConsumerWidget {
                   const Expanded(
                     child: TabBarView(
                       children: [
+                        DocsTab(),
                         ParamsTab(),
                         HeadersTab(),
                         BodyTab(),

@@ -123,6 +123,27 @@ void main() {
     expect(endpoint.body, const RequestBody.json('{"a":1}'));
   });
 
+  testWidgets('typing a description on the Docs tab sends it along with the request',
+      (tester) async {
+    when(() => executor.execute(any(), variables: any(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 200));
+
+    await pumpRequestBar(tester);
+    await tester.tap(find.text('Docs'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('docs-description-field')),
+      'Creates a new user account.',
+    );
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    final endpoint = verify(
+      () => executor.execute(captureAny(), variables: any(named: 'variables')),
+    ).captured.single as Endpoint;
+    expect(endpoint.description, 'Creates a new user account.');
+  });
+
   testWidgets('switching Auth to Bearer and typing a token sends that AuthConfig', (tester) async {
     when(() => executor.execute(any(), variables: any(named: 'variables')))
         .thenAnswer((_) async => const ExecutedResponse(status: 200));

@@ -15,6 +15,7 @@ class Endpoint with _$Endpoint {
     required String name,
     required String method,
     required String url,
+    @Default('') String description,
     @Default([]) List<KeyValueEntry> headers,
     @Default([]) List<KeyValueEntry> queryParams,
     @Default(RequestBody.none()) RequestBody body,
