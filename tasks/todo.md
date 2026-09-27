@@ -141,6 +141,10 @@ queued to run the next session.
 - [x] `fvm flutter analyze`/`fvm flutter test` clean (full suite, 210/210;
       2 tests in flow_run_view_detail_test.dart adapted per Task 8.4's note
       above, all other Keys unmodified)
-- [ ] `fvm flutter build windows` succeeds; user does a final visual pass
-      on the real app against all 4 `design/*/screen.png`
+- [x] `fvm flutter build windows` succeeds (confirmed; the portable
+      `api_flow_studio_data/` folder from the earlier Commodo import
+      survived the rebuild untouched, as expected for a sibling folder
+      Flutter's build doesn't manage)
+- [ ] User does a final visual pass on the real app against all 4
+      `design/*/screen.png`
 - [ ] Human sign-off
