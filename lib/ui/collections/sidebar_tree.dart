@@ -4,10 +4,17 @@ import 'package:uuid/uuid.dart';
 
 import '../../engine/models/models.dart';
 import '../request_builder/request_draft_provider.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
 import '../theme/widgets/method_badge.dart';
 import 'collections_provider.dart';
 import 'paste_curl_dialog.dart';
+
+/// The real app version, shown in the sidebar footer in place of the
+/// design mockup's fake "Proxy: Localhost" line -- kept in sync with
+/// pubspec.yaml's `version:` by hand (no packages read it at runtime).
+const _appVersion = 'v1.0.0';
 
 /// Local UI-only state (not persisted, per SPEC 3.5's own acceptance
 /// criteria): which folders are expanded, and the current search text.
@@ -48,41 +55,22 @@ class _Loaded extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          child: TextField(
-            key: const Key('sidebar-search-field'),
-            decoration: const InputDecoration(
-              isDense: true,
-              hintText: 'Filter requests…',
-              prefixIcon: Icon(Icons.search, size: 16),
-            ),
-            onChanged: (value) => ref.read(sidebarSearchQueryProvider.notifier).state = value,
-          ),
-        ),
-        Expanded(
-          child: state.groups.isEmpty
-              ? const Center(
-                  key: Key('empty-workspace-state'),
-                  child: Padding(
-                    padding: EdgeInsets.all(AppSpacing.md),
-                    child: Text('No endpoints yet — create a folder to get started.'),
-                  ),
-                )
-              : ListView(
-                  children: [for (final node in filtered) _FolderNode(node: node, depth: 0)],
-                ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.xs, AppSpacing.xs),
           child: Row(
             children: [
-              Expanded(
-                child: TextButton.icon(
-                  key: const Key('new-root-folder-button'),
-                  onPressed: () => _promptNewFolder(context, ref, parentGroupId: null),
-                  icon: const Icon(Icons.create_new_folder_outlined, size: 16),
-                  label: const Text('New folder'),
+              Text(
+                'EXPLORER',
+                style: AppTypography.labelSm.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                  letterSpacing: 1,
                 ),
+              ),
+              const Spacer(),
+              IconButton(
+                key: const Key('new-root-folder-button'),
+                tooltip: 'New folder',
+                icon: const Icon(Icons.create_new_folder_outlined, size: 16),
+                onPressed: () => _promptNewFolder(context, ref, parentGroupId: null),
               ),
               IconButton(
                 key: const Key('paste-curl-button'),
@@ -93,7 +81,43 @@ class _Loaded extends ConsumerWidget {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          child: TextField(
+            key: const Key('sidebar-search-field'),
+            decoration: const InputDecoration(
+              isDense: true,
+              hintText: 'Filter requests…',
+              prefixIcon: Icon(Icons.search, size: 16),
+            ),
+            onChanged: (value) => ref.read(sidebarSearchQueryProvider.notifier).state = value,
+          ),
+        ),
         const SizedBox(height: AppSpacing.xs),
+        Expanded(
+          child: state.groups.isEmpty
+              ? const Center(
+                  key: Key('empty-workspace-state'),
+                  child: Padding(
+                    padding: EdgeInsets.all(AppSpacing.md),
+                    child: Text('No endpoints yet — create a folder to get started.'),
+                  ),
+                )
+              : ListView(
+                  children: [
+                    for (final (index, node) in filtered.indexed)
+                      _FolderNode(node: node, depth: 0, colorIndex: index),
+                  ],
+                ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+          color: AppColors.surfaceContainerLowest,
+          child: Text(
+            'API Flow Studio $_appVersion',
+            style: AppTypography.codeSm.copyWith(color: AppColors.onSurfaceVariant),
+          ),
+        ),
       ],
     );
   }
@@ -150,10 +174,11 @@ Future<void> _promptNewFolder(
 }
 
 class _FolderNode extends ConsumerWidget {
-  const _FolderNode({required this.node, required this.depth});
+  const _FolderNode({required this.node, required this.depth, required this.colorIndex});
 
   final GroupTreeNode node;
   final int depth;
+  final int colorIndex;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -181,6 +206,8 @@ class _FolderNode extends ConsumerWidget {
                   ref.read(expandedGroupIdsProvider.notifier).state = next;
                 },
               ),
+              Icon(Icons.folder, size: 16, color: AppColors.folderIconColor(colorIndex)),
+              const SizedBox(width: AppSpacing.xs),
               Expanded(child: Text(node.group.name, overflow: TextOverflow.ellipsis)),
               IconButton(
                 key: ValueKey('add-endpoint-${node.group.id}'),
@@ -220,7 +247,8 @@ class _FolderNode extends ConsumerWidget {
           ),
         ),
         if (isExpanded) ...[
-          for (final child in node.children) _FolderNode(node: child, depth: depth + 1),
+          for (final (index, child) in node.children.indexed)
+            _FolderNode(node: child, depth: depth + 1, colorIndex: index),
           for (final endpoint in node.endpoints)
             _EndpointRow(endpoint: endpoint, depth: depth + 1),
           if (node.children.isEmpty && node.endpoints.isEmpty)

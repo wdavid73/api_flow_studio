@@ -7,7 +7,11 @@ import 'ui/environments/environment_manager_screen.dart';
 import 'ui/environments/environment_switcher.dart';
 import 'ui/flows/flows_screen.dart';
 import 'ui/request_builder/request_bar.dart';
+import 'ui/theme/app_colors.dart';
+import 'ui/theme/app_spacing.dart';
 import 'ui/theme/app_theme.dart';
+import 'ui/theme/app_typography.dart';
+import 'ui/theme/widgets/app_logo.dart';
 
 enum AppDestination {
   workspace('Workspace'),
@@ -64,23 +68,32 @@ class _NavBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            const Text('API Flow Studio', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(width: 32),
-            for (final destination in AppDestination.values)
-              _NavItem(
-                destination: destination,
-                isSelected: destination == selected,
-                onTap: () => ref.read(selectedDestinationProvider.notifier).state = destination,
-              ),
-            const Spacer(),
-            const EnvironmentSwitcher(),
-          ],
+    return Container(
+      height: 56,
+      decoration: const BoxDecoration(
+        color: AppColors.surfaceContainerLow,
+        boxShadow: [BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 1))],
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: Row(
+            children: [
+              const AppLogoMark(size: 28),
+              const SizedBox(width: AppSpacing.sm),
+              Text('API Flow Studio', style: AppTypography.headlineSm),
+              const SizedBox(width: AppSpacing.xl),
+              for (final destination in AppDestination.values)
+                _NavItem(
+                  destination: destination,
+                  isSelected: destination == selected,
+                  onTap: () => ref.read(selectedDestinationProvider.notifier).state = destination,
+                ),
+              const Spacer(),
+              const EnvironmentSwitcher(),
+            ],
+          ),
         ),
       ),
     );
@@ -100,13 +113,24 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Text(
-          destination.label,
-          style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.surfaceContainerHigh : null,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          child: Text(
+            destination.label,
+            style: AppTypography.labelMd.copyWith(
+              color: isSelected ? AppColors.onSurface : AppColors.onSurfaceVariant,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );
@@ -125,7 +149,7 @@ class _DestinationBody extends StatelessWidget {
         return const Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(width: 280, child: SidebarTree()),
+            SizedBox(width: 256, child: SidebarTree()),
             VerticalDivider(width: 1),
             Expanded(child: RequestBar()),
           ],

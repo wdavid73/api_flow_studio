@@ -76,4 +76,12 @@ class AppColors {
 
   static Color environmentDotColor(int index) =>
       environmentDotPalette[index % environmentDotPalette.length];
+
+  // Sidebar top-level folder icons cycle through a different palette than
+  // environments (design/*/code.html shows folders in secondary/primary/
+  // tertiary, not the tertiary/secondary/error environment-dot sequence).
+  static const List<Color> folderIconPalette = [secondary, primary, tertiary];
+
+  static Color folderIconColor(int index) =>
+      folderIconPalette[index % folderIconPalette.length];
 }

@@ -100,8 +100,14 @@ in tasks/plan.md's Phase 8 section, added 2026-09-26). Pure visual/UI pass:
 reuses existing data, adds no new backend features. Not started yet —
 queued to run the next session.
 
-- [ ] Task 8.1: Shared app shell (header + sidebar chrome) — highest
-      leverage, do first; closes most of the gap on all 4 screens at once
+- [x] Task 8.1: Shared app shell (header + sidebar chrome) — new hand-painted
+      `AppLogoMark`, restyled header (56px, logo+wordmark, active-tab pill,
+      pill-styled `EnvironmentSwitcher`), restyled `SidebarTree` (256px
+      width, EXPLORER header with relocated New folder/Paste curl icons,
+      colored folder icons via new `AppColors.folderIconColor`, real
+      version footer replacing the mock's fake "Proxy: Localhost"). All 210
+      existing tests pass unmodified; visually confirmed via the Task-7.1
+      screenshot-capture technique.
 - [ ] Task 8.2: Environment Manager restyle (card list + variable table +
       pro-tip callout)
 - [ ] Task 8.3: Flow Builder restyle (centered pipeline + TERMINAL badge +
