@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../engine/models/models.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
+import '../theme/widgets/json_view.dart';
 import '../theme/widgets/method_badge.dart';
 
 /// One step in the flow builder's vertical pipeline. [endpoint] is null
@@ -59,6 +62,20 @@ class StepCard extends StatelessWidget {
                         : null,
                   ),
                 ),
+                if (isLast)
+                  Container(
+                    key: ValueKey('terminal-badge-$index'),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
+                    margin: const EdgeInsets.only(right: AppSpacing.xs),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                    child: Text(
+                      'TERMINAL',
+                      style: AppTypography.badgeMono.copyWith(color: AppColors.onSurfaceVariant),
+                    ),
+                  ),
                 IconButton(
                   key: ValueKey('move-step-up-$index'),
                   icon: const Icon(Icons.arrow_upward, size: 16),
@@ -83,6 +100,30 @@ class StepCard extends StatelessWidget {
                   endpoint!.url,
                   style: Theme.of(context).textTheme.bodySmall,
                   overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            if (endpoint != null && _jsonBodyOf(endpoint!) != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 32, top: AppSpacing.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PAYLOAD TEMPLATE',
+                      style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Container(
+                      key: ValueKey('payload-template-$index'),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppSpacing.sm),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLowest,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: JsonView(text: _jsonBodyOf(endpoint!)!),
+                    ),
+                  ],
                 ),
               ),
             const Divider(height: AppSpacing.lg * 2),
@@ -197,4 +238,13 @@ class StepCard extends StatelessWidget {
       ),
     );
   }
+
+  /// The endpoint's raw JSON body text, or null if it has no body / a
+  /// non-JSON (form-urlencoded) body -- used for the read-only "Payload
+  /// Template" preview, per Task 5.4b's original (never-built) note.
+  String? _jsonBodyOf(Endpoint endpoint) => endpoint.body.when(
+        none: () => null,
+        json: (raw) => raw.trim().isEmpty ? null : raw,
+        formUrlEncoded: (_) => null,
+      );
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/models/models.dart';
 import '../collections/collections_provider.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import 'add_step_picker.dart';
 import 'flow_run_view_screen.dart';
@@ -141,35 +142,40 @@ class _FlowBuilder extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  key: const Key('flow-name-field'),
-                  initialValue: flow.name,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  decoration: const InputDecoration(border: InputBorder.none),
-                  onChanged: (value) => notifier.renameFlow(flow.id, value),
-                ),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      key: const Key('flow-name-field'),
+                      initialValue: flow.name,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      decoration: const InputDecoration(border: InputBorder.none),
+                      onChanged: (value) => notifier.renameFlow(flow.id, value),
+                    ),
+                  ),
+                  OutlinedButton(
+                    key: const Key('save-flow-button'),
+                    onPressed: null, // saving is implicit on every edit; kept as a visual affordance
+                    child: const Text('Save Flow'),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  FilledButton(
+                    key: const Key('run-flow-button'),
+                    onPressed: flow.steps.isEmpty
+                        ? null
+                        : () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => FlowRunViewScreen(flow: flow, endpoints: endpoints),
+                              ),
+                            ),
+                    child: const Text('Run Flow'),
+                  ),
+                ],
               ),
-              OutlinedButton(
-                key: const Key('save-flow-button'),
-                onPressed: null, // saving is implicit on every edit; kept as a visual affordance
-                child: const Text('Save Flow'),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              FilledButton(
-                key: const Key('run-flow-button'),
-                onPressed: flow.steps.isEmpty
-                    ? null
-                    : () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => FlowRunViewScreen(flow: flow, endpoints: endpoints),
-                          ),
-                        ),
-                child: const Text('Run Flow'),
-              ),
-            ],
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Expanded(
@@ -178,22 +184,39 @@ class _FlowBuilder extends ConsumerWidget {
                     key: Key('empty-flow-state'),
                     child: Text('No steps yet — add a saved endpoint to get started'),
                   )
-                : ListView.builder(
-                    itemCount: flow.steps.length,
-                    itemBuilder: (context, index) {
-                      final step = flow.steps[index];
-                      return StepCard(
-                        index: index,
-                        step: step,
-                        endpoint: endpoints[step.endpointId],
-                        isFirst: index == 0,
-                        isLast: index == flow.steps.length - 1,
-                        onMoveUp: () => notifier.reorderStep(flow.id, index, index - 1),
-                        onMoveDown: () => notifier.reorderStep(flow.id, index, index + 1),
-                        onRemove: () => notifier.removeStep(flow.id, index),
-                        onUpdateStep: (updated) => notifier.updateStep(flow.id, index, updated),
-                      );
-                    },
+                : SingleChildScrollView(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 900),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (var index = 0; index < flow.steps.length; index++) ...[
+                              if (index > 0)
+                                const Center(
+                                  child: Icon(
+                                    Icons.keyboard_arrow_down,
+                                    size: 20,
+                                    color: AppColors.outlineVariant,
+                                  ),
+                                ),
+                              StepCard(
+                                index: index,
+                                step: flow.steps[index],
+                                endpoint: endpoints[flow.steps[index].endpointId],
+                                isFirst: index == 0,
+                                isLast: index == flow.steps.length - 1,
+                                onMoveUp: () => notifier.reorderStep(flow.id, index, index - 1),
+                                onMoveDown: () => notifier.reorderStep(flow.id, index, index + 1),
+                                onRemove: () => notifier.removeStep(flow.id, index),
+                                onUpdateStep: (updated) =>
+                                    notifier.updateStep(flow.id, index, updated),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
           ),
           TextButton.icon(

@@ -113,8 +113,13 @@ queued to run the next session.
       a real table header row (Name/Value/Secret) above the variable rows,
       and the "Pro tip: Syntax & Resolution" callout. All existing tests
       pass unmodified; visually confirmed via screenshot capture.
-- [ ] Task 8.3: Flow Builder restyle (centered pipeline + TERMINAL badge +
-      payload-template preview)
+- [x] Task 8.3: Flow Builder restyle — centered ~900px pipeline column
+      (was full-width `ListView.builder`, now a `Column` in a
+      `SingleChildScrollView`), chevron-down connectors between cards, a
+      "TERMINAL" badge on the last step, and a read-only "Payload
+      Template" preview (via the existing `JsonView`) when the step's
+      endpoint has a JSON body. All existing tests pass unmodified;
+      visually confirmed via screenshot capture.
 - [ ] Task 8.4: Flow Run View restyle (2-panel layout + tabbed inspector)
 
 ### Checkpoint: After Phase 8
