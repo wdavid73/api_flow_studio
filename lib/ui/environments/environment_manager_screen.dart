@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/models/models.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
 import 'environments_provider.dart';
 
 /// Which environment is currently shown in the right-hand editor. UI-only,
@@ -77,11 +78,14 @@ class _EnvironmentList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextButton.icon(
-          key: const Key('new-environment-button'),
-          onPressed: () => ref.read(environmentsProvider.notifier).create('New Environment'),
-          icon: const Icon(Icons.add, size: 16),
-          label: const Text('New Environment'),
+        Padding(
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: TextButton.icon(
+            key: const Key('new-environment-button'),
+            onPressed: () => ref.read(environmentsProvider.notifier).create('New Environment'),
+            icon: const Icon(Icons.add, size: 16),
+            label: const Text('New Environment'),
+          ),
         ),
         Expanded(
           child: environments.isEmpty
@@ -93,23 +97,76 @@ class _EnvironmentList extends ConsumerWidget {
                   ),
                 )
               : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                   itemCount: environments.length,
                   itemBuilder: (context, index) {
                     final env = environments[index];
-                    return ListTile(
-                      key: ValueKey('env-list-item-${env.id}'),
-                      selected: env.id == selectedId,
-                      leading: CircleAvatar(
-                        radius: 5,
-                        backgroundColor: AppColors.environmentDotColor(index),
-                      ),
-                      title: Text(env.name),
-                      subtitle: Text('${env.variables.length} variables'),
-                      onTap: () => ref.read(selectedEnvironmentIdProvider.notifier).state = env.id,
-                      trailing: IconButton(
-                        key: ValueKey('delete-env-button-${env.id}'),
-                        icon: const Icon(Icons.delete_outline, size: 16),
-                        onPressed: () => ref.read(environmentsProvider.notifier).delete(env.id),
+                    final isSelected = env.id == selectedId;
+                    final color = AppColors.environmentDotColor(index);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                      child: Material(
+                        color: isSelected ? AppColors.surfaceContainer : Colors.transparent,
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        child: InkWell(
+                          key: ValueKey('env-list-item-${env.id}'),
+                          borderRadius: BorderRadius.circular(AppRadius.lg),
+                          onTap: () => ref.read(selectedEnvironmentIdProvider.notifier).state = env.id,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: BorderSide(
+                                  color: isSelected ? color : Colors.transparent,
+                                  width: 3,
+                                ),
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.sm,
+                              vertical: AppSpacing.sm,
+                            ),
+                            child: Row(
+                              children: [
+                                CircleAvatar(radius: 5, backgroundColor: color),
+                                const SizedBox(width: AppSpacing.sm),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(env.name, style: AppTypography.headlineSm),
+                                      Text(
+                                        '${env.variables.length} variables',
+                                        style: AppTypography.bodySm.copyWith(
+                                          color: AppColors.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (isSelected)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.xs,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: color.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                                    ),
+                                    child: Text(
+                                      'ACTIVE',
+                                      style: AppTypography.badgeMono.copyWith(color: color),
+                                    ),
+                                  ),
+                                IconButton(
+                                  key: ValueKey('delete-env-button-${env.id}'),
+                                  icon: const Icon(Icons.delete_outline, size: 16),
+                                  onPressed: () => ref.read(environmentsProvider.notifier).delete(env.id),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -163,13 +220,49 @@ class _VariableEditor extends ConsumerWidget {
       return index < list.length ? list[index] : null;
     }
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(environment.name, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.md),
+          if (entries.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'VARIABLE NAME',
+                      style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      'VALUE',
+                      style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 48,
+                    child: Text(
+                      'SECRET',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant),
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+          ],
           for (var i = 0; i < entries.length; i++)
             _VariableRow(
               // Index-keyed, not name-keyed: renaming a variable must not
@@ -211,6 +304,54 @@ class _VariableEditor extends ConsumerWidget {
             }),
             icon: const Icon(Icons.add, size: 16),
             label: const Text('Add variable'),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainer,
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.lightbulb_outline, size: 18, color: AppColors.secondary),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Pro tip: Syntax & Resolution', style: AppTypography.headlineSm),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text.rich(
+                        TextSpan(
+                          style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
+                          children: [
+                            const TextSpan(
+                              text: 'Reference variables anywhere across URLs, headers, and '
+                                  'payloads using the ',
+                            ),
+                            TextSpan(
+                              text: '{{variable_name}}',
+                              style: AppTypography.codeSm.copyWith(color: AppColors.secondary),
+                            ),
+                            const TextSpan(text: ' syntax.'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

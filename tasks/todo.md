@@ -108,8 +108,11 @@ queued to run the next session.
       version footer replacing the mock's fake "Proxy: Localhost"). All 210
       existing tests pass unmodified; visually confirmed via the Task-7.1
       screenshot-capture technique.
-- [ ] Task 8.2: Environment Manager restyle (card list + variable table +
-      pro-tip callout)
+- [x] Task 8.2: Environment Manager restyle — card-style environment list
+      with colored left-accent bar + ACTIVE badge (was plain `ListTile`s),
+      a real table header row (Name/Value/Secret) above the variable rows,
+      and the "Pro tip: Syntax & Resolution" callout. All existing tests
+      pass unmodified; visually confirmed via screenshot capture.
 - [ ] Task 8.3: Flow Builder restyle (centered pipeline + TERMINAL badge +
       payload-template preview)
 - [ ] Task 8.4: Flow Run View restyle (2-panel layout + tabbed inspector)
