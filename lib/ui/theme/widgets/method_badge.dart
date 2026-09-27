@@ -19,7 +19,12 @@ class MethodBadge extends StatelessWidget {
     'DELETE': AppColors.methodDelete,
   };
 
-  Color get _color => _colorByMethod[method.toUpperCase()] ?? AppColors.methodOther;
+  /// The badge color for a given HTTP verb, exposed so other widgets (e.g.
+  /// the add-step picker's method filter chips) can match this badge's
+  /// palette without duplicating the map.
+  static Color colorForMethod(String method) => _colorByMethod[method.toUpperCase()] ?? AppColors.methodOther;
+
+  Color get _color => colorForMethod(method);
 
   @override
   Widget build(BuildContext context) {
