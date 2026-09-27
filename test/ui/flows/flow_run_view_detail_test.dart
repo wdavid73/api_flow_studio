@@ -88,13 +88,23 @@ void main() {
 
       await pumpRunView(tester, flow, executor: executor);
 
-      expect(find.byKey(const Key('rerun-from-step-0')), findsNothing);
+      // The only step auto-selects once the run completes (matching the
+      // design's "active selection" on the most relevant step); tapping
+      // its header again is a harmless re-selection.
+      expect(find.byKey(const Key('rerun-from-step-0')), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('run-step-header-0')));
       await settle(tester);
 
+      // Request Sent and Response Body are separate tabs now (the inspector
+      // panel's tabbed layout) -- each tab's content only exists in the
+      // tree once it's the active one, so switch to it before asserting.
       expect(find.textContaining('https://api.dev/users/exists'), findsOneWidget);
+
+      await tester.tap(find.text('Response Body'));
+      await tester.pumpAndSettle();
       expect(find.textContaining('"exists": true'), findsOneWidget);
+
       expect(find.byKey(const Key('rerun-from-step-0')), findsOneWidget);
     });
   });

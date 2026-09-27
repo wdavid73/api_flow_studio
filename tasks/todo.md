@@ -120,11 +120,27 @@ queued to run the next session.
       Template" preview (via the existing `JsonView`) when the step's
       endpoint has a JSON body. All existing tests pass unmodified;
       visually confirmed via screenshot capture.
-- [ ] Task 8.4: Flow Run View restyle (2-panel layout + tabbed inspector)
+- [x] Task 8.4: Flow Run View restyle — 2-panel layout: a compact left
+      timeline (`RunStepCard`, no more inline expand) and a right
+      `RunStepInspector` detail panel with tabs (Error Details -- only for
+      a failed step -- / Request Sent / Response Body / Headers), matching
+      the design's structure. Adds auto-select of the most relevant step
+      (first failure, else last success) once a run completes, matching
+      the mock's "active selection" on the failing step. Two of the
+      existing detail tests needed adapting (interaction model genuinely
+      changed, per the plan's own allowance): one now checks the
+      auto-selected state instead of "nothing selected yet", and one
+      switches to the "Response Body" tab explicitly before asserting on
+      it, since `TabBarView` only keeps the active tab's content in the
+      tree (not all tabs at once, as assumed at first -- confirmed via a
+      failing test, fixed with `pumpAndSettle()` after the tab tap for the
+      page-transition animation to finish). All 210 tests pass. Visually
+      confirmed via screenshot capture.
 
 ### Checkpoint: After Phase 8
-- [ ] `fvm flutter analyze`/`fvm flutter test` clean (full suite, unmodified
-      Keys)
+- [x] `fvm flutter analyze`/`fvm flutter test` clean (full suite, 210/210;
+      2 tests in flow_run_view_detail_test.dart adapted per Task 8.4's note
+      above, all other Keys unmodified)
 - [ ] `fvm flutter build windows` succeeds; user does a final visual pass
       on the real app against all 4 `design/*/screen.png`
 - [ ] Human sign-off

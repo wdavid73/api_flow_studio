@@ -10,6 +10,7 @@ import '../request_builder/send_provider.dart' show requestExecutorProvider;
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import 'run_step_card.dart';
+import 'run_step_inspector.dart';
 
 /// Runs a [Flow] end-to-end against the currently active environment and
 /// shows each step's live result as it completes -- pushed from
@@ -27,7 +28,7 @@ class FlowRunViewScreen extends ConsumerStatefulWidget {
 class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
   List<FlowStepResult?> _results = const [];
   Map<String, String> _initialVariables = const {};
-  Set<int> _expandedSteps = {};
+  int? _selectedIndex;
   bool _running = false;
 
   @override
@@ -58,11 +59,28 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
     return interpolate(endpoint.url, _variablesEnteringStep(index));
   }
 
+  /// Picks which step the inspector shows once a run finishes: the first
+  /// failure if there is one (matching design/flow_run_view/screen.png's
+  /// "active selection" on the step that halted the pipeline), else the
+  /// last step that actually ran, else nothing.
+  void _autoSelect() {
+    var candidate = -1;
+    for (var i = 0; i < _results.length; i++) {
+      final status = _results[i]?.status;
+      if (status == FlowStepStatus.failure) {
+        candidate = i;
+        break;
+      }
+      if (status == FlowStepStatus.success) candidate = i;
+    }
+    _selectedIndex = candidate >= 0 ? candidate : null;
+  }
+
   Future<void> _run() async {
     setState(() {
       _running = true;
       _results = List<FlowStepResult?>.filled(widget.flow.steps.length, null);
-      _expandedSteps = {};
+      _selectedIndex = null;
     });
 
     final executor = ref.read(requestExecutorProvider);
@@ -85,6 +103,7 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
       },
     );
 
+    if (mounted) setState(_autoSelect);
     if (mounted) setState(() => _running = false);
   }
 
@@ -111,6 +130,7 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
       },
     );
 
+    if (mounted) setState(_autoSelect);
     if (mounted) setState(() => _running = false);
   }
 
@@ -163,22 +183,41 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
             Expanded(
-              child: ListView.builder(
-                itemCount: widget.flow.steps.length,
-                itemBuilder: (context, index) {
-                  final step = widget.flow.steps[index];
-                  return RunStepCard(
-                    index: index,
-                    endpoint: widget.endpoints[step.endpointId],
-                    result: index < _results.length ? _results[index] : null,
-                    requestUrl: _requestUrlFor(index),
-                    expanded: _expandedSteps.contains(index),
-                    onToggleExpanded: () => setState(() {
-                      if (!_expandedSteps.remove(index)) _expandedSteps.add(index);
-                    }),
-                    onRerunFromHere: () => _rerunFromStep(index),
-                  );
-                },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    width: 420,
+                    child: ListView.builder(
+                      itemCount: widget.flow.steps.length,
+                      itemBuilder: (context, index) {
+                        final step = widget.flow.steps[index];
+                        return RunStepCard(
+                          index: index,
+                          endpoint: widget.endpoints[step.endpointId],
+                          result: index < _results.length ? _results[index] : null,
+                          isSelected: _selectedIndex == index,
+                          onSelect: () => setState(() => _selectedIndex = index),
+                        );
+                      },
+                    ),
+                  ),
+                  const VerticalDivider(width: AppSpacing.md * 2),
+                  Expanded(
+                    child: _selectedIndex == null || _results[_selectedIndex!] == null
+                        ? const Center(
+                            key: Key('no-step-selected'),
+                            child: Text('Select a step to see its details'),
+                          )
+                        : RunStepInspector(
+                            index: _selectedIndex!,
+                            endpoint: widget.endpoints[widget.flow.steps[_selectedIndex!].endpointId],
+                            result: _results[_selectedIndex!]!,
+                            requestUrl: _requestUrlFor(_selectedIndex!),
+                            onRerunFromHere: () => _rerunFromStep(_selectedIndex!),
+                          ),
+                  ),
+                ],
               ),
             ),
           ],
