@@ -1,0 +1,92 @@
+name: Release Build
+
+# Builds portable Windows and macOS executables and publishes them to a
+# single rolling "latest" GitHub Release, so there's always one fixed
+# download link with the most recent master build -- re-run manually via
+# workflow_dispatch if you need to rebuild without a new commit.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: "3.44.6" # keep in sync with .fvmrc
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  build-windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - name: Zip the portable build
+        run: Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath api-flow-studio-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: api-flow-studio-windows.zip
+
+  build-macos:
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build macos --release
+      - name: Zip the .app bundle
+        run: |
+          cd build/macos/Build/Products/Release
+          ditto -c -k --sequesterRsrc --keepParent api_flow_studio.app "$GITHUB_WORKSPACE/api-flow-studio-macos.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: api-flow-studio-macos.zip
+
+  release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-build
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos-build
+      - name: Update the rolling "latest" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
+          gh release create latest \
+            api-flow-studio-windows.zip \
+            api-flow-studio-macos.zip \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Latest build ($(date -u +%Y-%m-%d))" \
+            --notes "Automated build from commit ${{ github.sha }}. Unsigned build: macOS will warn about an unidentified developer -- right-click the app and choose Open, or run \`xattr -cr api_flow_studio.app\` first." \
+            --prerelease
