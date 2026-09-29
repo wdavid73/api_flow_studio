@@ -1,0 +1,65 @@
+{
+  "groups": [
+    {
+      "id": "grp-jsonplaceholder",
+      "name": "JSONPlaceholder (sample)",
+      "parentGroupId": null,
+      "order": 0
+    },
+    {
+      "id": "grp-posts",
+      "name": "Posts",
+      "parentGroupId": "grp-jsonplaceholder",
+      "order": 0
+    },
+    {
+      "id": "grp-users",
+      "name": "Users",
+      "parentGroupId": "grp-jsonplaceholder",
+      "order": 1
+    }
+  ],
+  "endpoints": [
+    {
+      "id": "ep-get-post",
+      "groupId": "grp-posts",
+      "name": "Get post #1",
+      "method": "GET",
+      "url": "https://jsonplaceholder.typicode.com/posts/1",
+      "description": "Fetch a single sample post.",
+      "headers": [],
+      "queryParams": [],
+      "body": { "runtimeType": "none" },
+      "authConfig": { "runtimeType": "none" }
+    },
+    {
+      "id": "ep-create-post",
+      "groupId": "grp-posts",
+      "name": "Create post",
+      "method": "POST",
+      "url": "https://jsonplaceholder.typicode.com/posts",
+      "description": "Create a sample post with a JSON body.",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json", "enabled": true }
+      ],
+      "queryParams": [],
+      "body": {
+        "runtimeType": "json",
+        "raw": "{\n  \"title\": \"foo\",\n  \"body\": \"bar\",\n  \"userId\": 1\n}"
+      },
+      "authConfig": { "runtimeType": "none" }
+    },
+    {
+      "id": "ep-list-users",
+      "groupId": "grp-users",
+      "name": "List users",
+      "method": "GET",
+      "url": "https://jsonplaceholder.typicode.com/users",
+      "description": "List all sample users.",
+      "headers": [],
+      "queryParams": [],
+      "body": { "runtimeType": "none" },
+      "authConfig": { "runtimeType": "none" }
+    }
+  ]
+}

@@ -43,6 +43,44 @@ List<GroupTreeNode> buildGroupTree(List<Group> groups, List<Endpoint> endpoints)
   return [for (final root in childrenOf(null)) buildNode(root)];
 }
 
+/// Merges [importedGroups]/[importedEndpoints] (parsed from a JSON file
+/// picked via the Import button) into [current]. Every imported group and
+/// endpoint gets a freshly generated id, with `parentGroupId`/`groupId`
+/// references remapped to match -- so importing a file exported from
+/// another machine (or the repo's sample file) can never collide with or
+/// overwrite anything already in the workspace. Imported root groups are
+/// ordered after the existing root groups, preserving their relative order
+/// from the file; an endpoint whose `groupId` isn't among the imported
+/// groups is dropped rather than left pointing at nothing.
+CollectionsState mergeImportedCollections(
+  CollectionsState current, {
+  required List<Group> importedGroups,
+  required List<Endpoint> importedEndpoints,
+}) {
+  const uuid = Uuid();
+  final idMap = {for (final g in importedGroups) g.id: uuid.v4()};
+  final existingRootCount = current.groups.where((g) => g.parentGroupId == null).length;
+
+  final newGroups = [
+    for (final g in importedGroups)
+      g.copyWith(
+        id: idMap[g.id]!,
+        parentGroupId: g.parentGroupId == null ? null : idMap[g.parentGroupId],
+        order: g.parentGroupId == null ? existingRootCount + g.order : g.order,
+      ),
+  ];
+
+  final newEndpoints = [
+    for (final e in importedEndpoints)
+      if (idMap[e.groupId] case final newGroupId?) e.copyWith(id: uuid.v4(), groupId: newGroupId),
+  ];
+
+  return current.copyWith(
+    groups: [...current.groups, ...newGroups],
+    endpoints: [...current.endpoints, ...newEndpoints],
+  );
+}
+
 /// Thrown by [CollectionsNotifier.deleteGroup] when the group still has
 /// child groups or endpoints -- deletes are blocked, not cascaded, so a
 /// user can't lose a whole subtree with one misclick (matches common IDE
@@ -140,6 +178,23 @@ class CollectionsNotifier extends AsyncNotifier<CollectionsState> {
             if (e.id == id) e.copyWith(groupId: newGroupId) else e,
         ];
         await _persist(current.copyWith(endpoints: next));
+      });
+
+  /// Imports groups/endpoints from another JSON file (see
+  /// [mergeImportedCollections]) and returns how many of each were added,
+  /// for the caller to report back to the user.
+  Future<({int groupCount, int endpointCount})> importCollections({
+    required List<Group> groups,
+    required List<Endpoint> endpoints,
+  }) =>
+      _mutate((current) async {
+        final merged = mergeImportedCollections(
+          current,
+          importedGroups: groups,
+          importedEndpoints: endpoints,
+        );
+        await _persist(merged);
+        return (groupCount: groups.length, endpointCount: endpoints.length);
       });
 }
 

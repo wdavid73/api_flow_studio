@@ -122,6 +122,99 @@ void main() {
     expect(state.endpoints.single.groupId, groupB.id);
   });
 
+  test('importCollections adds groups/endpoints without colliding with existing ids', () async {
+    final notifier = container.read(collectionsProvider.notifier);
+    final existingGroup = await notifier.createGroup('Existing');
+    await notifier.createEndpoint(Endpoint(
+      id: 'e-1',
+      groupId: existingGroup.id,
+      name: 'Existing endpoint',
+      method: 'GET',
+      url: '/existing',
+    ));
+
+    final counts = await notifier.importCollections(
+      groups: [const Group(id: 'e-1', name: 'Imported')],
+      endpoints: [
+        const Endpoint(id: 'e-1', groupId: 'e-1', name: 'Imported endpoint', method: 'GET', url: '/imported'),
+      ],
+    );
+
+    expect(counts, (groupCount: 1, endpointCount: 1));
+
+    final state = await container.read(collectionsProvider.future);
+    expect(state.groups, hasLength(2));
+    expect(state.endpoints, hasLength(2));
+
+    final importedGroup = state.groups.firstWhere((g) => g.name == 'Imported');
+    expect(importedGroup.id, isNot('e-1'));
+
+    final importedEndpoint = state.endpoints.firstWhere((e) => e.name == 'Imported endpoint');
+    expect(importedEndpoint.id, isNot('e-1'));
+    expect(importedEndpoint.groupId, importedGroup.id);
+
+    // The pre-existing group/endpoint (which happened to share the "e-1" id
+    // with the import) must be untouched.
+    expect(state.groups.firstWhere((g) => g.name == 'Existing').id, existingGroup.id);
+    expect(state.endpoints.firstWhere((e) => e.name == 'Existing endpoint').id, 'e-1');
+  });
+
+  test('importCollections preserves nested group structure', () async {
+    final notifier = container.read(collectionsProvider.notifier);
+
+    await notifier.importCollections(
+      groups: const [
+        Group(id: 'root', name: 'Root', order: 0),
+        Group(id: 'child', name: 'Child', parentGroupId: 'root', order: 0),
+      ],
+      endpoints: const [
+        Endpoint(id: 'ep', groupId: 'child', name: 'Nested endpoint', method: 'GET', url: '/nested'),
+      ],
+    );
+
+    final state = await container.read(collectionsProvider.future);
+    final tree = buildGroupTree(state.groups, state.endpoints);
+
+    expect(tree, hasLength(1));
+    expect(tree.single.group.name, 'Root');
+    expect(tree.single.children, hasLength(1));
+    expect(tree.single.children.single.group.name, 'Child');
+    expect(tree.single.children.single.endpoints.single.name, 'Nested endpoint');
+  });
+
+  test('importCollections orders imported root groups after existing ones', () async {
+    final notifier = container.read(collectionsProvider.notifier);
+    await notifier.createGroup('Existing root');
+
+    await notifier.importCollections(
+      groups: const [
+        Group(id: 'a', name: 'Imported A', order: 0),
+        Group(id: 'b', name: 'Imported B', order: 1),
+      ],
+      endpoints: const [],
+    );
+
+    final state = await container.read(collectionsProvider.future);
+    final rootGroups = state.groups.where((g) => g.parentGroupId == null).toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
+
+    expect(rootGroups.map((g) => g.name).toList(), ['Existing root', 'Imported A', 'Imported B']);
+  });
+
+  test('importCollections drops endpoints referencing a group outside the import', () async {
+    final notifier = container.read(collectionsProvider.notifier);
+
+    await notifier.importCollections(
+      groups: const [],
+      endpoints: const [
+        Endpoint(id: 'e-1', groupId: 'missing-group', name: 'Orphan', method: 'GET', url: '/x'),
+      ],
+    );
+
+    final state = await container.read(collectionsProvider.future);
+    expect(state.endpoints, isEmpty);
+  });
+
   test('deleteEndpoint removes it', () async {
     final notifier = container.read(collectionsProvider.notifier);
     final group = await notifier.createGroup('Group');

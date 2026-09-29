@@ -41,7 +41,9 @@ jobs:
       - run: dart run build_runner build --delete-conflicting-outputs
       - run: flutter build windows --release
       - name: Zip the portable build
-        run: Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath api-flow-studio-windows.zip
+        run: |
+          Copy-Item sample-endpoints.json build\windows\x64\runner\Release\
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath api-flow-studio-windows.zip
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build
@@ -62,8 +64,9 @@ jobs:
       - run: flutter build macos --release
       - name: Zip the .app bundle
         run: |
+          cp sample-endpoints.json build/macos/Build/Products/Release/
           cd build/macos/Build/Products/Release
-          ditto -c -k --sequesterRsrc --keepParent api_flow_studio.app "$GITHUB_WORKSPACE/api-flow-studio-macos.zip"
+          ditto -c -k --sequesterRsrc --keepParent api_flow_studio.app sample-endpoints.json "$GITHUB_WORKSPACE/api-flow-studio-macos.zip"
       - uses: actions/upload-artifact@v4
         with:
           name: macos-build
@@ -91,5 +94,5 @@ jobs:
             api-flow-studio-macos.zip \
             --repo "$GITHUB_REPOSITORY" \
             --title "Latest build ($(date -u +%Y-%m-%d))" \
-            --notes "Automated build from commit ${{ github.sha }}. Unsigned build: macOS will warn about an unidentified developer -- right-click the app and choose Open, or run \`xattr -cr api_flow_studio.app\` first." \
+            --notes "Automated build from commit ${{ github.sha }}. Unsigned build: macOS will warn about an unidentified developer -- right-click the app and choose Open, or run \`xattr -cr api_flow_studio.app\` first. Each zip includes sample-endpoints.json next to the executable -- use the Import button in the sidebar to load it." \
             --prerelease

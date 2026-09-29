@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -15,6 +19,16 @@ import 'paste_curl_dialog.dart';
 /// design mockup's fake "Proxy: Localhost" line -- kept in sync with
 /// pubspec.yaml's `version:` by hand (no packages read it at runtime).
 const _appVersion = 'v1.0.0';
+
+/// Shrinks the sidebar header's icon buttons from Material's default 48x48
+/// tap target down to their padded icon size -- with four of them (folder,
+/// paste curl, import, export) sharing a ~266px-wide header, the default
+/// size overflows the row.
+final _headerIconButtonStyle = IconButton.styleFrom(
+  padding: const EdgeInsets.all(AppSpacing.xs),
+  minimumSize: Size.zero,
+  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+);
 
 /// Local UI-only state (not persisted, per SPEC 3.5's own acceptance
 /// criteria): which folders are expanded, and the current search text.
@@ -69,14 +83,30 @@ class _Loaded extends ConsumerWidget {
               IconButton(
                 key: const Key('new-root-folder-button'),
                 tooltip: 'New folder',
+                style: _headerIconButtonStyle,
                 icon: const Icon(Icons.create_new_folder_outlined, size: 16),
                 onPressed: () => _promptNewFolder(context, ref, parentGroupId: null),
               ),
               IconButton(
                 key: const Key('paste-curl-button'),
                 tooltip: 'Paste curl',
+                style: _headerIconButtonStyle,
                 icon: const Icon(Icons.content_paste, size: 16),
                 onPressed: () => showPasteCurlDialog(context),
+              ),
+              IconButton(
+                key: const Key('import-collections-button'),
+                tooltip: 'Import endpoints (JSON)',
+                style: _headerIconButtonStyle,
+                icon: const Icon(Icons.file_upload_outlined, size: 16),
+                onPressed: () => _importCollections(context, ref),
+              ),
+              IconButton(
+                key: const Key('export-collections-button'),
+                tooltip: 'Export endpoints (JSON)',
+                style: _headerIconButtonStyle,
+                icon: const Icon(Icons.file_download_outlined, size: 16),
+                onPressed: () => _exportCollections(context, ref, state),
               ),
             ],
           ),
@@ -138,6 +168,78 @@ class _Loaded extends ConsumerWidget {
       }
     }
     return result;
+  }
+}
+
+/// Opens a native "Open file" dialog, parses the picked file as a
+/// `{groups, endpoints}` collections JSON (same shape [JsonStore] persists
+/// to `collections.json`), and merges it into the current workspace via
+/// [CollectionsNotifier.importCollections]. Cancelling the dialog is a
+/// silent no-op; a file that isn't valid JSON in the expected shape shows
+/// an error instead of touching existing data.
+Future<void> _importCollections(BuildContext context, WidgetRef ref) async {
+  final result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['json'],
+    dialogTitle: 'Import endpoints',
+  );
+  final path = result?.files.single.path;
+  if (path == null) return;
+
+  try {
+    final decoded = jsonDecode(await File(path).readAsString()) as Map<String, dynamic>;
+    final groups = ((decoded['groups'] as List?) ?? const [])
+        .map((e) => Group.fromJson(e as Map<String, dynamic>))
+        .toList();
+    final endpoints = ((decoded['endpoints'] as List?) ?? const [])
+        .map((e) => Endpoint.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    final counts = await ref
+        .read(collectionsProvider.notifier)
+        .importCollections(groups: groups, endpoints: endpoints);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          'Imported ${counts.groupCount} folder(s) and ${counts.endpointCount} endpoint(s).',
+        ),
+      ));
+    }
+  } catch (_) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Could not import file: not a valid endpoints JSON.'),
+      ));
+    }
+  }
+}
+
+/// Opens a native "Save file" dialog and writes the current workspace's
+/// groups/endpoints to it in the same shape [JsonStore] uses for
+/// `collections.json`, so the result can later be picked back up by
+/// [_importCollections] (on this machine or another one).
+Future<void> _exportCollections(
+  BuildContext context,
+  WidgetRef ref,
+  CollectionsState state,
+) async {
+  final path = await FilePicker.platform.saveFile(
+    dialogTitle: 'Export endpoints',
+    fileName: 'api-flow-studio-endpoints.json',
+    type: FileType.custom,
+    allowedExtensions: ['json'],
+  );
+  if (path == null) return;
+
+  final json = const JsonEncoder.withIndent('  ').convert({
+    'groups': state.groups.map((g) => g.toJson()).toList(),
+    'endpoints': state.endpoints.map((e) => e.toJson()).toList(),
+  });
+  await File(path).writeAsString(json);
+
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Exported to $path')));
   }
 }
 

@@ -112,6 +112,13 @@ unzip and run. macOS builds are unsigned, so macOS will warn about an
 unidentified developer; right-click the app and choose Open, or run
 `xattr -cr api_flow_studio.app` first.
 
+Each zip also includes `sample-endpoints.json` next to the executable —
+since the app's data lives in `api_flow_studio_data/` next to whichever
+executable you're running (see above), a freshly downloaded build always
+starts empty. Use the **Import** button in the sidebar to load that file
+(or any collections JSON exported from another machine via the **Export**
+button) and get a few working example endpoints right away.
+
 ## Documentation
 
 - [SPEC.md](SPEC.md) — objective, tech stack, commands, project structure,
