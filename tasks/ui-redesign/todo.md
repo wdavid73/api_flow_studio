@@ -88,7 +88,7 @@ Detail in [plan-workspace.md](plan-workspace.md).
 
 ## Phase 4 — Sidebar and keys
 - [x] W7: Method chips and combined filter
-- [ ] W8: Sidebar rows, group headers and empty result
+- [x] W8: Sidebar rows, group headers and empty result
 - [ ] W9: Keyboard shortcuts
 
 ## Phase 5 — Verify

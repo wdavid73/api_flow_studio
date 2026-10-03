@@ -141,12 +141,23 @@ class _Loaded extends ConsumerWidget {
                     child: Text('No endpoints yet — create a folder to get started.'),
                   ),
                 )
-              : ListView(
-                  children: [
-                    for (final (index, node) in filtered.indexed)
-                      _FolderNode(node: node, depth: 0, colorIndex: index),
-                  ],
-                ),
+              : filtered.isEmpty
+                  ? Center(
+                      key: const Key('no-results-state'),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        child: Text(
+                          'Nothing matches that search.',
+                          style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
+                        ),
+                      ),
+                    )
+                  : ListView(
+                      children: [
+                        for (final (index, node) in filtered.indexed)
+                          _FolderNode(node: node, depth: 0, colorIndex: index),
+                      ],
+                    ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
@@ -304,7 +315,31 @@ class _FolderNode extends ConsumerWidget {
               ),
               Icon(Icons.folder, size: 16, color: AppColors.folderIconColor(colorIndex)),
               const SizedBox(width: AppSpacing.xs),
-              Expanded(child: Text(node.group.name, overflow: TextOverflow.ellipsis)),
+              Expanded(
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        node.group.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.labelMd.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+                    if (depth == 0) ...[
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(
+                        '${_endpointCount(node)}',
+                        key: ValueKey('group-count-${node.group.id}'),
+                        style: AppTypography.codeSm.copyWith(color: AppColors.outline),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
               IconButton(
                 key: ValueKey('add-endpoint-${node.group.id}'),
                 tooltip: 'Add request',
@@ -358,6 +393,10 @@ class _FolderNode extends ConsumerWidget {
   }
 }
 
+/// Endpoints in [node] and all its descendant folders.
+int _endpointCount(GroupTreeNode node) =>
+    node.endpoints.length + node.children.fold(0, (sum, child) => sum + _endpointCount(child));
+
 class _EndpointRow extends ConsumerWidget {
   const _EndpointRow({required this.endpoint, required this.depth});
 
@@ -366,25 +405,44 @@ class _EndpointRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selected = ref.watch(requestDraftProvider.select((d) => d.id == endpoint.id));
+
     return Padding(
-      padding: EdgeInsets.only(left: AppSpacing.md * depth + AppSpacing.lg),
-      child: InkWell(
-        key: ValueKey('endpoint-row-${endpoint.id}'),
-        onTap: () => ref.read(requestDraftProvider.notifier).loadEndpoint(endpoint),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-          child: Row(
-            children: [
-              MethodBadge(method: endpoint.method),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(child: Text(endpoint.name, overflow: TextOverflow.ellipsis)),
-              IconButton(
-                key: ValueKey('delete-endpoint-${endpoint.id}'),
-                tooltip: 'Delete request',
-                icon: const Icon(Icons.delete_outline, size: 14),
-                onPressed: () => ref.read(collectionsProvider.notifier).deleteEndpoint(endpoint.id),
-              ),
-            ],
+      padding: EdgeInsets.only(left: AppSpacing.md * depth + AppSpacing.lg, right: AppSpacing.xs),
+      child: Material(
+        key: ValueKey('endpoint-surface-${endpoint.id}'),
+        color: selected ? AppColors.surfaceContainerHigh : Colors.transparent,
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        child: InkWell(
+          key: ValueKey('endpoint-row-${endpoint.id}'),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          hoverColor: AppColors.surfaceContainer,
+          onTap: () => ref.read(requestDraftProvider.notifier).loadEndpoint(endpoint),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+            child: Row(
+              children: [
+                SizedBox(
+                  key: Key('endpoint-method-${endpoint.id}'),
+                  width: 54,
+                  child: MethodBadge(method: endpoint.method),
+                ),
+                Expanded(
+                  child: Text(
+                    endpoint.name,
+                    key: Key('endpoint-name-${endpoint.id}'),
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.codeMd,
+                  ),
+                ),
+                IconButton(
+                  key: ValueKey('delete-endpoint-${endpoint.id}'),
+                  tooltip: 'Delete request',
+                  icon: const Icon(Icons.delete_outline, size: 14),
+                  onPressed: () => ref.read(collectionsProvider.notifier).deleteEndpoint(endpoint.id),
+                ),
+              ],
+            ),
           ),
         ),
       ),
