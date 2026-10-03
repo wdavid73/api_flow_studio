@@ -45,10 +45,12 @@ abstract class JourneyHarness {
     bool seed = true,
     DateTime? now,
   }) async {
-    tester.view.physicalSize = windowSize;
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    if (!watchingJourneys) {
+      tester.view.physicalSize = windowSize;
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+    }
 
     final theStore = store ?? await newStore();
     if (store == null && seed) await seedStore(theStore);
@@ -63,6 +65,13 @@ abstract class JourneyHarness {
     return driver;
   }
 }
+
+const int _pauseMs = int.fromEnvironment('JOURNEY_PAUSE_MS');
+
+/// True when a journey is being watched (`--dart-define=JOURNEY_PAUSE_MS=<ms>`).
+/// The app then uses the real window as it is: forcing a test size would make
+/// Flutter draw into an off-screen test view and leave the window blank.
+const bool watchingJourneys = _pauseMs > 0;
 
 /// The user's hands: small helpers over the running app, so a journey reads as
 /// what a person does. Widgets are found by their existing `Key`s.
@@ -120,11 +129,17 @@ class AppDriver {
     await mount();
   }
 
-  /// Lets frames and pending async work (store reads, responses) finish.
+  /// Lets frames and pending async work (store reads, responses) finish. With
+  /// `--dart-define=JOURNEY_PAUSE_MS=<ms>` it then waits that long in real time,
+  /// so a journey run in the Windows app can be followed by eye.
   Future<void> settle() async {
     for (var i = 0; i < 3; i++) {
       await tester.pump(const Duration(milliseconds: 50));
       await tester.pumpAndSettle();
+    }
+    if (_pauseMs > 0) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: _pauseMs)));
+      await tester.pump();
     }
   }
 
