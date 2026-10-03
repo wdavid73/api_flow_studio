@@ -6,11 +6,9 @@ import '../projects/project.dart';
 import 'history_limits.dart';
 
 /// Reads and writes the app's collections/environments/flows as plain JSON
-/// files on disk, under a folder next to the running executable by default
-/// (inject [directory] to point at a different location, e.g. a temp dir in
-/// tests) -- this keeps the app portable: copy the build output folder
-/// anywhere (a USB drive, a zip to share) and its data travels with it,
-/// rather than being tied to the installing machine's per-user profile.
+/// files on disk (inject [directory] to point at a different location, e.g.
+/// a temp dir in tests). See [defaultDirectory] for where that is per
+/// platform and why.
 ///
 /// Writes are atomic (write to `<file>.tmp`, then rename over the target)
 /// so a crash mid-write can never leave a half-written file in place.
@@ -55,12 +53,31 @@ class JsonStore {
     return result;
   }
 
-  /// The data folder the app uses: `api_flow_studio_data` next to the
-  /// executable, so the app stays portable. Not available on the web.
-  static Directory defaultDirectory() => Directory(
-        '${File(Platform.resolvedExecutable).parent.path}'
-        '${Platform.pathSeparator}api_flow_studio_data',
-      );
+  /// The data folder the app uses. On Windows/Linux this is
+  /// `api_flow_studio_data` next to the executable, so the app stays
+  /// portable: copy the build output folder anywhere (a USB drive, a zip to
+  /// share) and its data travels with it, rather than being tied to the
+  /// installing machine's per-user profile.
+  ///
+  /// On macOS the app is sandboxed and distributed as a signed `.app`
+  /// bundle, so it uses the standard per-user location instead
+  /// (`~/Library/Application Support/api_flow_studio`). Writing next to the
+  /// executable there either violates the sandbox (which forbids writing
+  /// inside the signed bundle) or, unsandboxed, breaks under Gatekeeper's
+  /// App Translocation, which runs an app launched straight out of a
+  /// downloaded zip/DMG from a randomized read-only copy. Cross-machine
+  /// portability on macOS goes through the explicit workspace export/import
+  /// feature instead of file co-location.
+  static Directory defaultDirectory() {
+    if (Platform.isMacOS) {
+      final home = Platform.environment['HOME']!;
+      return Directory('$home/Library/Application Support/api_flow_studio');
+    }
+    return Directory(
+      '${File(Platform.resolvedExecutable).parent.path}'
+      '${Platform.pathSeparator}api_flow_studio_data',
+    );
+  }
 
   Future<Directory> _directory() async {
     final dir = _directoryOverride ?? defaultDirectory();
