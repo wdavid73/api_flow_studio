@@ -2,7 +2,9 @@ import '../../integration_test/journeys/environments_journey.dart';
 import '../../integration_test/journeys/flow_journey.dart';
 import '../../integration_test/journeys/history_journey.dart';
 import '../../integration_test/journeys/hosts_journey.dart';
+import '../../integration_test/journeys/keyboard_journey.dart';
 import '../../integration_test/journeys/navigation_journey.dart';
+import '../../integration_test/journeys/persistence_journey.dart';
 import '../../integration_test/journeys/production_journey.dart';
 import '../../integration_test/journeys/send_request_journey.dart';
 import '../../integration_test/journeys/session_journey.dart';
@@ -22,4 +24,6 @@ void main() {
   defineSessionJourney(() => harness);
   defineFlowJourney(() => harness);
   defineHostsJourney(() => harness);
+  definePersistenceJourney(() => harness);
+  defineKeyboardJourney(() => harness);
 }

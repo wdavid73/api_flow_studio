@@ -4,7 +4,9 @@ import 'journeys/environments_journey.dart';
 import 'journeys/flow_journey.dart';
 import 'journeys/history_journey.dart';
 import 'journeys/hosts_journey.dart';
+import 'journeys/keyboard_journey.dart';
 import 'journeys/navigation_journey.dart';
+import 'journeys/persistence_journey.dart';
 import 'journeys/production_journey.dart';
 import 'journeys/send_request_journey.dart';
 import 'journeys/session_journey.dart';
@@ -28,4 +30,6 @@ void main() {
   defineSessionJourney(() => harness);
   defineFlowJourney(() => harness);
   defineHostsJourney(() => harness);
+  definePersistenceJourney(() => harness);
+  defineKeyboardJourney(() => harness);
 }
