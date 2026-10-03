@@ -1,18 +1,49 @@
 name: Release Build
 
-# Builds portable Windows and macOS executables and publishes them to a
-# single rolling "latest" GitHub Release, so there's always one fixed
-# download link with the most recent master build -- re-run manually via
-# workflow_dispatch if you need to rebuild without a new commit.
+# Every push to master bumps the patch (and build) number in pubspec.yaml,
+# builds portable Windows and macOS executables, and publishes them to:
+#   * a release for that version, tagged vX.Y.Z (the version history), and
+#   * the rolling "latest" release, a fixed download link to the newest build.
+# The version bump is committed back to master ([skip ci]) and tagged only
+# after both builds succeed, so a failed build never burns a number. For a
+# minor or major bump, edit `version:` in pubspec.yaml by hand: the next run
+# continues from it. Re-run manually via workflow_dispatch to rebuild.
 on:
   push:
     branches: [master]
   workflow_dispatch:
 
+# One release at a time, so two quick pushes never compute the same version.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 env:
   FLUTTER_VERSION: "3.44.6" # keep in sync with .fvmrc
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.next.outputs.name }}
+      full: ${{ steps.next.outputs.full }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compute the next version
+        id: next
+        run: |
+          current=$(sed -nE 's/^version: *([0-9]+)\.([0-9]+)\.([0-9]+)\+([0-9]+).*/\1 \2 \3 \4/p' pubspec.yaml)
+          read -r major minor patch build <<< "$current"
+          if [ -z "$build" ]; then echo "pubspec.yaml version must look like 1.2.3+4"; exit 1; fi
+          name="$major.$minor.$((patch + 1))"
+          full="$name+$((build + 1))"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$name" > /dev/null; then
+            echo "Tag v$name already exists"; exit 1
+          fi
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "full=$full" >> "$GITHUB_OUTPUT"
+          echo "Next version: $full"
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +59,7 @@ jobs:
       - run: flutter test
 
   build-windows:
-    needs: test
+    needs: [test, version]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +68,11 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
+      - name: Stamp the version
+        shell: bash
+        run: |
+          sed -i.bak -E 's/^version: .*/version: ${{ needs.version.outputs.full }}/' pubspec.yaml
+          rm pubspec.yaml.bak
       - run: flutter pub get
       - run: dart run build_runner build --delete-conflicting-outputs
       - run: flutter build windows --release
@@ -50,7 +86,7 @@ jobs:
           path: api-flow-studio-windows.zip
 
   build-macos:
-    needs: test
+    needs: [test, version]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +95,11 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
+      - name: Stamp the version
+        shell: bash
+        run: |
+          sed -i.bak -E 's/^version: .*/version: ${{ needs.version.outputs.full }}/' pubspec.yaml
+          rm pubspec.yaml.bak
       - run: flutter pub get
       - run: dart run build_runner build --delete-conflicting-outputs
       - run: flutter build macos --release
@@ -75,26 +116,37 @@ jobs:
           path: api-flow-studio-macos.zip
 
   release:
-    needs: [build-windows, build-macos]
+    needs: [version, build-windows, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSION: ${{ needs.version.outputs.name }}
+      FULL_VERSION: ${{ needs.version.outputs.full }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Commit the version bump and tag it
+        run: |
+          sed -i -E "s/^version: .*/version: $FULL_VERSION/" pubspec.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(release): v$VERSION [skip ci]"
+          git tag "v$VERSION"
+          git pull --rebase origin master
+          git push origin HEAD:master "v$VERSION"
       - uses: actions/download-artifact@v4
         with:
           name: windows-build
       - uses: actions/download-artifact@v4
         with:
           name: macos-build
+      - name: Publish the version release
+        run: |
+          gh release create "v$VERSION"             api-flow-studio-windows.zip             api-flow-studio-macos.zip             --title "v$VERSION"             --generate-notes             --notes "Unsigned build: macOS will warn about an unidentified developer -- right-click the app and choose Open, or run \`xattr -cr api_flow_studio.app\` first. Each zip includes sample-endpoints.json next to the executable -- use the Import button in the sidebar to load it."
       - name: Update the rolling "latest" release
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete latest --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
-          gh release create latest \
-            api-flow-studio-windows.zip \
-            api-flow-studio-macos.zip \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "Latest build ($(date -u +%Y-%m-%d))" \
-            --notes "Automated build from commit ${{ github.sha }}. Unsigned build: macOS will warn about an unidentified developer -- right-click the app and choose Open, or run \`xattr -cr api_flow_studio.app\` first. Each zip includes sample-endpoints.json next to the executable -- use the Import button in the sidebar to load it." \
-            --prerelease
+          gh release create latest             api-flow-studio-windows.zip             api-flow-studio-macos.zip             --repo "$GITHUB_REPOSITORY"             --title "Latest build: v$VERSION ($(date -u +%Y-%m-%d))"             --notes "Automated build of v$VERSION from commit ${{ github.sha }}. Unsigned build: macOS will warn about an unidentified developer -- right-click the app and choose Open, or run \`xattr -cr api_flow_studio.app\` first. Each zip includes sample-endpoints.json next to the executable -- use the Import button in the sidebar to load it."             --prerelease
