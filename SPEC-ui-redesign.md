@@ -31,7 +31,7 @@ paneles). Complementa —no reemplaza— [SPEC.md](SPEC.md) (spec v1 de la app).
 | `app-shell` | Header (marca, nav, selector Dev/QA/Prod en pastilla), borde rojo superior en prod, toast, layout responsive. | `ui-theme` |
 | `workspace` | Sidebar (búsqueda, chips de método, grupos), constructor de request, panel de respuesta, Ctrl/Cmd+Enter. | `app-shell` |
 | `session-tokens` | Sesión por ambiente, solo en memoria: access/refresh token, adjuntar Authorization, capturar tokens de 2xx, metadata JWT, borrar; botón en el header y popover. | `app-shell`, hook en el envío de `workspace` |
-| `hosts-notes` | Diálogo de hosts/bases por ambiente con URL Dev/QA/Prod y avisos. | `app-shell` |
+| `hosts-notes` | Diálogo `Hosts & notes`: matriz de bases (variables de ambiente cuyo valor es una URL) × ambientes, editable, con avisos de ausencia y notas por base. | `app-shell` |
 | `secondary-screens` | Environments y Flows (builder y run view) con el nuevo lenguaje visual, y History convertido en pantalla global de historial. | `ui-theme`, `app-shell` |
 
 **Orden de construcción:**
@@ -46,7 +46,7 @@ Reglas del mapa:
 - Cada módulo tendrá `SPEC-<module-id>.md` junto a este archivo. Specs
   escritos: `ui-theme` (aprobado e implementado), `app-shell` (aprobado e implementado), `workspace` (aprobado e implementado), `secondary-screens` (aprobado e implementado). Pendientes (se escriben en orden de dependencia
   antes de planificar cada módulo): 
-  `hosts-notes`. `session-tokens` (aprobado).
+  `hosts-notes`. `session-tokens` (aprobado e implementado).
 
 ## Ubicación del plan
 
