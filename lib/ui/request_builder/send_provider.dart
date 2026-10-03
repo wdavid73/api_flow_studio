@@ -2,17 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../engine/http/executed_response.dart';
-import '../../engine/http/request_executor.dart';
 import '../../engine/models/models.dart';
 import '../environments/environments_provider.dart';
 import '../history/all_history_provider.dart';
 import '../history/history_provider.dart';
 import '../response_viewer/response_body_tab.dart' show rawResponseBody;
+import '../session/session_provider.dart' show sessionExecutorProvider;
 import 'request_draft_provider.dart';
 
-/// Overridden in tests with a mocked [RequestExecutor]; the real app uses
-/// the default `dio`-backed instance.
-final requestExecutorProvider = Provider<RequestExecutor>((ref) => RequestExecutor());
+export 'request_executor_provider.dart' show requestExecutorProvider;
 
 class SendState {
   const SendState({this.loading = false, this.response});
@@ -28,7 +26,7 @@ class SendNotifier extends Notifier<SendState> {
   Future<void> send() async {
     state = SendState(loading: true, response: state.response);
     final endpoint = ref.read(requestDraftProvider);
-    final executor = ref.read(requestExecutorProvider);
+    final executor = ref.read(sessionExecutorProvider);
     // Reads whichever environment is active *right now* -- switching
     // environments and resending the same draft must resolve against the
     // new environment's values (SPEC criterion #2), not whatever was

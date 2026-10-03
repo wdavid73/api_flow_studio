@@ -6,7 +6,7 @@ import '../../engine/flows/flow_step_result.dart';
 import '../../engine/models/models.dart';
 import '../../engine/variables/interpolator.dart';
 import '../environments/environments_provider.dart';
-import '../request_builder/send_provider.dart' show requestExecutorProvider;
+import '../session/session_provider.dart' show sessionExecutorProvider;
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -84,7 +84,7 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
       _selectedIndex = null;
     });
 
-    final executor = ref.read(requestExecutorProvider);
+    final executor = ref.read(sessionExecutorProvider);
     final runner = FlowRunner(executor: executor);
     // Awaits the environments provider's own future rather than reading its
     // (possibly still-loading) `.value` snapshot -- this runs from
@@ -117,7 +117,7 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
       }
     });
 
-    final executor = ref.read(requestExecutorProvider);
+    final executor = ref.read(sessionExecutorProvider);
     final runner = FlowRunner(executor: executor);
 
     await runner.runFrom(

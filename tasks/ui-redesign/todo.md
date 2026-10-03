@@ -152,11 +152,11 @@ Detail in [plan-session-tokens.md](plan-session-tokens.md).
 
 ## Phase 2 — Behavior
 - [x] K4: `SessionRequestExecutor`
-- [ ] K5: Per-environment sessions wired into send and flows
+- [x] K5: Per-environment sessions wired into send and flows
 
 ### Checkpoint: Behavior
-- [ ] Sending a login stores tokens for the active environment; the next send carries them; another environment does not
-- [ ] analyze clean, full suite green
+- [x] Sending a login stores tokens for the active environment; the next send carries them; another environment does not
+- [x] analyze clean, full suite green
 
 ## Phase 3 — UI
 - [ ] K6: Header session button and popover shell
