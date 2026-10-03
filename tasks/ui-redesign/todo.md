@@ -142,7 +142,7 @@ Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 Detail in [plan-session-tokens.md](plan-session-tokens.md).
 
 ## Phase 1 — Engine rules
-- [ ] K1: `Session`, `applySession` and `sessionVariables`
+- [x] K1: `Session`, `applySession` and `sessionVariables`
 - [ ] K2: JWT claims and expiry
 - [ ] K3: Token finder
 
