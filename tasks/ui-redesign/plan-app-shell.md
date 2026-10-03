@@ -50,7 +50,7 @@ from S3.
 - [x] Switching environments in the pill changes variable resolution as before (setActive covered by pill tests; resolution by variable_interpolation_test)
 
 ### Phase 2: Header and feedback
-- [ ] S3: Header with brand, nav, actions zone and background
+- [x] S3: Header with brand, nav, actions zone and background
 - [ ] S4: Toast
 - [ ] S5: Banner
 

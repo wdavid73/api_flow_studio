@@ -47,6 +47,9 @@ class AppColors {
 
   static const Color warning = Color(0xFFFFD27A); // --warn
 
+  /// Faint lime glow behind the shell top-left corner (8 percent of --accent).
+  static const Color backgroundGlow = Color(0x14D6FF4A);
+
   static const Color background = Color(0xFF10110E);
   static const Color onBackground = Color(0xFFF4F5EE);
   static const Color surfaceVariant = Color(0xFF31351F);
