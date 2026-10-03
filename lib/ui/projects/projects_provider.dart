@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/projects/project.dart';
 import '../../engine/projects/projects_repository.dart';
 import '../../engine/storage/json_store.dart';
+import '../../engine/workspace/import_workspace.dart';
 
 /// The projects and which one is active, together with the store that holds the
 /// active project's data.
@@ -64,6 +65,14 @@ class ProjectsController extends Notifier<ProjectsState> {
     await _repository.setActive(project.id);
     await _reload();
     return project;
+  }
+
+  /// Imports the workspace in [text] as a new project and makes it the active
+  /// one. Throws a `WorkspaceFileException` if the text is not a usable file.
+  Future<ImportedWorkspace> importWorkspace(String text) async {
+    final imported = await importWorkspaceText(_repository, text, activate: true);
+    await _reload();
+    return imported;
   }
 
   Future<void> rename(String id, String name) async {

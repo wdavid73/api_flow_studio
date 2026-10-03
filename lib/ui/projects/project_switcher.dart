@@ -6,6 +6,7 @@ import '../shell/app_toast.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../workspace_transfer/workspace_transfer_actions.dart';
 import 'project_colors.dart';
 import 'project_dialogs.dart';
 import 'projects_provider.dart';
@@ -19,6 +20,8 @@ class ProjectSwitcher extends ConsumerWidget {
   static const _newProject = ':new';
   static const _renameProject = ':rename';
   static const _deleteProject = ':delete';
+  static const _exportWorkspace = ':export';
+  static const _importWorkspace = ':import';
 
   Future<void> _onSelected(BuildContext context, WidgetRef ref, String value) async {
     final controller = ref.read(projectsProvider.notifier);
@@ -48,6 +51,10 @@ class ProjectSwitcher extends ConsumerWidget {
         if (result == null) return;
         await controller.rename(state.active.id, result.name);
         showToast(ref, 'Project renamed to "${result.name}"');
+      case _exportWorkspace:
+        await exportActiveProject(ref);
+      case _importWorkspace:
+        await importWorkspaceFromFile(context, ref);
       case _deleteProject:
         if (!await confirmDeleteProject(context, state.active)) return;
         await controller.delete(state.active.id);
@@ -89,6 +96,17 @@ class ProjectSwitcher extends ConsumerWidget {
           key: Key('rename-project-button'),
           value: _renameProject,
           child: _ActionRow(icon: Icons.edit_outlined, label: 'Rename project…'),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem<String>(
+          key: Key('export-workspace-button'),
+          value: _exportWorkspace,
+          child: _ActionRow(icon: Icons.file_upload_outlined, label: 'Export workspace…'),
+        ),
+        const PopupMenuItem<String>(
+          key: Key('import-workspace-button'),
+          value: _importWorkspace,
+          child: _ActionRow(icon: Icons.file_download_outlined, label: 'Import workspace…'),
         ),
         if (state.projects.length > 1)
           const PopupMenuItem<String>(
