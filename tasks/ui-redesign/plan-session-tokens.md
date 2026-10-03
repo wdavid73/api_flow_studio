@@ -64,7 +64,7 @@ K1, K2 and K3 are independent. K6–K9 only need K5; K7 also uses K2.
 - [x] `grep -r "package:flutter" lib/engine` is empty
 
 ### Phase 2: Behavior
-- [ ] K4: `SessionRequestExecutor`
+- [x] K4: `SessionRequestExecutor`
 - [ ] K5: Per-environment sessions wired into send and flows
 
 ### Checkpoint: Behavior

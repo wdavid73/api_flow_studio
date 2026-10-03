@@ -151,7 +151,7 @@ Detail in [plan-session-tokens.md](plan-session-tokens.md).
 - [x] `grep -r "package:flutter" lib/engine` is empty
 
 ## Phase 2 — Behavior
-- [ ] K4: `SessionRequestExecutor`
+- [x] K4: `SessionRequestExecutor`
 - [ ] K5: Per-environment sessions wired into send and flows
 
 ### Checkpoint: Behavior
