@@ -1,6 +1,7 @@
 import 'package:api_flow_studio/engine/http/executed_response.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/engine/storage/json_store.dart';
+import 'package:api_flow_studio/ui/history/history_tab.dart';
 import 'package:api_flow_studio/ui/environments/environments_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/request_draft_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
@@ -185,5 +186,54 @@ void main() {
 
     expect(find.byKey(const Key('response-error')), findsOneWidget);
     expect(find.text('Body'), findsNothing);
+  });
+
+  group('Response / History tabs', () {
+    testWidgets('the panel has Response and History tabs, Response first', (tester) async {
+      await tester.pumpWidget(wrap(const SendState()));
+
+      expect(find.widgetWithText(Tab, 'Response'), findsOneWidget);
+      expect(find.widgetWithText(Tab, 'History'), findsOneWidget);
+      expect(find.byType(HistoryTab), findsNothing);
+    });
+
+    testWidgets('History for an unsaved draft says to save it first', (tester) async {
+      await tester.pumpWidget(wrap(const SendState()));
+
+      await tester.tap(find.widgetWithText(Tab, 'History'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('history-unsaved-state')), findsOneWidget);
+    });
+
+    testWidgets('History for a saved endpoint with no entries shows the empty state', (tester) async {
+      await tester.pumpWidget(wrap(const SendState()));
+      containerOf(tester).read(requestDraftProvider.notifier).loadEndpoint(
+            const Endpoint(id: 'e-1', groupId: 'g-1', name: 'Get', method: 'GET', url: 'https://x.test'),
+          );
+
+      await tester.tap(find.widgetWithText(Tab, 'History'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('empty-history-state')), findsOneWidget);
+    });
+
+    testWidgets('History lists the stored entries of the loaded endpoint', (tester) async {
+      final store = JsonStore.inMemory();
+      await store.appendHistoryEntry(
+        'e-1',
+        HistoryEntry(id: 'h1', endpointId: 'e-1', timestamp: DateTime(2026), status: 200, elapsedMs: 7),
+      );
+      await tester.pumpWidget(wrap(const SendState(), store: store));
+      containerOf(tester).read(requestDraftProvider.notifier).loadEndpoint(
+            const Endpoint(id: 'e-1', groupId: 'g-1', name: 'Get', method: 'GET', url: 'https://x.test'),
+          );
+
+      await tester.tap(find.widgetWithText(Tab, 'History'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('history-list')), findsOneWidget);
+      expect(find.byKey(const ValueKey('history-row-h1')), findsOneWidget);
+    });
   });
 }

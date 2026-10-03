@@ -5,6 +5,7 @@ import 'package:api_flow_studio/engine/storage/json_store.dart';
 import 'package:api_flow_studio/ui/collections/sidebar_tree.dart';
 import 'package:api_flow_studio/ui/environments/environments_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/request_bar.dart';
+import 'package:api_flow_studio/ui/request_builder/request_draft_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
 import 'package:api_flow_studio/ui/response_viewer/response_panel.dart';
 import 'package:api_flow_studio/ui/theme/app_colors.dart';
@@ -71,9 +72,10 @@ void main() {
   testWidgets('the response pane uses the response background color', (tester) async {
     await pumpWorkspace(tester, width: 1440);
 
-    final pane = tester.widget<Container>(find.byKey(const Key('workspace-response-pane')));
+    // A Material (not a DecoratedBox) so ink effects of rows inside still show.
+    final pane = tester.widget<Material>(find.byKey(const Key('workspace-response-pane')));
 
-    expect((pane.decoration! as BoxDecoration).color, AppColors.responseBackground);
+    expect(pane.color, AppColors.responseBackground);
   });
 
   testWidgets('below 1100px the response is stacked under the request', (tester) async {
@@ -108,5 +110,24 @@ void main() {
     final pane = find.byKey(const Key('workspace-response-pane'));
     expect(find.descendant(of: pane, matching: find.textContaining('"ok"')), findsOneWidget);
     expect(find.descendant(of: pane, matching: find.text('200')), findsOneWidget);
+  });
+
+  testWidgets('a sent saved request shows up under History without reloading', (tester) async {
+    when(() => executor.execute(any(), variables: any(named: 'variables'))).thenAnswer(
+      (_) async => const ExecutedResponse(status: 201, body: '{}', elapsedMs: 5, sizeBytes: 2),
+    );
+    await pumpWorkspace(tester, width: 1440);
+    ProviderScope.containerOf(tester.element(find.byType(RequestBar)))
+        .read(requestDraftProvider.notifier)
+        .loadEndpoint(const Endpoint(id: 'e-1', groupId: 'g-1', name: 'Get', method: 'GET', url: 'https://x.test'));
+    await tester.pump();
+
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(Tab, 'History'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('history-list')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('history-list')), matching: find.text('201')), findsOneWidget);
   });
 }

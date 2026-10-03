@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/curl/curl_builder.dart';
+import '../../engine/http/executed_response.dart';
 import '../environments/environments_provider.dart';
+import '../history/history_tab.dart';
 import '../request_builder/request_draft_provider.dart';
 import '../request_builder/send_provider.dart';
 import '../shell/app_toast.dart';
@@ -17,9 +19,9 @@ import 'response_cookies_tab.dart';
 import 'response_headers_tab.dart';
 import 'response_timeline_tab.dart';
 
-/// The full response viewer: a Copy / curl action row, a status line
-/// (`200 · 124 ms · 512 B`), then a Body | Headers | Cookies | Timeline tab
-/// set. `Copy` takes the raw body; `curl` builds a curl command for the
+/// The response side of the workspace: Response / History tabs with Copy and
+/// curl buttons beside them. Response shows a status line
+/// (`200 · 124 ms · 512 B`) over a Body | Headers | Cookies | Timeline tab set. `Copy` takes the raw body; `curl` builds a curl command for the
 /// request currently in the builder with the active environment resolved.
 class ResponsePanel extends ConsumerWidget {
   const ResponsePanel({super.key, required this.sendState});
@@ -30,10 +32,7 @@ class ResponsePanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final response = sendState.response;
 
-    final actions = Row(
-      children: [
-        const Spacer(),
-        HeaderGhostButton(
+    final copyButton = HeaderGhostButton(
           key: const Key('copy-body-button'),
           label: 'Copy',
           onPressed: () {
@@ -44,9 +43,8 @@ class ResponsePanel extends ConsumerWidget {
             Clipboard.setData(ClipboardData(text: rawResponseBody(response.body)));
             showToast(ref, 'Response copied');
           },
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        HeaderGhostButton(
+        );
+    final curlButton = HeaderGhostButton(
           key: const Key('copy-curl-button'),
           label: 'curl',
           onPressed: () {
@@ -54,16 +52,57 @@ class ResponsePanel extends ConsumerWidget {
             Clipboard.setData(ClipboardData(text: buildCurl(ref.read(requestDraftProvider), variables: variables)));
             showToast(ref, 'curl copied');
           },
-        ),
-      ],
+        );
+
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: TabBar(
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
+                  tabs: [Tab(text: 'Response'), Tab(text: 'History')],
+                ),
+              ),
+              copyButton,
+              const SizedBox(width: AppSpacing.sm),
+              curlButton,
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _ResponseView(response: response),
+                const HistoryTab(),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+  }
+}
+
+/// The Response tab: empty/error states, or the status line plus the
+/// Body | Headers | Cookies | Timeline tab set.
+class _ResponseView extends StatelessWidget {
+  const _ResponseView({required this.response});
+
+  final ExecutedResponse? response;
+
+  @override
+  Widget build(BuildContext context) {
+    final response = this.response;
 
     if (response == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          actions,
-          const SizedBox(height: AppSpacing.lg),
           Text('No response yet', style: AppTypography.codeLg),
           const SizedBox(height: AppSpacing.sm),
           Text(
@@ -74,17 +113,9 @@ class ResponsePanel extends ConsumerWidget {
       );
     }
     if (response.error != null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          actions,
-          Expanded(
-            child: Center(
-              key: const Key('response-error'),
-              child: Text('Error: ${response.error}'),
-            ),
-          ),
-        ],
+      return Center(
+        key: const Key('response-error'),
+        child: Text('Error: ${response.error}'),
       );
     }
 
@@ -93,8 +124,6 @@ class ResponsePanel extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        actions,
-        const SizedBox(height: AppSpacing.sm),
         Row(
           children: [
             StatusBadge(statusCode: response.status ?? 0),

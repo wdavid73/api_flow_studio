@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../collections/collections_provider.dart';
-import '../history/history_tab.dart';
 import 'request_draft_provider.dart';
 import 'send_provider.dart';
 import 'tabs/auth_tab.dart';
@@ -76,7 +75,7 @@ class RequestBar extends ConsumerWidget {
           const SizedBox(height: 16),
           Expanded(
             child: DefaultTabController(
-              length: 8,
+              length: 7,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -89,7 +88,6 @@ class RequestBar extends ConsumerWidget {
                       Tab(text: 'Headers'),
                       Tab(text: 'Body'),
                       Tab(text: 'Auth'),
-                      Tab(text: 'History'),
                       Tab(text: 'Tests'),
                       Tab(text: 'Settings'),
                     ],
@@ -102,7 +100,6 @@ class RequestBar extends ConsumerWidget {
                         HeadersTab(),
                         BodyTab(),
                         AuthTab(),
-                        HistoryTab(),
                         Center(child: Text('Tests are out of MVP scope')),
                         Center(child: Text('Settings are out of MVP scope')),
                       ],

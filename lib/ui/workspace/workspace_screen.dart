@@ -68,11 +68,15 @@ class _ResponsePane extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
+    // A Material, not a colored DecoratedBox: rows inside (history tiles)
+    // paint their ink on the nearest Material and a DecoratedBox would hide it.
+    return Material(
       key: const Key('workspace-response-pane'),
-      padding: const EdgeInsets.all(AppSpacing.xl - 4),
-      decoration: const BoxDecoration(color: AppColors.responseBackground),
-      child: ResponsePanel(sendState: ref.watch(sendStateProvider)),
+      color: AppColors.responseBackground,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl - 4),
+        child: ResponsePanel(sendState: ref.watch(sendStateProvider)),
+      ),
     );
   }
 }

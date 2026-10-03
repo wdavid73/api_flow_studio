@@ -183,4 +183,12 @@ void main() {
     ).captured.single as Endpoint;
     expect(endpoint.authConfig, const AuthConfig.bearer(token: 'abc123'));
   });
+
+  testWidgets('the request tabs no longer include History (it lives beside the response)', (tester) async {
+    await pumpRequestBar(tester);
+
+    final requestTabs = find.descendant(of: find.byType(RequestBar), matching: find.byType(Tab));
+    expect(requestTabs, findsNWidgets(7));
+    expect(find.descendant(of: requestTabs, matching: find.text('History')), findsNothing);
+  });
 }

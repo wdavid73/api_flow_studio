@@ -56,10 +56,10 @@ W1 and W2 are independent; W3–W9 need W2 (W3 also W1). W10 needs all.
 
 ### Phase 2: Response side
 - [x] W3: Response status line, Copy and curl
-- [ ] W4: History inside the response panel
+- [x] W4: History inside the response panel
 
 ### Checkpoint: Response side
-- [ ] analyze clean, full suite green
+- [x] analyze clean, full suite green
 
 ### Phase 3: Request side
 - [ ] W5: Request header, URL bar and pill tabs
