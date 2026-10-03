@@ -73,7 +73,7 @@ Detail in [plan-workspace.md](plan-workspace.md).
 - [x] 1440px shows three panels, 900px stacks the response
 
 ## Phase 2 — Response side
-- [ ] W3: Response status line, Copy and curl
+- [x] W3: Response status line, Copy and curl
 - [ ] W4: History inside the response panel
 
 ### Checkpoint: Response side

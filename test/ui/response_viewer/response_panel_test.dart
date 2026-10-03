@@ -1,13 +1,38 @@
 import 'package:api_flow_studio/engine/http/executed_response.dart';
+import 'package:api_flow_studio/engine/models/models.dart';
+import 'package:api_flow_studio/engine/storage/json_store.dart';
+import 'package:api_flow_studio/ui/environments/environments_provider.dart';
+import 'package:api_flow_studio/ui/request_builder/request_draft_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
 import 'package:api_flow_studio/ui/response_viewer/response_panel.dart';
+import 'package:api_flow_studio/ui/shell/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Widget wrap(SendState state) =>
-      MaterialApp(home: Scaffold(body: ResponsePanel(sendState: state)));
+  Widget wrap(SendState state, {JsonStore? store}) => ProviderScope(
+        overrides: [jsonStoreProvider.overrideWithValue(store ?? JsonStore.inMemory())],
+        child: MaterialApp(home: Scaffold(body: ResponsePanel(sendState: state))),
+      );
+
+  ProviderContainer containerOf(WidgetTester tester) =>
+      ProviderScope.containerOf(tester.element(find.byType(ResponsePanel)));
+
+  List<MethodCall> captureClipboard(WidgetTester tester) {
+    final calls = <MethodCall>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        calls.add(call);
+        return null;
+      },
+    );
+    addTearDown(() => tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, null));
+    return calls;
+  }
 
   testWidgets('shows the status code via the StatusBadge and the elapsed/size chips',
       (tester) async {
@@ -82,18 +107,26 @@ void main() {
     expect(find.textContaining('response received, 88ms'), findsOneWidget);
   });
 
-  testWidgets('the copy button copies the raw body to the clipboard', (tester) async {
-    final calls = <MethodCall>[];
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (call) async {
-        calls.add(call);
-        return null;
-      },
-    );
-    addTearDown(() => tester.binding.defaultBinaryMessenger
-        .setMockMethodCallHandler(SystemChannels.platform, null));
+  testWidgets('the status line reads status, elapsed and size separated by dots', (tester) async {
+    await tester.pumpWidget(wrap(const SendState(
+      response: ExecutedResponse(status: 200, elapsedMs: 124, sizeBytes: 512, body: '{}'),
+    )));
 
+    expect(find.text('200'), findsOneWidget);
+    expect(tester.widget<Text>(find.byKey(const Key('response-elapsed'))).data, '124 ms');
+    expect(tester.widget<Text>(find.byKey(const Key('response-size'))).data, '512 B');
+    expect(find.text('·'), findsNWidgets(2));
+  });
+
+  testWidgets('with no response it says so and explains how to send', (tester) async {
+    await tester.pumpWidget(wrap(const SendState()));
+
+    expect(find.text('No response yet'), findsOneWidget);
+    expect(find.text('Pick a request and send. Cmd/Ctrl + Enter also sends.'), findsOneWidget);
+  });
+
+  testWidgets('Copy puts the raw body on the clipboard and toasts', (tester) async {
+    final calls = captureClipboard(tester);
     await tester.pumpWidget(wrap(const SendState(
       response: ExecutedResponse(status: 200, body: '{"a":1}'),
     )));
@@ -103,6 +136,46 @@ void main() {
 
     final copyCall = calls.where((c) => c.method == 'Clipboard.setData').single;
     expect(copyCall.arguments['text'], '{"a":1}');
+    expect(containerOf(tester).read(toastProvider), 'Response copied');
+    await tester.pump(toastDuration);
+  });
+
+  testWidgets('Copy with no response copies nothing and says so', (tester) async {
+    final calls = captureClipboard(tester);
+    await tester.pumpWidget(wrap(const SendState()));
+
+    await tester.tap(find.byKey(const Key('copy-body-button')));
+    await tester.pump();
+
+    expect(calls.where((c) => c.method == 'Clipboard.setData'), isEmpty);
+    expect(containerOf(tester).read(toastProvider), 'Nothing to copy');
+    await tester.pump(toastDuration);
+  });
+
+  testWidgets('curl copies the current request with the active environment resolved', (tester) async {
+    final calls = captureClipboard(tester);
+    final store = JsonStore.inMemory();
+    await store.writeEnvironments([
+      const Environment(
+        id: 'dev',
+        name: 'Dev',
+        variables: {'base': EnvironmentVariable(value: 'https://dev.example.com')},
+      ),
+    ]);
+    await store.writeActiveEnvironmentId('dev');
+
+    await tester.pumpWidget(wrap(const SendState(), store: store));
+    final container = containerOf(tester);
+    await tester.runAsync(() => container.read(environmentsProvider.future));
+    container.read(requestDraftProvider.notifier).setUrl('{{base}}/users');
+
+    await tester.tap(find.byKey(const Key('copy-curl-button')));
+    await tester.pump();
+
+    final copyCall = calls.where((c) => c.method == 'Clipboard.setData').single;
+    expect(copyCall.arguments['text'], "curl -X GET 'https://dev.example.com/users'");
+    expect(container.read(toastProvider), 'curl copied');
+    await tester.pump(toastDuration);
   });
 
   testWidgets('a transport error shows inline instead of the tabbed viewer', (tester) async {
