@@ -4,17 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('paints a lime radial glow over the surface color', (tester) async {
-    await tester.pumpWidget(const Directionality(
-      textDirection: TextDirection.ltr,
-      child: AppBackground(child: SizedBox()),
-    ));
+  Future<void> pumpBackground(WidgetTester tester) => tester.pumpWidget(const Directionality(
+        textDirection: TextDirection.ltr,
+        child: AppBackground(child: SizedBox()),
+      ));
 
-    final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
-    final decoration = box.decoration as BoxDecoration;
-    final gradient = decoration.gradient! as RadialGradient;
+  testWidgets('paints an opaque surface layer under the glow', (tester) async {
+    await pumpBackground(tester);
 
-    expect(decoration.color, AppColors.surface);
+    // A gradient decoration ignores its own color, so the dark base has to
+    // be a separate layer or the transparent end of the glow shows white.
+    final base = tester.widget<ColoredBox>(
+      find.descendant(of: find.byType(AppBackground), matching: find.byType(ColoredBox)).first,
+    );
+
+    expect(base.color, AppColors.surface);
+    expect(base.color.a, 1);
+  });
+
+  testWidgets('draws a lime radial glow fading to transparent', (tester) async {
+    await pumpBackground(tester);
+
+    final box = tester.widget<DecoratedBox>(
+      find.descendant(of: find.byType(AppBackground), matching: find.byType(DecoratedBox)).first,
+    );
+    final gradient = (box.decoration as BoxDecoration).gradient! as RadialGradient;
+
     expect(gradient.colors.first, AppColors.backgroundGlow);
     expect(gradient.colors.last.a, 0);
   });

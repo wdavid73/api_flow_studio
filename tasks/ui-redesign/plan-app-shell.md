@@ -59,10 +59,10 @@ from S3.
 - [x] No references to `EnvironmentSwitcher` / `ActiveEnvironmentStrip`
 
 ### Phase 3: Verify
-- [ ] S6: Sweep and visual check (≥1100px and <1100px)
+- [x] S6: Sweep and visual check (≥1100px and <1100px)
 
 ### Checkpoint: Module done
-- [ ] All SPEC-app-shell.md success criteria checked
+- [x] All SPEC-app-shell.md success criteria checked (red prod state verified by widget tests only: the app has no environment rename, so it could not be shown in the browser)
 - [ ] Human review, then write `SPEC-workspace.md`
 
 ---

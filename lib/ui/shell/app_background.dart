@@ -11,16 +11,20 @@ class AppBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        gradient: RadialGradient(
-          center: Alignment(-0.8, -1.2),
-          radius: 0.9,
-          colors: [AppColors.backgroundGlow, Color(0x00D6FF4A)],
+    // The surface color is its own layer: a BoxDecoration with a gradient
+    // ignores its color, so the glow's transparent end would show white.
+    return ColoredBox(
+      color: AppColors.surface,
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment(-0.8, -1.2),
+            radius: 0.9,
+            colors: [AppColors.backgroundGlow, Color(0x00D6FF4A)],
+          ),
         ),
+        child: child,
       ),
-      child: child,
     );
   }
 }
