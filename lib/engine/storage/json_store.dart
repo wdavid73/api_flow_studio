@@ -15,10 +15,26 @@ import '../models/models.dart';
 /// Reads that hit invalid JSON back the corrupt file up as
 /// `<file>.corrupt-<timestamp>` and fall back to an empty default rather
 /// than throwing.
+///
+/// On the web there is no filesystem (`Platform.resolvedExecutable` throws),
+/// so the default store keeps everything in memory for the session instead;
+/// [JsonStore.inMemory] gives the same backend explicitly (used by tests).
 class JsonStore {
-  JsonStore({Directory? directory}) : _directoryOverride = directory;
+  JsonStore({Directory? directory})
+      : _directoryOverride = directory,
+        _memory = directory == null && _isWeb ? {} : null;
+
+  JsonStore.inMemory()
+      : _directoryOverride = null,
+        _memory = {};
+
+  /// `true` when compiled to JavaScript (a JS `0.0` is identical to `0`).
+  static const bool _isWeb = identical(0, 0.0);
 
   final Directory? _directoryOverride;
+
+  /// Filename -> raw JSON when running without a filesystem, otherwise null.
+  final Map<String, String>? _memory;
 
   /// Serializes operations per filename: without this, two overlapping
   /// writes to the same file (e.g. two keystrokes' worth of state changes
@@ -58,6 +74,11 @@ class JsonStore {
       _serialized(filename, () => _writeAtomicUnqueued(filename, jsonValue));
 
   Future<void> _writeAtomicUnqueued(String filename, Object jsonValue) async {
+    final memory = _memory;
+    if (memory != null) {
+      memory[filename] = jsonEncode(jsonValue);
+      return;
+    }
     final target = await _file(filename);
     // Unique per write, not a fixed `<file>.tmp` -- avoids two writes ever
     // colliding on the same temp path even if queueing above had a bug.
@@ -83,6 +104,11 @@ class JsonStore {
   }
 
   Future<T> _readOrDefault<T>(String filename, T Function(dynamic decoded) parse, T fallback) async {
+    final memory = _memory;
+    if (memory != null) {
+      final stored = memory[filename];
+      return stored == null ? fallback : parse(jsonDecode(stored));
+    }
     final file = await _file(filename);
     if (!await file.exists()) return fallback;
 
