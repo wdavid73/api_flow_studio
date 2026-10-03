@@ -3,11 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/curl/curl_builder.dart';
+import '../../engine/session/session_apply.dart';
 import '../../engine/http/executed_response.dart';
-import '../environments/environments_provider.dart';
 import '../history/history_tab.dart';
 import '../request_builder/request_draft_provider.dart';
 import '../request_builder/send_provider.dart';
+import '../session/session_provider.dart';
 import '../shell/app_toast.dart';
 import '../shell/header_ghost_button.dart';
 import '../theme/app_colors.dart';
@@ -49,8 +50,10 @@ class ResponsePanel extends ConsumerWidget {
           key: const Key('copy-curl-button'),
           label: 'curl',
           onPressed: () {
-            final variables = ref.read(environmentsProvider).value?.active?.resolvedVariables ?? const {};
-            Clipboard.setData(ClipboardData(text: buildCurl(ref.read(requestDraftProvider), variables: variables)));
+            // The same request the app would send: with the session's Bearer
+            // token (unless the request sets its own auth) and its variables.
+            final request = applySession(ref.read(requestDraftProvider), ref.read(activeSessionProvider));
+            Clipboard.setData(ClipboardData(text: buildCurl(request, variables: ref.read(effectiveVariablesProvider))));
             showToast(ref, 'curl copied');
           },
         );

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/models/models.dart';
-import '../environments/environments_provider.dart';
+import '../session/session_provider.dart';
 import 'request_draft_provider.dart';
 import 'variable_highlighting_controller.dart';
 
@@ -49,8 +49,7 @@ class _UrlFieldState extends ConsumerState<UrlField> {
       }
     });
 
-    final activeVariables =
-        ref.watch(environmentsProvider).value?.active?.resolvedVariables ?? const {};
+    final activeVariables = ref.watch(effectiveVariablesProvider);
     _controller.updateResolvedVariables(activeVariables);
 
     return TextField(

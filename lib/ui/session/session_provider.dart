@@ -56,3 +56,11 @@ final sessionExecutorProvider = Provider<RequestExecutor>((ref) {
     },
   );
 });
+
+/// What `{{variable}}` resolves against in the UI: the active environment's
+/// variables plus the session's `session_*` ones. An environment variable
+/// with the same name wins.
+final effectiveVariablesProvider = Provider<Map<String, String>>((ref) {
+  final environmentVariables = ref.watch(environmentsProvider).value?.active?.resolvedVariables ?? const {};
+  return {...sessionVariables(ref.watch(activeSessionProvider)), ...environmentVariables};
+});

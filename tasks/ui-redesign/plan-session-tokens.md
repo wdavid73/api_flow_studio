@@ -75,10 +75,10 @@ K1, K2 and K3 are independent. K6–K9 only need K5; K7 also uses K2.
 - [x] K6: Header session button and popover shell
 - [x] K7: Popover contents
 - [x] K8: Capture toast
-- [ ] K9: Effective variables for curl and URL highlighting
+- [x] K9: Effective variables for curl and URL highlighting
 
 ### Checkpoint: UI
-- [ ] analyze clean, full suite green
+- [x] analyze clean, full suite green
 
 ### Phase 4: Verify
 - [ ] K10: Sweep and visual check
