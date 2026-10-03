@@ -9,9 +9,11 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'host_matrix_provider.dart';
+import 'host_notes_provider.dart';
 
 const double _nameWidth = 240;
 const double _environmentWidth = 230;
+const double _noteWidth = 260;
 
 /// The table: a fixed first column with each base's name and usage, one column
 /// per environment with that environment's value, scrolling sideways when
@@ -37,7 +39,7 @@ class HostMatrixTable extends ConsumerWidget {
       );
     }
 
-    final width = _nameWidth + _environmentWidth * matrix.environments.length;
+    final width = _nameWidth + _environmentWidth * matrix.environments.length + _noteWidth;
 
     return SingleChildScrollView(
       child: SingleChildScrollView(
@@ -104,6 +106,7 @@ class _HeaderRow extends StatelessWidget {
                 ],
               ),
             ),
+          SizedBox(width: _noteWidth, child: Text('NOTE', style: kicker)),
         ],
       ),
     );
@@ -145,6 +148,7 @@ class _HostRowView extends StatelessWidget {
               environmentId: environment.id,
               value: row.valueIn(environment.id) ?? '',
             ),
+          _NoteCell(key: Key('host-note-cell-${row.name}'), hostName: row.name, note: row.note),
         ],
       ),
     );
@@ -220,6 +224,49 @@ class _HostCellState extends ConsumerState<_HostCell> {
           ),
           onChanged: _onChanged,
         ),
+      ),
+    );
+  }
+}
+
+/// The note of one base, shared by all environments. Typing saves it.
+class _NoteCell extends ConsumerStatefulWidget {
+  const _NoteCell({super.key, required this.hostName, required this.note});
+
+  final String hostName;
+  final String note;
+
+  @override
+  ConsumerState<_NoteCell> createState() => _NoteCellState();
+}
+
+class _NoteCellState extends ConsumerState<_NoteCell> {
+  late final TextEditingController _controller = TextEditingController(text: widget.note);
+
+  @override
+  void didUpdateWidget(_NoteCell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final typed = _controller.text;
+    final sameBlank = typed.trim().isEmpty && widget.note.isEmpty;
+    if (typed != widget.note && !sameBlank) _controller.text = widget.note;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: _noteWidth,
+      child: TextField(
+        key: Key('host-note-${widget.hostName}'),
+        controller: _controller,
+        style: AppTypography.bodySm,
+        decoration: const InputDecoration(isDense: true, hintText: 'Note…'),
+        onChanged: (text) => ref.read(hostNotesProvider.notifier).setNote(widget.hostName, text),
       ),
     );
   }

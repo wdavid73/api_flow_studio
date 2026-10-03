@@ -192,7 +192,7 @@ Detail in [plan-hosts-notes.md](plan-hosts-notes.md).
 ## Phase 2 — Dialog
 - [x] H4: Header button, dialog and read-only matrix
 - [x] H5: Editable cells
-- [ ] H6: Notes column and Add host
+- [x] H6: Notes column and Add host
 - [ ] H7: Warnings under the table
 
 ### Checkpoint: Dialog

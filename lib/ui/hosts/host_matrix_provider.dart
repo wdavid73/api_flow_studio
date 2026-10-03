@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/hosts/host_matrix.dart';
 import '../collections/collections_provider.dart';
 import '../environments/environments_provider.dart';
+import 'host_notes_provider.dart';
 
 /// Base names being edited in the open dialog. They stay as rows even when
 /// their value stops being a URL, so a row never vanishes mid-keystroke. It is
@@ -14,5 +15,6 @@ final pinnedHostsProvider = StateProvider.autoDispose<Set<String>>((ref) => cons
 final hostMatrixProvider = Provider.autoDispose<HostMatrix>((ref) {
   final environments = ref.watch(environmentsProvider).value?.environments ?? const [];
   final endpoints = ref.watch(collectionsProvider).value?.endpoints ?? const [];
-  return buildHostMatrix(environments, endpoints, const {}, pinnedNames: ref.watch(pinnedHostsProvider));
+  final notes = ref.watch(hostNotesProvider).value ?? const <String, String>{};
+  return buildHostMatrix(environments, endpoints, notes, pinnedNames: ref.watch(pinnedHostsProvider));
 });
