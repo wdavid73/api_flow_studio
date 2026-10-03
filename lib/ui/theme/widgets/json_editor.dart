@@ -38,6 +38,17 @@ class _JsonEditorFieldState extends State<JsonEditorField> {
   late int _lineCount = _controller.text.split('\n').length;
 
   @override
+  void didUpdateWidget(JsonEditorField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The text can change from outside (e.g. Format JSON); typing never gets
+    // here with a different value because onChanged already pushed it up.
+    if (widget.text != _controller.text) {
+      _controller.text = widget.text;
+      _lineCount = widget.text.split('\n').length;
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
