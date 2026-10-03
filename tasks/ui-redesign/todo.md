@@ -114,7 +114,7 @@ Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 - [x] Sending a saved request makes it appear in History; clicking it opens it in the Workspace
 
 ## Phase 2 — Environments
-- [ ] S4: ACTIVE fix, PROD tag and dot colors
+- [x] S4: ACTIVE fix, PROD tag and dot colors
 - [ ] S5: Shared list/detail layout and Environments restyle
 
 ### Checkpoint: Environments

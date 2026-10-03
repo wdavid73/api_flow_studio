@@ -86,7 +86,9 @@ class AppColors {
   static const Color bannerBackground = Color(0xFF2A2416);
   static const Color infoBackground = Color(0xFF171C28);
 
-  static const List<Color> environmentDotPalette = [tertiary, secondary, error];
+  /// Dots for non-production environments. Red is reserved for production
+  /// (see `environmentDotColorFor`), so it is not in this cycle.
+  static const List<Color> environmentDotPalette = [primary, tertiary, secondary];
 
   static Color environmentDotColor(int index) =>
       environmentDotPalette[index % environmentDotPalette.length];

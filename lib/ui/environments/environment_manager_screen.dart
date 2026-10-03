@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/models/models.dart';
+import '../shell/environment_kind.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -52,7 +53,11 @@ class _Loaded extends ConsumerWidget {
       children: [
         SizedBox(
           width: 260,
-          child: _EnvironmentList(environments: state.environments, selectedId: selectedId),
+          child: _EnvironmentList(
+            environments: state.environments,
+            selectedId: selectedId,
+            activeId: state.activeEnvironmentId,
+          ),
         ),
         Expanded(
           child: selected == null
@@ -68,10 +73,11 @@ class _Loaded extends ConsumerWidget {
 }
 
 class _EnvironmentList extends ConsumerWidget {
-  const _EnvironmentList({required this.environments, required this.selectedId});
+  const _EnvironmentList({required this.environments, required this.selectedId, required this.activeId});
 
   final List<Environment> environments;
   final String? selectedId;
+  final String? activeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -102,7 +108,9 @@ class _EnvironmentList extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final env = environments[index];
                     final isSelected = env.id == selectedId;
-                    final color = AppColors.environmentDotColor(index);
+                    final color = environmentDotColorFor(env, index);
+                    final isActive = env.id == activeId;
+                    final isProd = isProductionEnvironment(env.name);
                     return Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                       child: Material(
@@ -127,7 +135,7 @@ class _EnvironmentList extends ConsumerWidget {
                             ),
                             child: Row(
                               children: [
-                                CircleAvatar(radius: 5, backgroundColor: color),
+                                CircleAvatar(key: Key('env-dot-${env.id}'), radius: 5, backgroundColor: color),
                                 const SizedBox(width: AppSpacing.sm),
                                 Expanded(
                                   child: Column(
@@ -143,21 +151,11 @@ class _EnvironmentList extends ConsumerWidget {
                                     ],
                                   ),
                                 ),
-                                if (isSelected)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: AppSpacing.xs,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: color.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                                    ),
-                                    child: Text(
-                                      'ACTIVE',
-                                      style: AppTypography.badgeMono.copyWith(color: color),
-                                    ),
-                                  ),
+                                if (isProd) _Tag(key: Key('env-prod-tag-${env.id}'), label: 'PROD', color: AppColors.error),
+                                if (isActive) ...[
+                                  if (isProd) const SizedBox(width: AppSpacing.xs),
+                                  _Tag(key: Key('env-active-tag-${env.id}'), label: 'ACTIVE', color: color),
+                                ],
                                 IconButton(
                                   key: ValueKey('delete-env-button-${env.id}'),
                                   icon: const Icon(Icons.delete_outline, size: 16),
@@ -411,6 +409,26 @@ class _VariableRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Small uppercase status tag (`ACTIVE`, `PROD`) on an environment row.
+class _Tag extends StatelessWidget {
+  const _Tag({super.key, required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Text(label, style: AppTypography.badgeMono.copyWith(color: color)),
     );
   }
 }
