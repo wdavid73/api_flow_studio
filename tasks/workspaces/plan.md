@@ -72,10 +72,10 @@ de la UI si conviene. El orden de la lista es el de construcción.
 - [x] P8: Formato del workspace y exportar (motor)
 - [x] P9: Importar como proyecto nuevo (motor)
 - [x] P10: Acciones de exportar e importar en la UI
-- [ ] P11: Recorrido ida y vuelta, docs y corridas finales
+- [x] P11: Recorrido ida y vuelta, docs y corridas finales
 
 ### Checkpoint: Done
-- [ ] Todos los criterios del spec cumplidos o justificados
+- [x] Todos los criterios del spec cumplidos o justificados
 
 ---
 

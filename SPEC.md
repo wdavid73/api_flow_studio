@@ -30,7 +30,9 @@ app — todo sin abrir Postman.
   inmutables (Environment, Group, Endpoint, Flow, FlowStep, HistoryEntry)
   con `copyWith`/`toJson`/`fromJson`.
 - **Persistencia:** JSON plano en disco vía `dart:io` puro, en una carpeta
-  `api_flow_studio_data/` junto al ejecutable (no en la carpeta de datos
+  `api_flow_studio_data/` junto al ejecutable (desde la feature de proyectos, con
+  `projects.json` y una carpeta `projects/<id>/` por proyecto; ver
+  `SPEC-workspaces.md`) (no en la carpeta de datos
   del SO) — así la app es portable: copiar la carpeta del build (a un USB,
   para compartir) se lleva los datos con ella. No es versionable con git
   automáticamente; queda como limitación conocida (ver Open Questions).

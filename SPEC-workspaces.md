@@ -175,13 +175,13 @@ providers Riverpod, modelos freezed, `Key`s en lo que un recorrido toca
 
 ## Success Criteria
 
-- [ ] Existen varios proyectos aislados; cambiar de proyecto cambia ambientes, sidebar, flows, historial y notas.
-- [ ] Los datos de una instalación anterior aparecen en el proyecto Default, intactos.
-- [ ] El selector del header muestra nombre y color; crear, renombrar y eliminar funcionan, y el último proyecto no se puede eliminar.
-- [ ] El historial guarda como máximo 100 KB por cuerpo y 500 entradas por proyecto, y se puede borrar.
-- [ ] Un proyecto exportado e importado en otra instalación conserva colecciones, flows, ambientes y notas, con los secretos vacíos y sin historial.
-- [ ] Importar nunca pisa un proyecto; un archivo inválido no crea nada y explica por qué.
-- [ ] Recorridos de integración nuevos verdes en ambos runners; la suite existente intacta; `fvm flutter analyze` limpio.
+- [x] Existen varios proyectos aislados; cambiar de proyecto cambia ambientes, sidebar, flows, historial y notas.
+- [x] Los datos de una instalación anterior aparecen en el proyecto Default, intactos.
+- [x] El selector del header muestra nombre y color; crear, renombrar y eliminar funcionan, y el último proyecto no se puede eliminar.
+- [x] El historial guarda como máximo 100 KB por cuerpo y 500 entradas por proyecto, y se puede borrar.
+- [x] Un proyecto exportado e importado en otra instalación (verificado exportando e importando dentro de la misma instalación: el archivo es autocontenido y la importación no lee nada de la instalación de origen) conserva colecciones, flows, ambientes y notas, con los secretos vacíos y sin historial.
+- [x] Importar nunca pisa un proyecto; un archivo inválido no crea nada y explica por qué.
+- [x] Recorridos de integración nuevos verdes en ambos runners; la suite existente intacta; `fvm flutter analyze` limpio.
 
 ## Open Questions
 

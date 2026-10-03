@@ -9,6 +9,7 @@ import '../../integration_test/journeys/production_journey.dart';
 import '../../integration_test/journeys/projects_journey.dart';
 import '../../integration_test/journeys/send_request_journey.dart';
 import '../../integration_test/journeys/session_journey.dart';
+import '../../integration_test/journeys/workspace_transfer_journey.dart';
 import 'in_memory_harness.dart';
 
 /// Runs every user journey against the whole app without a window, with an
@@ -28,4 +29,5 @@ void main() {
   definePersistenceJourney(() => harness);
   defineKeyboardJourney(() => harness);
   defineProjectsJourney(() => harness);
+  defineWorkspaceTransferJourney(() => harness);
 }

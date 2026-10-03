@@ -5,6 +5,7 @@ import 'package:api_flow_studio/ui/projects/projects_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/request_executor_provider.dart';
 import 'package:api_flow_studio/ui/session/session_button.dart';
 import 'package:api_flow_studio/ui/shell/app_header.dart';
+import 'package:api_flow_studio/ui/workspace_transfer/workspace_file_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'failure_screenshot.dart';
 import 'fake_backend.dart';
+import 'fake_workspace_files.dart';
 import 'fixtures.dart';
 import 'seed_data.dart';
 
@@ -117,6 +119,9 @@ class AppDriver {
   /// The time the session expiry is computed against. Move it to age a token.
   DateTime clock;
 
+  /// The save and open dialogs of the workspace export and import.
+  final FakeWorkspaceFiles files = FakeWorkspaceFiles();
+
   String? _clipboard;
 
   /// The last text the app put on the clipboard (empty if none). The system
@@ -140,6 +145,7 @@ class AppDriver {
       ProviderScope(
         overrides: [
           projectsRepositoryProvider.overrideWithValue(projects),
+          workspaceFileDialogsProvider.overrideWithValue(files),
           initialProjectsStateProvider.overrideWithValue(await ProjectsController.load(projects)),
           requestExecutorProvider.overrideWithValue(backend),
           sessionClockProvider.overrideWithValue(() => clock),
@@ -304,6 +310,19 @@ class AppDriver {
     await openProjectMenu();
     await tapKey(const Key('delete-project-button'));
     await tapKey(const Key('delete-project-confirm-button'));
+  }
+
+  /// Exports the active project from the menu; the file lands in [files].
+  Future<void> exportActiveWorkspace() async {
+    await openProjectMenu();
+    await tapKey(const Key('export-workspace-button'));
+  }
+
+  /// Imports [text] as a workspace file from the menu.
+  Future<void> importWorkspaceFile(String text) async {
+    files.textToOpen = text;
+    await openProjectMenu();
+    await tapKey(const Key('import-workspace-button'));
   }
 
   /// The data of whichever project is active now.

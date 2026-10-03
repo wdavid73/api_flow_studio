@@ -12,6 +12,7 @@ import 'journeys/production_journey.dart';
 import 'journeys/projects_journey.dart';
 import 'journeys/send_request_journey.dart';
 import 'journeys/session_journey.dart';
+import 'journeys/workspace_transfer_journey.dart';
 import 'support/disk_harness.dart';
 import 'support/journey_harness.dart' show watchingJourneys;
 
@@ -41,4 +42,5 @@ void main() {
   definePersistenceJourney(() => harness);
   defineKeyboardJourney(() => harness);
   defineProjectsJourney(() => harness);
+  defineWorkspaceTransferJourney(() => harness);
 }

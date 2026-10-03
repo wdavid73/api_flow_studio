@@ -15,7 +15,12 @@ Beyond a basic request/response cycle, it supports:
   check if a user exists → send OTP → validate OTP → create user.
 - **Paste-a-curl-command** to prefill a new request's method, URL, headers,
   and body.
-- Per-request **history** of past responses.
+- Per-request **history** of past responses (bodies kept to 100 KB, 500 entries
+  per project, with a "Clear history" action).
+- **Projects**: several isolated sets of environments, collections, flows,
+  history and host notes (say `commodo` for work and `fin_track_pro` for
+  personal), switched from the header. A project can be **exported to a file**
+  and **imported** by someone else — see [Projects and workspaces](#projects-and-workspaces).
 
 This is a personal tool built for a single developer's own use — it is not
 multiuser or collaborative.
@@ -43,7 +48,8 @@ to keep in sync.
 - **Persistence:** plain JSON on disk via `dart:io`, in an
   `api_flow_studio_data/` folder next to the executable rather than the
   OS's app-data directory — copying the build folder (e.g. to a USB
-  drive) carries the data with it. Not versioned by git automatically; see
+  drive) carries the data with it. Inside it, `projects.json` lists the
+  projects and each one keeps its files in `projects/<id>/`. Not versioned by git automatically; see
   [SPEC.md](SPEC.md)'s Open Questions.
 - `uuid` — entity ids.
 - `mocktail` + `flutter_test` — engine tests, mocking the `dio` client.
@@ -105,8 +111,9 @@ fvm flutter analyze
 
 ### Integration tests
 
-Ten user journeys (navigation, sending, history, environments, production
-safeguards, session, flows, hosts, persistence, keyboard) drive the whole app
+Twelve user journeys (navigation, sending, history, environments, production
+safeguards, session, flows, hosts, persistence, keyboard, projects, workspace
+transfer) drive the whole app
 against a fake HTTP backend. The same journeys run two ways:
 
 ```bash
@@ -121,11 +128,16 @@ fvm flutter test integration_test -d windows
 journey saves a screenshot to `build/integration_failures/`. Details in
 [SPEC-integration-tests.md](SPEC-integration-tests.md).
 
+To watch a run on Windows, add `--dart-define=JOURNEY_PAUSE_MS=400` (a pause after
+every step; the app then uses the real window size).
+
 ### Pre-built binaries
 
 Every push to `master` runs the test suite and, if it's green, builds
 portable Windows and macOS binaries and publishes them to a rolling
-`latest` GitHub release (`.github/workflows/release.yml`). No installer —
+`latest` GitHub release (`.github/workflows/release.yml`); every push to master
+also bumps the patch version in `pubspec.yaml` and publishes its own `vX.Y.Z`
+release, which keeps the version history. No installer —
 unzip and run. macOS builds are unsigned, so macOS will warn about an
 unidentified developer; right-click the app and choose Open, or run
 `xattr -cr api_flow_studio.app` first.
@@ -136,6 +148,32 @@ executable you're running (see above), a freshly downloaded build always
 starts empty. Use the **Import** button in the sidebar to load that file
 (or any collections JSON exported from another machine via the **Export**
 button) and get a few working example endpoints right away.
+
+## Projects and workspaces
+
+Each project is a fully separate set of data: nothing is shared between them.
+The first time a version with projects opens an older data folder, the existing
+data becomes a project called **Default**; nothing is lost.
+
+The project button in the header (name and color) switches project and holds
+**New project**, **Rename**, **Delete** (with confirmation; the last project
+cannot be deleted), **Export workspace…** and **Import workspace…**.
+
+**Export** writes one `<name>.workspace.json` with the project's environments,
+collections, flows and host notes. It is meant to be handed to someone else, so
+it **leaves out**: the values of secret variables (the name and the secret flag
+stay, the value is empty), literal credentials typed in a request's
+authentication (a bearer token or a basic password; a `{{variable}}` reference is
+kept), the history, session tokens and which environment is active. Headers are
+not inspected, so keep secrets in secret variables.
+
+**Import** always creates a **new** project (`commodo`, then `commodo (2)`…); it
+never overwrites or merges into an existing one. Every id is regenerated, no
+environment is made active, and the app says how many secret values are left to
+fill in. A file that is not a workspace, is damaged or comes from a newer version
+is refused with a reason and creates nothing.
+
+Design and acceptance criteria: [SPEC-workspaces.md](SPEC-workspaces.md).
 
 ## Documentation
 
