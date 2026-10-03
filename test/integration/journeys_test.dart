@@ -6,6 +6,7 @@ import '../../integration_test/journeys/keyboard_journey.dart';
 import '../../integration_test/journeys/navigation_journey.dart';
 import '../../integration_test/journeys/persistence_journey.dart';
 import '../../integration_test/journeys/production_journey.dart';
+import '../../integration_test/journeys/projects_journey.dart';
 import '../../integration_test/journeys/send_request_journey.dart';
 import '../../integration_test/journeys/session_journey.dart';
 import 'in_memory_harness.dart';
@@ -26,4 +27,5 @@ void main() {
   defineHostsJourney(() => harness);
   definePersistenceJourney(() => harness);
   defineKeyboardJourney(() => harness);
+  defineProjectsJourney(() => harness);
 }

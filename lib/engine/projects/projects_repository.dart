@@ -245,11 +245,18 @@ class ProjectsRepository {
   }
 
   String _validName(String name, List<Project> existing, {required String? exceptId}) {
-    final clean = name.trim();
-    if (clean.isEmpty) throw const InvalidProjectName(ProjectNameProblem.empty);
-    if (clean.length > maxProjectNameLength) throw const InvalidProjectName(ProjectNameProblem.tooLong);
-    final taken = existing.any((p) => p.id != exceptId && p.name.toLowerCase() == clean.toLowerCase());
-    if (taken) throw const InvalidProjectName(ProjectNameProblem.duplicate);
-    return clean;
+    final problem = checkProjectName(name, existing, exceptId: exceptId);
+    if (problem != null) throw InvalidProjectName(problem);
+    return name.trim();
   }
+}
+
+/// What is wrong with [name] as a project name among [existing], or null when it
+/// is fine. [exceptId] is the project being renamed, whose own name is allowed.
+ProjectNameProblem? checkProjectName(String name, Iterable<Project> existing, {String? exceptId}) {
+  final clean = name.trim();
+  if (clean.isEmpty) return ProjectNameProblem.empty;
+  if (clean.length > maxProjectNameLength) return ProjectNameProblem.tooLong;
+  final taken = existing.any((p) => p.id != exceptId && p.name.toLowerCase() == clean.toLowerCase());
+  return taken ? ProjectNameProblem.duplicate : null;
 }

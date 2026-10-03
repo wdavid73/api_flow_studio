@@ -9,6 +9,7 @@ import 'journeys/keyboard_journey.dart';
 import 'journeys/navigation_journey.dart';
 import 'journeys/persistence_journey.dart';
 import 'journeys/production_journey.dart';
+import 'journeys/projects_journey.dart';
 import 'journeys/send_request_journey.dart';
 import 'journeys/session_journey.dart';
 import 'support/disk_harness.dart';
@@ -39,4 +40,5 @@ void main() {
   defineHostsJourney(() => harness);
   definePersistenceJourney(() => harness);
   defineKeyboardJourney(() => harness);
+  defineProjectsJourney(() => harness);
 }

@@ -268,4 +268,44 @@ class AppDriver {
     await tester.enterText(find.byKey(const Key('host-name-field')), name);
     await tapKey(const Key('host-name-confirm'));
   }
+
+  /// The project switcher's label in the header.
+  Finder projectLabel(String name) =>
+      find.descendant(of: find.byKey(const Key('project-switcher')), matching: find.text(name));
+
+  /// Opens the project menu in the header.
+  Future<void> openProjectMenu() => tapKey(const Key('project-switcher'));
+
+  /// Creates a project called [name] from the menu (it becomes the active one).
+  Future<void> createProject(String name) async {
+    await openProjectMenu();
+    await tapKey(const Key('new-project-button'));
+    await tester.enterText(find.byKey(const Key('project-name-field')), name);
+    await tapKey(const Key('project-dialog-confirm-button'));
+  }
+
+  /// Makes the project called [name] the active one.
+  Future<void> switchProject(String name) async {
+    final id = (await projects.projects()).firstWhere((p) => p.name == name).id;
+    await openProjectMenu();
+    await tapKey(Key('project-option-$id'));
+  }
+
+  /// Renames the active project to [name] from the menu.
+  Future<void> renameActiveProject(String name) async {
+    await openProjectMenu();
+    await tapKey(const Key('rename-project-button'));
+    await tester.enterText(find.byKey(const Key('project-name-field')), name);
+    await tapKey(const Key('project-dialog-confirm-button'));
+  }
+
+  /// Deletes the active project, confirming the question.
+  Future<void> deleteActiveProject() async {
+    await openProjectMenu();
+    await tapKey(const Key('delete-project-button'));
+    await tapKey(const Key('delete-project-confirm-button'));
+  }
+
+  /// The data of whichever project is active now.
+  Future<JsonStore> activeStore() async => projects.storeFor((await projects.activeProject())!.id);
 }

@@ -12,10 +12,10 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-workspaces.md](../../SPEC-workspaces.md)
 
 ## Phase 2 — projects-ui
 - [x] P4: Selector de proyecto en el header
-- [ ] P5: Crear, renombrar y eliminar, con recorrido de proyectos
+- [x] P5: Crear, renombrar y eliminar, con recorrido de proyectos
 
 ### Checkpoint: Proyectos
-- [ ] analyze limpio, ambos runners verdes
+- [x] analyze limpio, ambos runners verdes
 
 ## Phase 3 — history-limits
 - [ ] P6: Recorte del cuerpo y límite global

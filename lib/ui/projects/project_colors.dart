@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../engine/projects/project.dart';
+
 /// The accent a project can carry, so `commodo` and `fin_track_pro` are told
 /// apart at a glance. Picked to stay readable on the dark surfaces.
 const List<Color> projectColors = [
@@ -15,3 +17,13 @@ const List<Color> projectColors = [
 
 /// The color for [index], wrapping around the palette (also for negatives).
 Color projectColor(int index) => projectColors[index % projectColors.length];
+
+/// The color index to suggest for a new project: the first one no project uses
+/// yet, so neighbours in the menu look different.
+int nextProjectColorIndex(Iterable<Project> projects) {
+  final used = {for (final p in projects) p.colorIndex % projectColors.length};
+  for (var i = 0; i < projectColors.length; i++) {
+    if (!used.contains(i)) return i;
+  }
+  return projects.length % projectColors.length;
+}
