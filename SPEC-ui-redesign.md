@@ -17,11 +17,11 @@ paneles). Complementa —no reemplaza— [SPEC.md](SPEC.md) (spec v1 de la app).
   atajo Ctrl/Cmd+Enter.
 - **Los datos de ejemplo de Commodo** (bases `AUTH_CORE`, rutas, etc.) no se
   embeben en la app; se cargan con Import / `sample-endpoints.json`.
-- **El motor (`lib/engine/`) no cambia** salvo en `session-tokens` y
-  `hosts-notes` (modelos y almacenamiento nuevos) un añadido puro en
-  `workspace` (`curl_builder.dart`, el inverso del `curl_parser`) y otro en
-  `secondary-screens` (`JsonStore.readAllHistory()` para el historial global) y otro en
-  `session-tokens` (`lib/engine/session/`, solo en memoria: sin cambios de almacenamiento).
+- **El motor (`lib/engine/`) solo recibe añadidos puros**, sin tocar la lógica
+  existente: `curl_builder.dart` (`workspace`), `JsonStore.readAllHistory()`
+  (`secondary-screens`), `lib/engine/session/` (`session-tokens`, solo en
+  memoria, sin almacenamiento) y `lib/engine/hosts/` más las notas de hosts en
+  `host_notes.json` (`hosts-notes`).
 
 ## Mapa
 
@@ -43,10 +43,10 @@ Reglas del mapa:
   proveedor.
 - `ui-theme` es el único módulo que toca `lib/ui/theme/` (salvo widgets
   nuevos) y los widgets base compartidos.
-- Cada módulo tendrá `SPEC-<module-id>.md` junto a este archivo. Specs
-  escritos: `ui-theme` (aprobado e implementado), `app-shell` (aprobado e implementado), `workspace` (aprobado e implementado), `secondary-screens` (aprobado e implementado). Pendientes (se escriben en orden de dependencia
-  antes de planificar cada módulo): 
-  `hosts-notes`. `session-tokens` (aprobado e implementado).
+- Cada módulo tiene su `SPEC-<module-id>.md` junto a este archivo. Estado:
+  `ui-theme`, `app-shell`, `workspace`, `secondary-screens` y `session-tokens`
+  están aprobados e implementados; `hosts-notes` está escrito y pendiente de
+  revisión.
 
 ## Ubicación del plan
 
