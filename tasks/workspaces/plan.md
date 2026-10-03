@@ -58,7 +58,7 @@ de la UI si conviene. El orden de la lista es el de construcción.
 - [x] analyze limpio, `fvm flutter test` y recorridos en memoria verdes
 
 ### Phase 2: projects-ui
-- [ ] P4: Selector de proyecto en el header
+- [x] P4: Selector de proyecto en el header
 - [ ] P5: Crear, renombrar y eliminar, con recorrido de proyectos
 
 ### Checkpoint: Proyectos

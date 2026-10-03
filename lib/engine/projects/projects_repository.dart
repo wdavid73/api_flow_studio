@@ -55,7 +55,7 @@ class LastProjectException implements Exception {
 /// Every operation runs through one queue, so calls fired together (two fast
 /// clicks) each see the other's result instead of a stale list.
 class ProjectsRepository {
-  ProjectsRepository._(this._index, this._open, this._remove, this._now, {this._legacyRoot, this._dirFor});
+  ProjectsRepository._(this._index, this._open, this._remove, this._now, {this._legacyRoot, this._dirFor, this._defaultStore});
 
   /// Keeps everything under [root] (the real app).
   factory ProjectsRepository.disk(Directory root, {DateTime Function()? now}) {
@@ -76,8 +76,16 @@ class ProjectsRepository {
   }
 
   /// Keeps everything in memory (tests, and the web where there are no files).
-  factory ProjectsRepository.inMemory({DateTime Function()? now}) =>
-      ProjectsRepository._(JsonStore.inMemory(), (_) => JsonStore.inMemory(), (_) async {}, now ?? DateTime.now);
+  /// [defaultStore], when given, is the store the project created by
+  /// [ensureDefaultProject] uses, so existing data can be wrapped as a project.
+  factory ProjectsRepository.inMemory({DateTime Function()? now, JsonStore? defaultStore}) =>
+      ProjectsRepository._(
+        JsonStore.inMemory(),
+        (_) => JsonStore.inMemory(),
+        (_) async {},
+        now ?? DateTime.now,
+        defaultStore: defaultStore,
+      );
 
   final JsonStore _index;
   final JsonStore Function(String id) _open;
@@ -88,6 +96,9 @@ class ProjectsRepository {
   /// from before projects existed can be moved into the first project.
   final Directory? _legacyRoot;
   final Directory Function(String id)? _dirFor;
+
+  /// In memory only: the store the Default project adopts.
+  final JsonStore? _defaultStore;
 
   final Map<String, JsonStore> _stores = {};
   Future<void> _queue = Future<void>.value();
@@ -128,6 +139,8 @@ class ProjectsRepository {
           await _remove(id);
           rethrow;
         }
+        final adopted = _defaultStore;
+        if (adopted != null) _stores[id] = adopted;
         for (final file in originals) {
           try {
             await file.delete();

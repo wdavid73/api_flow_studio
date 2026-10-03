@@ -93,9 +93,9 @@ void definePersistenceJourney(JourneyHarness Function() harness) {
       await app.send();
 
       if (h is! DiskHarness) return; // only the disk-backed run has files to read
-      final files = h.lastDirectory!.listSync().whereType<File>().toList();
+      final files = h.lastDirectory!.listSync(recursive: true).whereType<File>().toList();
       final names = files.map((f) => f.uri.pathSegments.last).toSet();
-      expect(names, containsAll(['environments.json', 'collections.json', 'history.json']));
+      expect(names, containsAll(['projects.json', 'environments.json', 'collections.json', 'history.json']));
       // history.json keeps raw response bodies by design (a login response
       // included), so it is the one file that can contain a token the server sent.
       for (final file in files.where((f) => !f.path.endsWith('history.json'))) {

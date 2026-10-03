@@ -1,6 +1,7 @@
 import 'package:api_flow_studio/app.dart';
+import 'package:api_flow_studio/engine/projects/projects_repository.dart';
 import 'package:api_flow_studio/engine/storage/json_store.dart';
-import 'package:api_flow_studio/ui/environments/environments_provider.dart';
+import 'package:api_flow_studio/ui/projects/projects_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/request_executor_provider.dart';
 import 'package:api_flow_studio/ui/session/session_button.dart';
 import 'package:api_flow_studio/ui/shell/app_header.dart';
@@ -28,6 +29,19 @@ abstract class JourneyHarness {
   /// A new, empty store that nothing else shares. Disk-backed harnesses create
   /// a fresh temporary folder and delete it when the test ends.
   Future<JsonStore> newStore();
+
+  /// The projects behind the app, with [store] as the data of the first one.
+  /// By default a single in-memory "Default" project over [store]; harnesses
+  /// that keep real files return a repository on those files instead.
+  Future<ProjectsRepository> openProjects(JsonStore store) async {
+    final repository = ProjectsRepository.inMemory(defaultStore: store);
+    await repository.ensureDefaultProject();
+    return repository;
+  }
+
+  /// The repository after closing and reopening the app. In memory it is the
+  /// same object; on disk it is read again from the files.
+  Future<ProjectsRepository> reopenProjects(ProjectsRepository current) async => current;
 
   /// The logical window every journey runs in.
   Size get windowSize => const Size(1440, 900);
@@ -57,6 +71,8 @@ abstract class JourneyHarness {
 
     final driver = AppDriver(
       tester,
+      harness: this,
+      projects: await openProjects(theStore),
       store: theStore,
       backend: backend ?? FakeBackend(),
       clock: now ?? seedNow,
@@ -76,11 +92,23 @@ const bool watchingJourneys = _pauseMs > 0;
 /// The user's hands: small helpers over the running app, so a journey reads as
 /// what a person does. Widgets are found by their existing `Key`s.
 class AppDriver {
-  AppDriver(this.tester, {required this.store, required this.backend, required this.clock});
+  AppDriver(
+    this.tester, {
+    required this._harness,
+    required this.projects,
+    required this.store,
+    required this.backend,
+    required this.clock,
+  });
+
+  final JourneyHarness _harness;
+
+  /// The projects of the app. Reopened from the same place on [restart].
+  ProjectsRepository projects;
 
   final WidgetTester tester;
 
-  /// The store the app was mounted on; also what a restart reuses.
+  /// The data of the first project, the one the app starts on.
   final JsonStore store;
 
   /// The fake server every request goes to.
@@ -111,7 +139,8 @@ class AppDriver {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          jsonStoreProvider.overrideWithValue(store),
+          projectsRepositoryProvider.overrideWithValue(projects),
+          initialProjectsStateProvider.overrideWithValue(await ProjectsController.load(projects)),
           requestExecutorProvider.overrideWithValue(backend),
           sessionClockProvider.overrideWithValue(() => clock),
         ],
@@ -126,6 +155,7 @@ class AppDriver {
   Future<void> restart() async {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
+    projects = await _harness.reopenProjects(projects);
     await mount();
   }
 

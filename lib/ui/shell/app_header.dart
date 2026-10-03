@@ -5,6 +5,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../theme/widgets/app_logo.dart';
+import '../projects/project_switcher.dart';
 import 'app_destination.dart';
 import 'environment_pill.dart';
 
@@ -12,7 +13,7 @@ import 'environment_pill.dart';
 /// staying a single 56px row.
 const double _wrapBreakpoint = 1100;
 
-/// Top bar: brand, destination navigation, the environment pill and a
+/// Top bar: brand, the project switcher, destination navigation, the environment pill and a
 /// right-hand zone for [actions] (other modules add their buttons there).
 class AppHeader extends ConsumerWidget {
   const AppHeader({super.key, this.actions = const []});
@@ -39,8 +40,10 @@ class AppHeader extends ConsumerWidget {
       ],
     );
 
-    final nav = Row(
-      mainAxisSize: MainAxisSize.min,
+    // A Wrap, not a Row: with the project switcher in the header the navigation
+    // may get less room than it needs and has to break onto another line.
+    final nav = Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         for (final destination in AppDestination.values)
           _NavItem(
@@ -75,6 +78,8 @@ class AppHeader extends ConsumerWidget {
             return Row(
               children: [
                 brand,
+                const SizedBox(width: AppSpacing.lg),
+                const ProjectSwitcher(),
                 const SizedBox(width: AppSpacing.xl),
                 Expanded(
                   child: Wrap(
@@ -92,7 +97,7 @@ class AppHeader extends ConsumerWidget {
             spacing: AppSpacing.lg,
             runSpacing: AppSpacing.sm,
             crossAxisAlignment: WrapCrossAlignment.center,
-            children: [brand, nav, const EnvironmentPill(), actionRow],
+            children: [brand, const ProjectSwitcher(), nav, const EnvironmentPill(), actionRow],
           );
         },
       ),
