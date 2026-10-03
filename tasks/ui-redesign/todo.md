@@ -143,7 +143,7 @@ Detail in [plan-session-tokens.md](plan-session-tokens.md).
 
 ## Phase 1 — Engine rules
 - [x] K1: `Session`, `applySession` and `sessionVariables`
-- [ ] K2: JWT claims and expiry
+- [x] K2: JWT claims and expiry
 - [ ] K3: Token finder
 
 ### Checkpoint: Engine rules
