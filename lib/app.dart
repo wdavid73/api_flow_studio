@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'ui/environments/environment_manager_screen.dart';
 import 'ui/flows/flows_screen.dart';
 import 'ui/history/history_screen.dart';
+import 'ui/hosts/hosts_button.dart';
 import 'ui/session/session_button.dart';
 import 'ui/shell/app_background.dart';
 import 'ui/shell/app_banner.dart';
@@ -42,7 +43,7 @@ class AppShell extends ConsumerWidget {
           body: Column(
             children: [
               const ProductionStrip(),
-              const AppHeader(actions: [SessionButton()]),
+              const AppHeader(actions: [HostsButton(), SessionButton()]),
               const BannerHost(),
               Expanded(child: _DestinationBody(destination: selected)),
             ],

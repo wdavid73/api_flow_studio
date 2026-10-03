@@ -65,7 +65,7 @@ H1–H3 are independent. H5 needs H2 and H4; H6 needs H3 and H4; H7 needs H4
 - [x] `grep -r "package:flutter" lib/engine` is empty
 
 ### Phase 2: Dialog
-- [ ] H4: Header button, dialog and read-only matrix
+- [x] H4: Header button, dialog and read-only matrix
 - [ ] H5: Editable cells
 - [ ] H6: Notes column and Add host
 - [ ] H7: Warnings under the table

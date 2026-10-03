@@ -190,7 +190,7 @@ Detail in [plan-hosts-notes.md](plan-hosts-notes.md).
 - [x] `grep -r "package:flutter" lib/engine` is empty
 
 ## Phase 2 — Dialog
-- [ ] H4: Header button, dialog and read-only matrix
+- [x] H4: Header button, dialog and read-only matrix
 - [ ] H5: Editable cells
 - [ ] H6: Notes column and Add host
 - [ ] H7: Warnings under the table

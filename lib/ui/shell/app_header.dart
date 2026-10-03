@@ -70,14 +70,20 @@ class AppHeader extends ConsumerWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth >= _wrapBreakpoint) {
+            // The middle group wraps onto a second line only when it does not
+            // fit (many environments plus several action buttons).
             return Row(
               children: [
                 brand,
                 const SizedBox(width: AppSpacing.xl),
-                nav,
-                const SizedBox(width: AppSpacing.lg),
-                const EnvironmentPill(),
-                const Spacer(),
+                Expanded(
+                  child: Wrap(
+                    spacing: AppSpacing.lg,
+                    runSpacing: AppSpacing.sm,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [nav, const EnvironmentPill()],
+                  ),
+                ),
                 actionRow,
               ],
             );
