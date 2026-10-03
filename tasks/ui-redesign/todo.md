@@ -107,11 +107,11 @@ Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 ## Phase 1 — History
 - [x] S1: `JsonStore.readAllHistory()`
 - [x] S2: History screen with day groups and empty state
-- [ ] S3: History search, open request and deleted rows
+- [x] S3: History search, open request and deleted rows
 
 ### Checkpoint: History
-- [ ] analyze clean, full suite green
-- [ ] Sending a saved request makes it appear in History; clicking it opens it in the Workspace
+- [x] analyze clean, full suite green
+- [x] Sending a saved request makes it appear in History; clicking it opens it in the Workspace
 
 ## Phase 2 — Environments
 - [ ] S4: ACTIVE fix, PROD tag and dot colors

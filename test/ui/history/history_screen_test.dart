@@ -4,6 +4,7 @@ import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/engine/storage/json_store.dart';
 import 'package:api_flow_studio/ui/environments/environments_provider.dart';
 import 'package:api_flow_studio/ui/history/history_screen.dart';
+import 'package:api_flow_studio/ui/shell/app_destination.dart';
 import 'package:api_flow_studio/ui/request_builder/request_draft_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
 import 'package:api_flow_studio/ui/theme/app_colors.dart';
@@ -176,5 +177,88 @@ void main() {
 
     expect(find.byKey(const Key('history-screen-empty')), findsNothing);
     expect(find.text('201'), findsOneWidget);
+  });
+
+  group('search and navigation', () {
+    Future<void> pumpTwoRequests(WidgetTester tester) async {
+      final now = DateTime.now();
+      await pumpScreen(tester, history: [
+        entry('h-get', 'e-get', now.subtract(const Duration(minutes: 1))),
+        entry('h-create', 'e-create', now),
+        entry('h-gone', 'e-gone', now.subtract(const Duration(minutes: 2))),
+      ]);
+    }
+
+    Finder row(String id) => find.byKey(ValueKey('history-entry-$id'));
+
+    ProviderContainer containerOf(WidgetTester tester) =>
+        ProviderScope.containerOf(tester.element(find.byType(HistoryScreen)));
+
+    testWidgets('the search filters by name, method and url, case-insensitively', (tester) async {
+      await pumpTwoRequests(tester);
+      final field = find.byKey(const Key('history-search-field'));
+
+      await tester.enterText(field, 'CREATE');
+      await tester.pump();
+      expect(row('h-create'), findsOneWidget);
+      expect(row('h-get'), findsNothing);
+
+      await tester.enterText(field, 'get');
+      await tester.pump();
+      expect(row('h-get'), findsOneWidget);
+      expect(row('h-create'), findsNothing);
+
+      await tester.enterText(field, 'api.test/users/1');
+      await tester.pump();
+      expect(row('h-get'), findsOneWidget);
+
+      await tester.enterText(field, '');
+      await tester.pump();
+      expect(row('h-get'), findsOneWidget);
+      expect(row('h-create'), findsOneWidget);
+      expect(row('h-gone'), findsOneWidget);
+    });
+
+    testWidgets('a search with no matches says so, while an empty history keeps its own message', (tester) async {
+      await pumpTwoRequests(tester);
+
+      await tester.enterText(find.byKey(const Key('history-search-field')), 'zzzz');
+      await tester.pump();
+
+      expect(find.byKey(const Key('history-no-results')), findsOneWidget);
+      expect(find.text('Nothing matches that search.'), findsOneWidget);
+      expect(find.byKey(const Key('history-screen-empty')), findsNothing);
+    });
+
+    testWidgets('with no history at all there is no search-miss message', (tester) async {
+      await pumpScreen(tester);
+
+      expect(find.byKey(const Key('history-no-results')), findsNothing);
+      expect(find.byKey(const Key('history-screen-empty')), findsOneWidget);
+    });
+
+    testWidgets('tapping a row loads its request and switches to the Workspace', (tester) async {
+      await pumpTwoRequests(tester);
+      final container = containerOf(tester);
+      container.read(selectedDestinationProvider.notifier).state = AppDestination.history;
+
+      await tester.tap(row('h-get'));
+      await tester.pump();
+
+      expect(container.read(requestDraftProvider).id, 'e-get');
+      expect(container.read(selectedDestinationProvider), AppDestination.workspace);
+    });
+
+    testWidgets('a Deleted request row ignores taps', (tester) async {
+      await pumpTwoRequests(tester);
+      final container = containerOf(tester);
+      container.read(selectedDestinationProvider.notifier).state = AppDestination.history;
+
+      await tester.tap(row('h-gone'));
+      await tester.pump();
+
+      expect(container.read(requestDraftProvider).id, draftEndpointId);
+      expect(container.read(selectedDestinationProvider), AppDestination.history);
+    });
   });
 }
