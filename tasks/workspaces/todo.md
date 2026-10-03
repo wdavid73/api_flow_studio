@@ -22,7 +22,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-workspaces.md](../../SPEC-workspaces.md)
 - [x] P7: Borrar historial
 
 ## Phase 4 — workspace-transfer
-- [ ] P8: Formato del workspace y exportar (motor)
+- [x] P8: Formato del workspace y exportar (motor)
 - [ ] P9: Importar como proyecto nuevo (motor)
 - [ ] P10: Acciones de exportar e importar en la UI
 - [ ] P11: Recorrido ida y vuelta, docs y corridas finales
