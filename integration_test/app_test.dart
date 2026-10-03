@@ -1,7 +1,9 @@
 import 'package:integration_test/integration_test.dart';
 
+import 'journeys/environments_journey.dart';
 import 'journeys/history_journey.dart';
 import 'journeys/navigation_journey.dart';
+import 'journeys/production_journey.dart';
 import 'journeys/send_request_journey.dart';
 import 'support/disk_harness.dart';
 
@@ -18,4 +20,6 @@ void main() {
   defineNavigationJourney(() => harness);
   defineSendRequestJourney(() => harness);
   defineHistoryJourney(() => harness);
+  defineEnvironmentsJourney(() => harness);
+  defineProductionJourney(() => harness);
 }

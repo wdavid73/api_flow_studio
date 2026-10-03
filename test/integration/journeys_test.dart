@@ -1,5 +1,7 @@
+import '../../integration_test/journeys/environments_journey.dart';
 import '../../integration_test/journeys/history_journey.dart';
 import '../../integration_test/journeys/navigation_journey.dart';
+import '../../integration_test/journeys/production_journey.dart';
 import '../../integration_test/journeys/send_request_journey.dart';
 import 'in_memory_harness.dart';
 
@@ -12,4 +14,6 @@ void main() {
   defineNavigationJourney(() => harness);
   defineSendRequestJourney(() => harness);
   defineHistoryJourney(() => harness);
+  defineEnvironmentsJourney(() => harness);
+  defineProductionJourney(() => harness);
 }

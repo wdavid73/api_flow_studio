@@ -69,10 +69,10 @@ the environment helpers from I4; I8 reuses everything.
 
 ### Phase 2: Core journeys
 - [x] I3: Send a request and history journeys
-- [ ] I4: Environments, variables and production journeys
+- [x] I4: Environments, variables and production journeys
 
 ### Checkpoint: Core journeys
-- [ ] analyze clean, both runners green, 614 existing tests untouched
+- [x] analyze clean, both runners green, 614 existing tests untouched
 
 ### Phase 3: Feature journeys
 - [ ] I5: Session journey

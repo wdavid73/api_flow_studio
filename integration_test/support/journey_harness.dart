@@ -191,4 +191,7 @@ class AppDriver {
     await tester.tap(find.widgetWithText(Tab, 'History'));
     await settle();
   }
+
+  /// Makes the environment [id] the active one by pressing it in the header.
+  Future<void> selectEnvironment(String id) => tapKey(Key('env-pill-$id'));
 }
