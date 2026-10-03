@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../models/models.dart';
+import '../projects/project.dart';
 
 /// Reads and writes the app's collections/environments/flows as plain JSON
 /// files on disk, under a folder next to the running executable by default
@@ -183,6 +184,15 @@ class JsonStore {
         for (final entry in notes.entries)
           if (entry.value.trim().isNotEmpty) entry.key: entry.value,
       });
+
+  /// The project list and the active project, from `projects.json`.
+  Future<ProjectIndex> readProjectIndex() => _readOrDefault(
+        'projects.json',
+        (decoded) => ProjectIndex.fromJson(decoded as Map<String, dynamic>),
+        const ProjectIndex(),
+      );
+
+  Future<void> writeProjectIndex(ProjectIndex index) => _writeAtomic('projects.json', index.toJson());
 
   Future<List<Flow>> readFlows() => _readOrDefault(
         'flows.json',
