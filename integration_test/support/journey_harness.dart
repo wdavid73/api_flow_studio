@@ -8,8 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'failure_screenshot.dart';
 import 'fake_backend.dart';
 import 'seed_data.dart';
+
+/// A journey test: `testWidgets` that, when it fails, also saves a screenshot of
+/// the app to `build/integration_failures/<description>.png` before the failure
+/// is reported. Use it instead of `testWidgets` in every journey.
+void journeyTest(String description, Future<void> Function(WidgetTester tester) body) {
+  testWidgets(description, (tester) => runWithFailureCapture(tester, description, () => body(tester)));
+}
 
 /// What differs between the two ways of running a journey: where the data
 /// lives (memory or a real temporary folder) and, through [launchApp], how the

@@ -9,7 +9,7 @@ import '../support/journey_harness.dart';
 /// and left, and the header shows what it should.
 void defineNavigationJourney(JourneyHarness Function() harness) {
   group('Navigation journey', () {
-    testWidgets('opens on the Workspace with both header buttons', (tester) async {
+    journeyTest('opens on the Workspace with both header buttons', (tester) async {
       final app = await harness().launchApp(tester);
 
       expect(find.byKey(const Key('workspace-request-pane')), findsOneWidget);
@@ -19,7 +19,7 @@ void defineNavigationJourney(JourneyHarness Function() harness) {
       expect(app.backend.calls, isEmpty);
     });
 
-    testWidgets('every destination can be reached and the Workspace comes back', (tester) async {
+    journeyTest('every destination can be reached and the Workspace comes back', (tester) async {
       final app = await harness().launchApp(tester);
 
       await app.goTo('Environments');
@@ -35,7 +35,7 @@ void defineNavigationJourney(JourneyHarness Function() harness) {
       expect(find.byKey(const Key('workspace-request-pane')), findsOneWidget);
     });
 
-    testWidgets('the environment pill lists the seeded environments with Dev active', (tester) async {
+    journeyTest('the environment pill lists the seeded environments with Dev active', (tester) async {
       await harness().launchApp(tester);
 
       for (final id in ['dev', 'qa', 'prod']) {
@@ -49,7 +49,7 @@ void defineNavigationJourney(JourneyHarness Function() harness) {
       expect(find.byType(AppHeader), findsOneWidget);
     });
 
-    testWidgets('the seeded collection is in the sidebar', (tester) async {
+    journeyTest('the seeded collection is in the sidebar', (tester) async {
       final app = await harness().launchApp(tester);
 
       await app.expandFolder('g-demo');

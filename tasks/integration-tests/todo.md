@@ -5,12 +5,12 @@ The v1 list lives in `tasks/todo.md` and is separate.
 
 ## Phase 1 — The stack
 - [x] I1: Shared stack and the navigation journey, run both ways
-- [ ] I2: Failure screenshots
+- [x] I2: Failure screenshots
 
 ### Checkpoint: The stack
-- [ ] `fvm flutter test test/integration` and `fvm flutter test integration_test -d windows` both pass the navigation journey
-- [ ] `fvm flutter test` (no args) still passes and does not run `integration_test/`
-- [ ] A forced failure leaves a PNG in `build/integration_failures/`
+- [x] `fvm flutter test test/integration` and `fvm flutter test integration_test -d windows` both pass the navigation journey
+- [x] `fvm flutter test` (no args) still passes and does not run `integration_test/`
+- [x] A forced failure leaves a PNG in `build/integration_failures/`
 
 ## Phase 2 — Core journeys
 - [ ] I3: Send a request and history journeys

@@ -35,10 +35,13 @@ cada pieza siga pasando sus tests.
 - **Sin cambios en `lib/`** salvo que un recorrido destape un bug: si es pequeño
   y claro se corrige en el momento, aparte, con su propio test y commit; si
   implica rediseñar algo, se para a consultar.
-- **Captura de pantalla al fallar:** cuando un recorrido falla se guarda una
-  imagen PNG de la app en `build/integration_failures/` (en ambos ejecutores si
-  es técnicamente posible; si en `flutter_test` no lo es, solo en Windows y se
-  documenta). Es una ayuda para depurar, no un criterio de éxito de los recorridos.
+- **Captura de pantalla al fallar:** cuando un recorrido falla se guarda un PNG
+  de la app en `build/integration_failures/<nombre de la prueba>.png`, en ambos
+  ejecutores (se renderiza la capa raíz con `OffsetLayer.toImage`). En
+  Windows se ve la app real con sus fuentes; en `flutter_test` el texto aparece
+  como bloques (la fuente de pruebas no es real) pero el layout y los colores son
+  los reales. Es una ayuda para depurar, no un criterio de éxito de los
+  recorridos, y un fallo al capturar nunca oculta el error original.
 
 ## Recorridos (journeys)
 
@@ -217,8 +220,5 @@ void defineSessionJourney(JourneyHarness Function() harness) {
 ## Open Questions
 
 Resueltas con el usuario: los bugs pequeños y claros que destapen los recorridos
-se corrigen en el momento; se quieren capturas al fallar; se actualiza la frase
-de `SPEC.md`. Una incógnita técnica queda para el plan: si
-`IntegrationTestWidgetsFlutterBinding.takeScreenshot` funciona en Windows o hay
-que capturar la capa raíz con `OffsetLayer.toImage` (se resuelve con una prueba
-de concepto antes de implementar).
+se corrigen en el momento; se quieren capturas al fallar (comprobadas en ambos
+ejecutores); se actualiza la frase de `SPEC.md`. Sin preguntas abiertas.
