@@ -32,8 +32,13 @@ cada pieza siga pasando sus tests.
   historial y flows se ejercita de verdad.
 - **Solo local:** un comando por ejecutor; no se tocan los workflows de GitHub.
 - **Una dependencia nueva de desarrollo:** `integration_test` (SDK de Flutter).
-- **Sin cambios en `lib/`** salvo que un recorrido destape un bug (se corrige
-  aparte, con su propio test y commit).
+- **Sin cambios en `lib/`** salvo que un recorrido destape un bug: si es pequeño
+  y claro se corrige en el momento, aparte, con su propio test y commit; si
+  implica rediseñar algo, se para a consultar.
+- **Captura de pantalla al fallar:** cuando un recorrido falla se guarda una
+  imagen PNG de la app en `build/integration_failures/` (en ambos ejecutores si
+  es técnicamente posible; si en `flutter_test` no lo es, solo en Windows y se
+  documenta). Es una ayuda para depurar, no un criterio de éxito de los recorridos.
 
 ## Recorridos (journeys)
 
@@ -205,16 +210,15 @@ void defineSessionJourney(JourneyHarness Function() harness) {
 - [ ] `fvm flutter test integration_test -d windows` pasa con la app real y disco temporal.
 - [ ] `fvm flutter test` (sin argumentos) sigue verde y no intenta correr `integration_test/`.
 - [ ] La prueba de "romper algo a propósito" demuestra que un recorrido falla cuando falla la conexión.
+- [ ] Un recorrido que falla deja una captura PNG en `build/integration_failures/` (al menos en Windows).
 - [ ] `fvm flutter analyze` limpio; la suite existente de 614 tests intacta.
-- [ ] `README.md` documenta los dos comandos.
+- [ ] `README.md` documenta los dos comandos y `SPEC.md` ya no dice "sin tests de integración".
 
 ## Open Questions
 
-1. Un bug que destape un recorrido: ¿lo corrijo en el momento (con su test y
-   commit aparte) o lo dejo anotado y sigo? Propuesta: lo corrijo si es pequeño y
-   claro, y paro a consultarte si implica rediseñar algo.
-2. ¿Quieres capturas de pantalla automáticas al fallar un recorrido en la
-   variante de Windows? Propuesta: no por ahora (añade complejidad); los
-   mensajes de los `expect` bastan.
-3. El README y el `SPEC.md` del v1 dicen "sin tests de integración": ¿actualizo
-   esa frase de `SPEC.md` al implementarlo? Propuesta: sí, una línea.
+Resueltas con el usuario: los bugs pequeños y claros que destapen los recorridos
+se corrigen en el momento; se quieren capturas al fallar; se actualiza la frase
+de `SPEC.md`. Una incógnita técnica queda para el plan: si
+`IntegrationTestWidgetsFlutterBinding.takeScreenshot` funciona en Windows o hay
+que capturar la capa raíz con `OffsetLayer.toImage` (se resuelve con una prueba
+de concepto antes de implementar).

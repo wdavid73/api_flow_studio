@@ -144,9 +144,12 @@ String interpolate(String template, Map<String, String> variables) {
   interpolación de variables, `value_extractor` (dot-notation), `flow_runner`
   (orden de pasos, detención en fallo, propagación de variables extraídas),
   `curl_parser`, `json_store` (round-trip de lectura/escritura).
-- **Sin tests e2e/integración en v1.** Verificación manual: correr
-  `fvm flutter run -d windows`, crear un entorno, una colección con un
-  endpoint, mandar el request, armar un flujo de 2+ pasos y correrlo.
+- **Tests de integración (añadidos después del v1):** recorridos de usuario
+  sobre la app completa con un backend HTTP falso, ejecutables con
+  `fvm flutter test test/integration` (sin ventana) y
+  `fvm flutter test integration_test -d windows` (app real). Ver
+  [SPEC-integration-tests.md](SPEC-integration-tests.md). La verificación manual
+  (`fvm flutter run -d windows`) sigue siendo útil para el aspecto visual.
 - Sin porcentaje de cobertura fijo — regla práctica: toda función/clase
   nueva bajo `engine/` lleva al menos un test; la UI se verifica a mano.
 - Correr `fvm flutter analyze` y `fvm flutter test` antes de dar por
