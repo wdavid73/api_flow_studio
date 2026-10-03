@@ -6,7 +6,7 @@ Detail, acceptance criteria and verification for each item are in
 
 ## Phase 1 — Foundation
 - [x] T1: Color tokens and ColorScheme
-- [ ] T2: Method and status badges
+- [x] T2: Method and status badges
 
 ### Checkpoint: Foundation
 - [ ] `fvm flutter analyze` clean, `fvm flutter test` green

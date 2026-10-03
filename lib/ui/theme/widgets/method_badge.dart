@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
-import '../app_spacing.dart';
 import '../app_typography.dart';
 
-/// HTTP method badge, colored per DESIGN.md's "Method Badge System" table.
-/// Unrecognized verbs (HEAD/OPTIONS/TRACE/...) fall back to a neutral slate.
+/// HTTP method label: colored monospace text without a fill, as in the
+/// playground sidebar. Unrecognized verbs (HEAD/OPTIONS/TRACE/...) fall back
+/// to the neutral outline color.
 class MethodBadge extends StatelessWidget {
   const MethodBadge({super.key, required this.method});
 
@@ -28,16 +28,9 @@ class MethodBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
-      decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
-      child: Text(
-        method.toUpperCase(),
-        style: AppTypography.badgeMono.copyWith(color: _color),
-      ),
+    return Text(
+      method.toUpperCase(),
+      style: AppTypography.badgeMono.copyWith(color: _color),
     );
   }
 }

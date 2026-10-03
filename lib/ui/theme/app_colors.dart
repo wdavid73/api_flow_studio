@@ -56,17 +56,17 @@ class AppColors {
   // "Status Code Badges" / "Variable Chips" component sections, which give
   // explicit hex values the frontmatter doesn't cover.
 
-  static const Color methodGet = Color(0xFF3B82F6);
-  static const Color methodPost = Color(0xFF10B981);
-  static const Color methodPut = Color(0xFFF97316);
-  static const Color methodPatch = Color(0xFFEAB308);
-  static const Color methodDelete = Color(0xFFEF4444);
-  static const Color methodOther = Color(0xFF94A3B8);
+  static const Color methodGet = Color(0xFF9DFFB0);
+  static const Color methodPost = Color(0xFF9EC1FF);
+  static const Color methodPut = Color(0xFFFFD27A);
+  static const Color methodPatch = Color(0xFFFFB86B);
+  static const Color methodDelete = Color(0xFFFF8D8D);
+  static const Color methodOther = outline;
 
-  static const Color status2xx = Color(0xFF10B981);
-  static const Color status3xx = Color(0xFF3B82F6);
-  static const Color status4xx = Color(0xFFF97316);
-  static const Color status5xx = Color(0xFFEF4444);
+  static const Color status2xx = Color(0xFFB6F25C);
+  static const Color status3xx = Color(0xFF9EC1FF);
+  static const Color status4xx = Color(0xFFFFD27A);
+  static const Color status5xx = Color(0xFFFF6B4A);
 
   static const Color variableResolvedText = Color(0xFF06B6D4);
   static const Color variableResolvedBg = Color(0x1F06B6D4); // ~12% alpha

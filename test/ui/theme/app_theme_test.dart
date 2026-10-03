@@ -94,45 +94,59 @@ void main() {
 
   Widget wrapWithTheme(Widget child) => MaterialApp(theme: AppTheme.dark(), home: Material(child: child));
 
+  Color? textColor(WidgetTester tester, String text) => tester.widget<Text>(find.text(text)).style?.color;
+
   group('MethodBadge', () {
-    testWidgets('colors GET blue and shows uppercase text', (tester) async {
+    testWidgets('shows uppercase text in the GET color with no fill', (tester) async {
       await tester.pumpWidget(wrapWithTheme(const MethodBadge(method: 'get')));
 
       expect(find.text('GET'), findsOneWidget);
-      expect(decoratedColor(tester, find.byType(Container)), AppColors.methodGet.withValues(alpha: 0.12));
+      expect(textColor(tester, 'GET'), const Color(0xFF9DFFB0));
+      expect(find.byType(DecoratedBox), findsNothing);
     });
 
-    testWidgets('colors DELETE red', (tester) async {
-      await tester.pumpWidget(wrapWithTheme(const MethodBadge(method: 'DELETE')));
-
-      expect(decoratedColor(tester, find.byType(Container)), AppColors.methodDelete.withValues(alpha: 0.12));
+    testWidgets('colors every verb per the playground palette', (tester) async {
+      expect(MethodBadge.colorForMethod('POST'), const Color(0xFF9EC1FF));
+      expect(MethodBadge.colorForMethod('PUT'), const Color(0xFFFFD27A));
+      expect(MethodBadge.colorForMethod('PATCH'), const Color(0xFFFFB86B));
+      expect(MethodBadge.colorForMethod('DELETE'), const Color(0xFFFF8D8D));
     });
 
     testWidgets('falls back to methodOther for an unknown verb', (tester) async {
       await tester.pumpWidget(wrapWithTheme(const MethodBadge(method: 'TRACE')));
 
-      expect(decoratedColor(tester, find.byType(Container)), AppColors.methodOther.withValues(alpha: 0.12));
+      expect(textColor(tester, 'TRACE'), AppColors.methodOther);
+      expect(AppColors.methodOther, AppColors.outline);
     });
   });
 
   group('StatusBadge', () {
-    testWidgets('colors a 2xx status with the success color', (tester) async {
+    testWidgets('colors a 2xx status with the ok color', (tester) async {
       await tester.pumpWidget(wrapWithTheme(const StatusBadge(statusCode: 200)));
 
       expect(find.text('200'), findsOneWidget);
-      expect(decoratedColor(tester, find.byType(Container)), AppColors.status2xx.withValues(alpha: 0.15));
+      expect(textColor(tester, '200'), const Color(0xFFB6F25C));
+      expect(decoratedColor(tester, find.byType(Container)), const Color(0xFFB6F25C).withValues(alpha: 0.15));
     });
 
-    testWidgets('colors a 4xx status with the client-error color', (tester) async {
+    testWidgets('colors a 3xx status blue', (tester) async {
+      await tester.pumpWidget(wrapWithTheme(const StatusBadge(statusCode: 302)));
+
+      expect(textColor(tester, '302'), const Color(0xFF9EC1FF));
+    });
+
+    testWidgets('colors a 4xx status with the warn color', (tester) async {
       await tester.pumpWidget(wrapWithTheme(const StatusBadge(statusCode: 404)));
 
-      expect(decoratedColor(tester, find.byType(Container)), AppColors.status4xx.withValues(alpha: 0.15));
+      expect(textColor(tester, '404'), const Color(0xFFFFD27A));
     });
 
-    testWidgets('colors a 5xx status with the server-error color', (tester) async {
+    testWidgets('colors a 5xx and a status 0 with the danger color', (tester) async {
       await tester.pumpWidget(wrapWithTheme(const StatusBadge(statusCode: 500)));
+      expect(textColor(tester, '500'), const Color(0xFFFF6B4A));
 
-      expect(decoratedColor(tester, find.byType(Container)), AppColors.status5xx.withValues(alpha: 0.15));
+      await tester.pumpWidget(wrapWithTheme(const StatusBadge(statusCode: 0)));
+      expect(textColor(tester, '0'), const Color(0xFFFF6B4A));
     });
   });
 

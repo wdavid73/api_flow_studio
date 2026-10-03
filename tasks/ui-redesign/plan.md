@@ -45,7 +45,7 @@ T2–T5 are independent of each other and only need T1. T6 needs all of them.
 
 ### Phase 1: Foundation
 - [x] T1: Color tokens and ColorScheme
-- [ ] T2: Method and status badges
+- [x] T2: Method and status badges
 
 ### Checkpoint: Foundation
 - [ ] `fvm flutter analyze` clean, `fvm flutter test` green
