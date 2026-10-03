@@ -13,23 +13,37 @@ void main() {
     return null;
   }
 
-  test('colors an object key with the secondary token color', () {
+  test('colors an object key with the accent token color', () {
     final spans = tokenizeJsonLike('{"email":"a@b.com"}', baseStyle: base);
 
-    expect(colorOf(spans, '"email"'), AppColors.secondary);
+    expect(colorOf(spans, '"email"'), const Color(0xFFD6FF4A));
   });
 
-  test('colors a string value with the tertiary token color', () {
+  test('colors a string value with the peach string token color', () {
     final spans = tokenizeJsonLike('{"email":"a@b.com"}', baseStyle: base);
 
-    expect(colorOf(spans, '"a@b.com"'), AppColors.tertiary);
+    expect(colorOf(spans, '"a@b.com"'), const Color(0xFFFFD7A8));
   });
 
-  test('colors a number and a boolean with the primary token color', () {
-    final spans = tokenizeJsonLike('{"age":42,"active":true}', baseStyle: base);
+  test('colors numbers blue and booleans/null red', () {
+    final spans = tokenizeJsonLike('{"age":42,"active":true,"x":null}', baseStyle: base);
 
-    expect(colorOf(spans, '42'), AppColors.primary);
-    expect(colorOf(spans, 'true'), AppColors.primary);
+    expect(colorOf(spans, '42'), const Color(0xFF9EC1FF));
+    expect(colorOf(spans, 'true'), const Color(0xFFFF8D8D));
+    expect(colorOf(spans, 'null'), const Color(0xFFFF8D8D));
+  });
+
+  test('variable tokens use the accent and warning tints', () {
+    expect(AppColors.variableResolvedText, AppColors.primary);
+    expect(AppColors.variableUnresolvedText, AppColors.warning);
+    expect(AppColors.variableResolvedBg, const Color(0x1FD6FF4A));
+    expect(AppColors.variableUnresolvedBg, const Color(0x26FFD27A));
+  });
+
+  test('surface tokens for response, banner and info areas', () {
+    expect(AppColors.responseBackground, const Color(0xFF14160F));
+    expect(AppColors.bannerBackground, const Color(0xFF2A2416));
+    expect(AppColors.infoBackground, const Color(0xFF171C28));
   });
 
   test('colors a {{variable}} token with the variable-resolved color', () {

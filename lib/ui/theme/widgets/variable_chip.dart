@@ -4,9 +4,8 @@ import '../app_colors.dart';
 import '../app_spacing.dart';
 import '../app_typography.dart';
 
-/// Pill-shaped `{{variable}}` token chip. Cyan when [resolved] against the
-/// active environment, amber when it isn't, per DESIGN.md's "Variable
-/// Chips" component spec.
+/// Pill-shaped `{{variable}}` token chip. Accent-tinted when [resolved] against the
+/// active environment, warning-tinted when it isn't.
 class VariableChip extends StatelessWidget {
   const VariableChip({super.key, required this.name, required this.resolved});
 

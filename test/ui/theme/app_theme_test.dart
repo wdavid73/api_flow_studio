@@ -151,14 +151,14 @@ void main() {
   });
 
   group('VariableChip', () {
-    testWidgets('renders the resolved cyan style with the {{name}} text', (tester) async {
+    testWidgets('renders the resolved accent style with the {{name}} text', (tester) async {
       await tester.pumpWidget(wrapWithTheme(const VariableChip(name: 'base_url', resolved: true)));
 
       expect(find.text('{{base_url}}'), findsOneWidget);
       expect(decoratedColor(tester, find.byType(Container)), AppColors.variableResolvedBg);
     });
 
-    testWidgets('renders the unresolved amber style', (tester) async {
+    testWidgets('renders the unresolved warning style', (tester) async {
       await tester.pumpWidget(wrapWithTheme(const VariableChip(name: 'missing', resolved: false)));
 
       expect(decoratedColor(tester, find.byType(Container)), AppColors.variableUnresolvedBg);

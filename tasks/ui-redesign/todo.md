@@ -13,7 +13,7 @@ Detail, acceptance criteria and verification for each item are in
 - [ ] App launches with lime primary, no layout change
 
 ## Phase 2 — Remaining theme surface
-- [ ] T3: Variable chip and JSON syntax colors
+- [x] T3: Variable chip and JSON syntax colors
 - [ ] T4: Component themes, radii, kicker style
 - [ ] T5: Logo mark
 

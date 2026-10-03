@@ -52,9 +52,7 @@ class AppColors {
   static const Color surfaceVariant = Color(0xFF31351F);
 
   // -- Semantic extension: layered on top of the M3 roles above, not part
-  // of them. Sourced from DESIGN.md's prose "Method Badge System" /
-  // "Status Code Badges" / "Variable Chips" component sections, which give
-  // explicit hex values the frontmatter doesn't cover.
+  // of them. Sourced from the playground's .verb / .status / .tok-* rules.
 
   static const Color methodGet = Color(0xFF9DFFB0);
   static const Color methodPost = Color(0xFF9EC1FF);
@@ -68,11 +66,22 @@ class AppColors {
   static const Color status4xx = Color(0xFFFFD27A);
   static const Color status5xx = Color(0xFFFF6B4A);
 
-  static const Color variableResolvedText = Color(0xFF06B6D4);
-  static const Color variableResolvedBg = Color(0x1F06B6D4); // ~12% alpha
-  static const Color variableResolvedBorder = Color(0x4706B6D4); // ~28% alpha
-  static const Color variableUnresolvedText = Color(0xFFF59E0B);
-  static const Color variableUnresolvedBg = Color(0x26F59E0B); // ~15% alpha
+  static const Color variableResolvedText = primary;
+  static const Color variableResolvedBg = Color(0x1FD6FF4A); // ~12% alpha
+  static const Color variableResolvedBorder = Color(0x47D6FF4A); // ~28% alpha
+  static const Color variableUnresolvedText = warning;
+  static const Color variableUnresolvedBg = Color(0x26FFD27A); // ~15% alpha
+
+  // JSON syntax tokens (.tok-* in the playground).
+  static const Color jsonKey = primary;
+  static const Color jsonString = Color(0xFFFFD7A8);
+  static const Color jsonNumber = Color(0xFF9EC1FF);
+  static const Color jsonKeyword = Color(0xFFFF8D8D);
+
+  // Area backgrounds the HTML hardcodes outside :root.
+  static const Color responseBackground = Color(0xFF14160F);
+  static const Color bannerBackground = Color(0xFF2A2416);
+  static const Color infoBackground = Color(0xFF171C28);
 
   static const List<Color> environmentDotPalette = [tertiary, secondary, error];
 

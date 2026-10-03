@@ -13,11 +13,11 @@ final RegExp _outerPattern = RegExp(
 
 final RegExp _variablePattern = RegExp(r'\{\{\w+\}\}');
 
-/// Colorizes JSON-ish text per DESIGN.md Architecture Decision #3's token
-/// mapping: keys -> secondary, string values -> tertiary, `{{var}}` tokens
-/// -> the variable-chip cyan (even nested inside a quoted string, which is
-/// where they actually appear in a request body), numbers/booleans ->
-/// primary, punctuation -> on-surface-variant. Not a real JSON parser -- a
+/// Colorizes JSON-ish text with the playground's token colors: keys ->
+/// accent, strings -> peach, numbers -> blue, booleans/null -> red,
+/// `{{var}}` tokens -> the variable-chip accent (even nested inside a quoted
+/// string, which is where they actually appear in a request body),
+/// punctuation -> on-surface-variant. Not a real JSON parser -- a
 /// best-effort regex tokenizer, which is fine for coloring a request/
 /// response body a user is reading or editing, not for validating it.
 List<InlineSpan> tokenizeJsonLike(String text, {required TextStyle baseStyle}) {
@@ -53,11 +53,13 @@ List<InlineSpan> tokenizeJsonLike(String text, {required TextStyle baseStyle}) {
 
     final matched = match[0]!;
     if (match.namedGroup('key') != null) {
-      addWithVariables(matched, AppColors.secondary, weight: FontWeight.w500);
+      addWithVariables(matched, AppColors.jsonKey, weight: FontWeight.w500);
     } else if (match.namedGroup('string') != null) {
-      addWithVariables(matched, AppColors.tertiary);
-    } else if (match.namedGroup('number') != null || match.namedGroup('boolean') != null) {
-      addPlain(matched, AppColors.primary, weight: FontWeight.w600);
+      addWithVariables(matched, AppColors.jsonString);
+    } else if (match.namedGroup('number') != null) {
+      addPlain(matched, AppColors.jsonNumber);
+    } else if (match.namedGroup('boolean') != null) {
+      addPlain(matched, AppColors.jsonKeyword);
     } else {
       addPlain(matched, AppColors.onSurfaceVariant);
     }
@@ -77,8 +79,8 @@ TextStyle jsonBaseStyle() => AppTypography.codeMd.copyWith(color: AppColors.onSu
 
 /// Highlights `{{var}}` tokens in plain (non-JSON) text -- the URL bar --
 /// leaving everything else in [baseStyle]. When [resolvedVariables] is
-/// given, a token colors cyan if its name is a key in the map (resolved
-/// against the active environment) or amber if it isn't (per DESIGN.md's
+/// given, a token colors accent if its name is a key in the map (resolved
+/// against the active environment) or warning if it isn't (per DESIGN.md's
 /// "Variable Chips" resolved/unresolved states); with no map, every token
 /// is colored as resolved.
 List<InlineSpan> tokenizeVariablesOnly(
