@@ -81,10 +81,10 @@ K1, K2 and K3 are independent. K6–K9 only need K5; K7 also uses K2.
 - [x] analyze clean, full suite green
 
 ### Phase 4: Verify
-- [ ] K10: Sweep and visual check
+- [x] K10: Sweep and visual check
 
 ### Checkpoint: Module done
-- [ ] All SPEC-session-tokens.md success criteria checked
+- [x] All SPEC-session-tokens.md success criteria checked (visual check at 1440px: button and popover with a valid and an expired sample JWT; capture from a real login and the toast verified by tests only, no login endpoint was available)
 - [ ] Human review, then write `SPEC-hosts-notes.md`
 
 ---

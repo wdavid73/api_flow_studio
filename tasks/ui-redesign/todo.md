@@ -168,8 +168,8 @@ Detail in [plan-session-tokens.md](plan-session-tokens.md).
 - [x] analyze clean, full suite green
 
 ## Phase 4 — Verify
-- [ ] K10: Sweep and visual check
+- [x] K10: Sweep and visual check
 
 ### Checkpoint: Module done
-- [ ] All SPEC-session-tokens.md success criteria checked
+- [x] All SPEC-session-tokens.md success criteria checked (visual check at 1440px: button and popover with a valid and an expired sample JWT; capture from a real login and the toast verified by tests only, no login endpoint was available)
 - [ ] Human review, then write `SPEC-hosts-notes.md`
