@@ -200,8 +200,8 @@ Detail in [plan-hosts-notes.md](plan-hosts-notes.md).
 - [x] analyze clean, full suite green
 
 ## Phase 3 — Verify
-- [ ] H8: Sweep and visual check
+- [x] H8: Sweep and visual check
 
 ### Checkpoint: Module done
-- [ ] All SPEC-hosts-notes.md success criteria checked
-- [ ] The redesign capability map is fully implemented
+- [x] All SPEC-hosts-notes.md success criteria checked (visual check at 1440px: dialog with two environments, Add host, a typed URL that created the variable, a note and the live warning; the PROD column and an ACTIVE warning are covered by widget tests only, the app has no environment rename)
+- [x] The redesign capability map is fully implemented
