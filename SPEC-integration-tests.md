@@ -206,16 +206,16 @@ void defineSessionJourney(JourneyHarness Function() harness) {
 
 ## Success Criteria
 
-- [ ] `integration_test` añadido a `dev_dependencies` y `fvm flutter pub get` limpio.
-- [ ] `FakeBackend`, datos sembrados y `JourneyHarness` en `integration_test/support/`.
-- [ ] Los 10 recorridos implementados, cada uno una función reutilizable.
-- [ ] `fvm flutter test test/integration` pasa con la app completa y almacenamiento en memoria.
-- [ ] `fvm flutter test integration_test -d windows` pasa con la app real y disco temporal.
-- [ ] `fvm flutter test` (sin argumentos) sigue verde y no intenta correr `integration_test/`.
-- [ ] La prueba de "romper algo a propósito" demuestra que un recorrido falla cuando falla la conexión.
-- [ ] Un recorrido que falla deja una captura PNG en `build/integration_failures/` (al menos en Windows).
-- [ ] `fvm flutter analyze` limpio; la suite existente de 614 tests intacta.
-- [ ] `README.md` documenta los dos comandos y `SPEC.md` ya no dice "sin tests de integración".
+- [x] `integration_test` añadido a `dev_dependencies` y `fvm flutter pub get` limpio.
+- [x] `FakeBackend`, datos sembrados y `JourneyHarness` en `integration_test/support/`.
+- [x] Los 10 recorridos implementados, cada uno una función reutilizable.
+- [x] `fvm flutter test test/integration` pasa con la app completa y almacenamiento en memoria.
+- [x] `fvm flutter test integration_test -d windows` pasa con la app real y disco temporal.
+- [x] `fvm flutter test` (sin argumentos) sigue verde y no intenta correr `integration_test/`.
+- [x] La prueba de "romper algo a propósito" demuestra que un recorrido falla cuando falla la conexión.
+- [x] Un recorrido que falla deja una captura PNG en `build/integration_failures/` (al menos en Windows).
+- [x] `fvm flutter analyze` limpio; la suite existente de 614 tests intacta.
+- [x] `README.md` documenta los dos comandos y `SPEC.md` ya no dice "sin tests de integración".
 
 ## Open Questions
 

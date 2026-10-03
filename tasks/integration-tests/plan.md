@@ -84,7 +84,7 @@ the environment helpers from I4; I8 reuses everything.
 
 ### Phase 4: Whole-app journeys and wrap-up
 - [x] I8: Persistence and keyboard journeys
-- [ ] I9: Break-on-purpose check, docs and final runs
+- [x] I9: Break-on-purpose check, docs and final runs
 
 ### Checkpoint: Done
 - [ ] All SPEC-integration-tests.md success criteria checked

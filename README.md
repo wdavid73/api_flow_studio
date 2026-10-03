@@ -103,6 +103,24 @@ fvm flutter test
 fvm flutter analyze
 ```
 
+### Integration tests
+
+Ten user journeys (navigation, sending, history, environments, production
+safeguards, session, flows, hosts, persistence, keyboard) drive the whole app
+against a fake HTTP backend. The same journeys run two ways:
+
+```bash
+# Whole app inside flutter_test, data in memory, no window (fast)
+fvm flutter test test/integration
+
+# Real Windows app, data in a temporary folder (needs a Windows desktop device, ~4 min)
+fvm flutter test integration_test -d windows
+```
+
+`fvm flutter test` on its own does not run `integration_test/`. A failing
+journey saves a screenshot to `build/integration_failures/`. Details in
+[SPEC-integration-tests.md](SPEC-integration-tests.md).
+
 ### Pre-built binaries
 
 Every push to `master` runs the test suite and, if it's green, builds
