@@ -22,7 +22,7 @@ void main() {
     expect(base.color.a, 1);
   });
 
-  testWidgets('draws a lime radial glow fading to transparent', (tester) async {
+  testWidgets('draws an accent radial glow fading to transparent', (tester) async {
     await pumpBackground(tester);
 
     final box = tester.widget<DecoratedBox>(

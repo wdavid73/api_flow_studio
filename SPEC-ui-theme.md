@@ -180,3 +180,15 @@ class AppColors {
 Resueltas con el usuario: fuentes actuales se conservan; `secondary` se deriva
 del verde lima; `design/` queda como histórico; `surfaceContainerHighest` y
 `outlineVariant` derivados aprobados. Sin preguntas abiertas.
+
+## Cambio posterior de paleta
+
+Por petición del usuario, el acento verde lima del HTML (`#d6ff4a`) se cambió por
+un violeta suave (`#a78bfa`), con `onPrimary` en un violeta oscuro (`#17102b`),
+y los negros con tinte oliva pasaron a negros con tinte violeta (`surface`
+`#0f0e14`, `onSurface` `#f1f0f7`, etc.). Los colores derivados (`secondary`,
+contenedores, `surfaceTint`, resplandor del fondo, chips de variable) se
+recalcularon sobre el violeta. El verde de éxito pasó a menta (`#86e7b0`) para
+no chocar con el violeta. Los valores vigentes están en `AppColors` y en
+`test/ui/theme/app_theme_test.dart`; la tabla de arriba describe la paleta
+original.

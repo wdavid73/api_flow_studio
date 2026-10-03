@@ -33,7 +33,7 @@ final toastProvider = NotifierProvider<ToastNotifier, String?>(ToastNotifier.new
 /// Shows [message] in the app-wide toast, from any screen.
 void showToast(WidgetRef ref, String message) => ref.read(toastProvider.notifier).show(message);
 
-/// Draws the toast pill over [child]: bottom center, lime, fading and
+/// Draws the toast pill over [child]: bottom center, in the accent color, fading and
 /// sliding in over 160ms. It never intercepts pointer events.
 class ToastHost extends ConsumerStatefulWidget {
   const ToastHost({super.key, required this.child});

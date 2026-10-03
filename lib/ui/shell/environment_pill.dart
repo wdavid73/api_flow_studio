@@ -9,7 +9,7 @@ import '../theme/app_typography.dart';
 import 'environment_kind.dart';
 
 /// Segmented environment selector for the header: one button per
-/// environment, the active one filled lime (red when it's a production
+/// environment, the active one filled with the accent (red when it's a production
 /// environment). Picking a button changes what `{{variable}}` resolves to on
 /// the next Send, immediately. With more than [_maxButtons] environments
 /// the first [_maxButtons] - 1 stay as buttons and the rest move into a

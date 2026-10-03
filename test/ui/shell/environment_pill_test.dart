@@ -50,7 +50,7 @@ void main() {
   Color? labelColor(WidgetTester tester, String label) =>
       DefaultTextStyle.of(tester.element(find.text(label))).style.color;
 
-  testWidgets('renders one button per environment, the active one in lime', (tester) async {
+  testWidgets('renders one button per environment, the active one in the accent', (tester) async {
     await tester.runAsync(() async {
       await pumpPill(tester, environments: envs(['Dev', 'QA', 'Staging']), activeId: 'qa');
 

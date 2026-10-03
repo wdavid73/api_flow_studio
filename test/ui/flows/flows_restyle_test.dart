@@ -75,7 +75,7 @@ void main() {
     expect(fill(tester, 'f-1'), Colors.transparent);
   });
 
-  testWidgets('the builder titles the flow in the title style, with a lime Run and an outlined Save', (tester) async {
+  testWidgets('the builder titles the flow in the title style, with an accent Run and an outlined Save', (tester) async {
     await pumpFlows(tester);
     container.read(selectedFlowIdProvider.notifier).state = 'f-1';
     await tester.pump();

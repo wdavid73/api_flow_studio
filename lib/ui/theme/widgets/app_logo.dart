@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 
-/// The playground's brand mark: a lime rounded square with two dark dots
+/// The playground's brand mark: an accent-colored rounded square with two dark dots
 /// (the `.mark` in the header / favicon of `commodo-api-playground.html`),
 /// hand-painted so no `flutter_svg` dependency is needed.
 class AppLogoMark extends StatelessWidget {

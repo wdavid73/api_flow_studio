@@ -59,7 +59,7 @@ void main() {
     expect(opacity(tester), 0);
   });
 
-  testWidgets('showToast displays the message in a lime pill', (tester) async {
+  testWidgets('showToast displays the message in an accent pill', (tester) async {
     await pumpHost(tester);
 
     await tester.tap(find.byKey(const Key('show-a')));

@@ -11,31 +11,31 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('AppColors Commodo tokens', () {
     test('surfaces follow the playground :root backgrounds', () {
-      expect(AppColors.surface, const Color(0xFF10110E));
-      expect(AppColors.surfaceContainerLowest, const Color(0xFF0C0D0A));
-      expect(AppColors.surfaceContainerLow, const Color(0xFF171910));
-      expect(AppColors.surfaceContainer, const Color(0xFF202318));
-      expect(AppColors.surfaceContainerHigh, const Color(0xFF282B1E));
-      expect(AppColors.surfaceContainerHighest, const Color(0xFF31351F));
+      expect(AppColors.surface, const Color(0xFF0F0E14));
+      expect(AppColors.surfaceContainerLowest, const Color(0xFF0A0A0F));
+      expect(AppColors.surfaceContainerLow, const Color(0xFF15141C));
+      expect(AppColors.surfaceContainer, const Color(0xFF1C1B26));
+      expect(AppColors.surfaceContainerHigh, const Color(0xFF252433));
+      expect(AppColors.surfaceContainerHighest, const Color(0xFF2F2E40));
     });
 
     test('text and outline tokens', () {
-      expect(AppColors.onSurface, const Color(0xFFF4F5EE));
-      expect(AppColors.onSurfaceVariant, const Color(0xFFA3A892));
-      expect(AppColors.outline, const Color(0xFF737864));
-      expect(AppColors.outlineVariant, const Color(0xFF2B2D26));
+      expect(AppColors.onSurface, const Color(0xFFF1F0F7));
+      expect(AppColors.onSurfaceVariant, const Color(0xFFA09EB5));
+      expect(AppColors.outline, const Color(0xFF6F6D85));
+      expect(AppColors.outlineVariant, const Color(0xFF2A2937));
     });
 
     test('accent, status and derived roles', () {
-      expect(AppColors.primary, const Color(0xFFD6FF4A));
-      expect(AppColors.onPrimary, const Color(0xFF141A08));
+      expect(AppColors.primary, const Color(0xFFA78BFA));
+      expect(AppColors.onPrimary, const Color(0xFF17102B));
       expect(AppColors.error, const Color(0xFFFF6B4A));
-      expect(AppColors.tertiary, const Color(0xFFB6F25C));
+      expect(AppColors.tertiary, const Color(0xFF86E7B0));
       expect(AppColors.warning, const Color(0xFFFFD27A));
-      expect(AppColors.secondary, const Color(0xFFA3D93A));
-      expect(AppColors.secondaryContainer, const Color(0xFF3D5212));
-      expect(AppColors.primaryContainer, const Color(0xFF4A6600));
-      expect(AppColors.inversePrimary, const Color(0xFF5A7A00));
+      expect(AppColors.secondary, const Color(0xFFD8A7F5));
+      expect(AppColors.secondaryContainer, const Color(0xFF4A2F63));
+      expect(AppColors.primaryContainer, const Color(0xFF4B3A8C));
+      expect(AppColors.inversePrimary, const Color(0xFF6B4FD6));
     });
   });
 
@@ -119,14 +119,14 @@ void main() {
       expect(decoration.fillColor, AppColors.surface);
     });
 
-    test('filled buttons are lime on ink', () {
+    test('filled buttons are accent on ink', () {
       final style = theme.filledButtonTheme.style!;
 
       expect(style.backgroundColor!.resolve({}), AppColors.primary);
       expect(style.foregroundColor!.resolve({}), AppColors.onPrimary);
     });
 
-    test('a disabled filled button is muted, not lime', () {
+    test('a disabled filled button is muted, not the accent', () {
       final style = theme.filledButtonTheme.style!;
       final disabled = <WidgetState>{WidgetState.disabled};
 
@@ -196,8 +196,8 @@ void main() {
       await tester.pumpWidget(wrapWithTheme(const StatusBadge(statusCode: 200)));
 
       expect(find.text('200'), findsOneWidget);
-      expect(textColor(tester, '200'), const Color(0xFFB6F25C));
-      expect(decoratedColor(tester, find.byType(Container)), const Color(0xFFB6F25C).withValues(alpha: 0.15));
+      expect(textColor(tester, '200'), const Color(0xFF86E7B0));
+      expect(decoratedColor(tester, find.byType(Container)), const Color(0xFF86E7B0).withValues(alpha: 0.15));
     });
 
     testWidgets('colors a 3xx status blue', (tester) async {

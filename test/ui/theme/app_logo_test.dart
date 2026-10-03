@@ -7,7 +7,7 @@ void main() {
   Finder markPaint() => find.descendant(of: find.byType(AppLogoMark), matching: find.byType(CustomPaint));
 
   for (final size in [28.0, 56.0]) {
-    testWidgets('draws a lime rounded square with two ink dots at size $size', (tester) async {
+    testWidgets('draws an accent rounded square with two ink dots at size $size', (tester) async {
       await tester.pumpWidget(Directionality(textDirection: TextDirection.ltr, child: Align(child: AppLogoMark(size: size))));
 
       expect(tester.getSize(find.byType(AppLogoMark)), Size(size, size));

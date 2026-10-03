@@ -16,7 +16,7 @@ void main() {
   test('colors an object key with the accent token color', () {
     final spans = tokenizeJsonLike('{"email":"a@b.com"}', baseStyle: base);
 
-    expect(colorOf(spans, '"email"'), const Color(0xFFD6FF4A));
+    expect(colorOf(spans, '"email"'), const Color(0xFFA78BFA));
   });
 
   test('colors a string value with the peach string token color', () {
@@ -36,12 +36,12 @@ void main() {
   test('variable tokens use the accent and warning tints', () {
     expect(AppColors.variableResolvedText, AppColors.primary);
     expect(AppColors.variableUnresolvedText, AppColors.warning);
-    expect(AppColors.variableResolvedBg, const Color(0x1FD6FF4A));
+    expect(AppColors.variableResolvedBg, const Color(0x1FA78BFA));
     expect(AppColors.variableUnresolvedBg, const Color(0x26FFD27A));
   });
 
   test('surface tokens for response, banner and info areas', () {
-    expect(AppColors.responseBackground, const Color(0xFF14160F));
+    expect(AppColors.responseBackground, const Color(0xFF12111A));
     expect(AppColors.bannerBackground, const Color(0xFF2A2416));
     expect(AppColors.infoBackground, const Color(0xFF171C28));
   });
