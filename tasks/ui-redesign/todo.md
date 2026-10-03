@@ -183,11 +183,11 @@ Detail in [plan-hosts-notes.md](plan-hosts-notes.md).
 ## Phase 1 — Engine
 - [x] H1: `isHostUrl` and `buildHostMatrix`
 - [x] H2: `setHostValue`
-- [ ] H3: Host notes in `JsonStore`
+- [x] H3: Host notes in `JsonStore`
 
 ### Checkpoint: Engine
-- [ ] analyze clean, full suite green
-- [ ] `grep -r "package:flutter" lib/engine` is empty
+- [x] analyze clean, full suite green
+- [x] `grep -r "package:flutter" lib/engine` is empty
 
 ## Phase 2 — Dialog
 - [ ] H4: Header button, dialog and read-only matrix

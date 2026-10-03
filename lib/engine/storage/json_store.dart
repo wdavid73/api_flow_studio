@@ -167,6 +167,23 @@ class JsonStore {
         'endpoints': endpoints.map((e) => e.toJson()).toList(),
       });
 
+  /// The note typed for each host (base) name, from `host_notes.json`. Entries
+  /// whose value is not a string are ignored.
+  Future<Map<String, String>> readHostNotes() => _readOrDefault(
+        'host_notes.json',
+        (decoded) => {
+          for (final entry in (decoded as Map<String, dynamic>).entries)
+            if (entry.value is String) entry.key: entry.value as String,
+        },
+        <String, String>{},
+      );
+
+  /// Replaces the stored host notes. Blank notes are dropped.
+  Future<void> writeHostNotes(Map<String, String> notes) => _writeAtomic('host_notes.json', {
+        for (final entry in notes.entries)
+          if (entry.value.trim().isNotEmpty) entry.key: entry.value,
+      });
+
   Future<List<Flow>> readFlows() => _readOrDefault(
         'flows.json',
         (decoded) =>

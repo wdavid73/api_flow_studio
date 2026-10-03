@@ -58,11 +58,11 @@ H1–H3 are independent. H5 needs H2 and H4; H6 needs H3 and H4; H7 needs H4
 ### Phase 1: Engine
 - [x] H1: `isHostUrl` and `buildHostMatrix`
 - [x] H2: `setHostValue`
-- [ ] H3: Host notes in `JsonStore`
+- [x] H3: Host notes in `JsonStore`
 
 ### Checkpoint: Engine
-- [ ] analyze clean, full suite green
-- [ ] `grep -r "package:flutter" lib/engine` is empty
+- [x] analyze clean, full suite green
+- [x] `grep -r "package:flutter" lib/engine` is empty
 
 ### Phase 2: Dialog
 - [ ] H4: Header button, dialog and read-only matrix
