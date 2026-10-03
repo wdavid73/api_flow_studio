@@ -43,7 +43,7 @@ tokens y no una reescritura.
 | `--line` | `rgba(243,244,230,.10)` | `outlineVariant` (≈ `#2b2d26` sólido) |
 | `--accent` | `#d6ff4a` | `primary` |
 | `--ink` | `#141a08` | `onPrimary` |
-| `--danger` | `#ff6b4a` | `error` (con `onError` blanco) |
+| `--danger` | `#ff6b4a` | `error` (con `onError` = ink `#141a08`: el blanco del HTML da solo 2.8:1) |
 | `--ok` | `#b6f25c` | `tertiary` |
 | `--warn` | `#ffd27a` | token nuevo `warning` |
 

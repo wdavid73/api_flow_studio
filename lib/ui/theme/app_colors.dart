@@ -41,7 +41,7 @@ class AppColors {
   static const Color onTertiaryContainer = Color(0xFFE8FFC4);
 
   static const Color error = Color(0xFFFF6B4A); // --danger
-  static const Color onError = Color(0xFFFFFFFF);
+  static const Color onError = Color(0xFF141A08); // ink: white on --danger is only 2.8:1
   static const Color errorContainer = Color(0xFF5C1A0D);
   static const Color onErrorContainer = Color(0xFFFFDAD2);
 

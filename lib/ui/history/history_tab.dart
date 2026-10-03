@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/models/models.dart';
 import '../request_builder/request_draft_provider.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/widgets/json_view.dart';
 import '../theme/widgets/status_badge.dart';
@@ -61,7 +62,7 @@ class _HistoryRow extends StatelessWidget {
         children: [
           if (entry.status != null) StatusBadge(statusCode: entry.status!),
           if (entry.error != null)
-            const Text('Error', style: TextStyle(color: Colors.red)),
+            const Text('Error', style: TextStyle(color: AppColors.error)),
           const SizedBox(width: AppSpacing.sm),
           Text('${entry.elapsedMs}ms'),
           const SizedBox(width: AppSpacing.sm),

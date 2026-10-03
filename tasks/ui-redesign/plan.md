@@ -61,7 +61,7 @@ T2–T5 are independent of each other and only need T1. T6 needs all of them.
 - [ ] Every existing screen opened once, no indigo/cyan remnants
 
 ### Phase 3: Verify
-- [ ] T6: Sweep, contrast test, side-by-side visual check
+- [x] T6: Sweep, contrast test, side-by-side visual check
 
 ### Checkpoint: Module done
 - [ ] All SPEC-ui-theme.md success criteria checked
