@@ -89,7 +89,7 @@ Detail in [plan-workspace.md](plan-workspace.md).
 ## Phase 4 — Sidebar and keys
 - [x] W7: Method chips and combined filter
 - [x] W8: Sidebar rows, group headers and empty result
-- [ ] W9: Keyboard shortcuts
+- [x] W9: Keyboard shortcuts
 
 ## Phase 5 — Verify
 - [ ] W10: Sweep and visual check (>=1100px and <1100px)

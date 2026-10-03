@@ -37,6 +37,13 @@ final _headerIconButtonStyle = IconButton.styleFrom(
 final expandedGroupIdsProvider = StateProvider<Set<String>>((ref) => {});
 final sidebarSearchQueryProvider = StateProvider<String>((ref) => '');
 
+/// Focus node of the search field, so the `/` shortcut can focus it.
+final sidebarSearchFocusNodeProvider = Provider<FocusNode>((ref) {
+  final node = FocusNode(debugLabel: 'sidebar-search');
+  ref.onDispose(node.dispose);
+  return node;
+});
+
 /// The left sidebar: collapsible collection tree (folders + method-badged
 /// endpoint rows), a search box, and actions to create a folder or add a
 /// request directly inside one. Selecting an endpoint loads it into the
@@ -118,6 +125,7 @@ class _Loaded extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
           child: TextField(
             key: const Key('sidebar-search-field'),
+            focusNode: ref.watch(sidebarSearchFocusNodeProvider),
             decoration: const InputDecoration(
               isDense: true,
               hintText: 'Filter requests…',

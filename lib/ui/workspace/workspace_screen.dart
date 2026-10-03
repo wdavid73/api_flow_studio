@@ -7,6 +7,7 @@ import '../request_builder/send_provider.dart';
 import '../response_viewer/response_panel.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import 'workspace_shortcuts.dart';
 
 /// Window width below which the response moves under the request instead of
 /// sitting beside it.
@@ -22,35 +23,37 @@ class WorkspaceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final stacked = constraints.maxWidth < workspaceStackBreakpoint;
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(width: _sidebarWidth, child: SidebarTree()),
-            const VerticalDivider(width: 1),
-            Expanded(
-              child: stacked
-                  ? const Column(
-                      children: [
-                        Expanded(child: _RequestPane()),
-                        Divider(height: 1),
-                        Expanded(child: _ResponsePane()),
-                      ],
-                    )
-                  : const Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(flex: 100, child: _RequestPane()),
-                        VerticalDivider(width: 1),
-                        Expanded(flex: 92, child: _ResponsePane()),
-                      ],
-                    ),
-            ),
-          ],
-        );
-      },
+    return WorkspaceShortcuts(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final stacked = constraints.maxWidth < workspaceStackBreakpoint;
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(width: _sidebarWidth, child: SidebarTree()),
+              const VerticalDivider(width: 1),
+              Expanded(
+                child: stacked
+                    ? const Column(
+                        children: [
+                          Expanded(child: _RequestPane()),
+                          Divider(height: 1),
+                          Expanded(child: _ResponsePane()),
+                        ],
+                      )
+                    : const Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(flex: 100, child: _RequestPane()),
+                          VerticalDivider(width: 1),
+                          Expanded(flex: 92, child: _ResponsePane()),
+                        ],
+                      ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
