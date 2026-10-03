@@ -182,7 +182,7 @@ Detail in [plan-hosts-notes.md](plan-hosts-notes.md).
 
 ## Phase 1 — Engine
 - [x] H1: `isHostUrl` and `buildHostMatrix`
-- [ ] H2: `setHostValue`
+- [x] H2: `setHostValue`
 - [ ] H3: Host notes in `JsonStore`
 
 ### Checkpoint: Engine

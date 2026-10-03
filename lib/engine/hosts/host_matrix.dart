@@ -92,3 +92,19 @@ HostRow _buildRow(String name, List<Environment> environments, List<Endpoint> en
     usedBy: endpoints.where((e) => e.url.contains(token)).length,
   );
 }
+
+/// [environment] with the variable [name] set to [value], or without it when
+/// [value] is blank. Only that variable changes: the others, the environment's
+/// identity and an existing variable's `secret` flag are kept.
+Environment setHostValue(Environment environment, String name, String value) {
+  final variables = {...environment.variables};
+  if (value.trim().isEmpty) {
+    variables.remove(name);
+  } else {
+    final existing = variables[name];
+    variables[name] = existing == null
+        ? EnvironmentVariable(value: value)
+        : existing.copyWith(value: value);
+  }
+  return environment.copyWith(variables: variables);
+}
