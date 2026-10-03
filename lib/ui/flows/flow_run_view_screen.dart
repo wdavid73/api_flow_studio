@@ -9,6 +9,7 @@ import '../environments/environments_provider.dart';
 import '../request_builder/send_provider.dart' show requestExecutorProvider;
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
 import 'run_step_card.dart';
 import 'run_step_inspector.dart';
 
@@ -139,15 +140,19 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
     final passed = _results.where((r) => r?.status == FlowStepStatus.success).length;
     final failed = _results.where((r) => r?.status == FlowStepStatus.failure).length;
     final skipped = _results.where((r) => r?.status == FlowStepStatus.skipped).length;
+    final totalMs = _results.fold<int>(0, (sum, r) => sum + (r?.response?.elapsedMs ?? 0));
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           key: const Key('run-view-back-button'),
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(widget.flow.name),
+        title: Text(widget.flow.name, style: AppTypography.title),
         actions: [
           IconButton(
             key: const Key('re-run-flow-button'),
@@ -170,6 +175,12 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
                 Text('$failed failed', style: const TextStyle(color: AppColors.error)),
                 const SizedBox(width: AppSpacing.md),
                 Text('$skipped skipped', style: const TextStyle(color: AppColors.outline)),
+                const SizedBox(width: AppSpacing.md),
+                Text(
+                  '$totalMs ms',
+                  key: const Key('run-summary-total'),
+                  style: AppTypography.codeMd.copyWith(color: AppColors.onSurfaceVariant),
+                ),
                 if (_running) ...[
                   const SizedBox(width: AppSpacing.md),
                   const SizedBox(

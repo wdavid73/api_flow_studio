@@ -57,12 +57,12 @@ class RunStepCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         color: isSelected ? AppColors.surfaceContainerHigh : null,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           side: BorderSide(color: isSelected ? AppColors.primary : Colors.transparent),
         ),
         child: InkWell(
           key: ValueKey('run-step-header-$index'),
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           onTap: _isSelectable ? onSelect : null,
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.md),

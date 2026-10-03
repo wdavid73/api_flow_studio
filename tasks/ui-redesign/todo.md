@@ -122,7 +122,7 @@ Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 
 ## Phase 3 — Flows
 - [x] S6: Flows list and builder restyle
-- [ ] S7: Flow run view restyle
+- [x] S7: Flow run view restyle
 - [ ] S8: Step picker chips aligned with the sidebar
 
 ### Checkpoint: Flows
