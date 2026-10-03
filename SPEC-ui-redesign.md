@@ -20,7 +20,8 @@ paneles). Complementa —no reemplaza— [SPEC.md](SPEC.md) (spec v1 de la app).
 - **El motor (`lib/engine/`) no cambia** salvo en `session-tokens` y
   `hosts-notes` (modelos y almacenamiento nuevos) un añadido puro en
   `workspace` (`curl_builder.dart`, el inverso del `curl_parser`) y otro en
-  `secondary-screens` (`JsonStore.readAllHistory()` para el historial global).
+  `secondary-screens` (`JsonStore.readAllHistory()` para el historial global) y otro en
+  `session-tokens` (`lib/engine/session/`, solo en memoria: sin cambios de almacenamiento).
 
 ## Mapa
 
@@ -29,7 +30,7 @@ paneles). Complementa —no reemplaza— [SPEC.md](SPEC.md) (spec v1 de la app).
 | `ui-theme` | Tokens de color/tipografía/espaciado, `ThemeData`, widgets base (badges, chips de variable, JSON view, logo). Fuentes sin cambio. | — |
 | `app-shell` | Header (marca, nav, selector Dev/QA/Prod en pastilla), borde rojo superior en prod, toast, layout responsive. | `ui-theme` |
 | `workspace` | Sidebar (búsqueda, chips de método, grupos), constructor de request, panel de respuesta, Ctrl/Cmd+Enter. | `app-shell` |
-| `session-tokens` | Popover de sesión: access/refresh token, adjuntar Authorization, capturar tokens de 2xx, metadata JWT, borrar. | `app-shell`, hook en el envío de `workspace` |
+| `session-tokens` | Sesión por ambiente, solo en memoria: access/refresh token, adjuntar Authorization, capturar tokens de 2xx, metadata JWT, borrar; botón en el header y popover. | `app-shell`, hook en el envío de `workspace` |
 | `hosts-notes` | Diálogo de hosts/bases por ambiente con URL Dev/QA/Prod y avisos. | `app-shell` |
 | `secondary-screens` | Environments y Flows (builder y run view) con el nuevo lenguaje visual, y History convertido en pantalla global de historial. | `ui-theme`, `app-shell` |
 
@@ -43,9 +44,9 @@ Reglas del mapa:
 - `ui-theme` es el único módulo que toca `lib/ui/theme/` (salvo widgets
   nuevos) y los widgets base compartidos.
 - Cada módulo tendrá `SPEC-<module-id>.md` junto a este archivo. Specs
-  escritos: `ui-theme` (aprobado e implementado), `app-shell` (aprobado e implementado), `workspace` (aprobado e implementado), `secondary-screens` (aprobado). Pendientes (se escriben en orden de dependencia
+  escritos: `ui-theme` (aprobado e implementado), `app-shell` (aprobado e implementado), `workspace` (aprobado e implementado), `secondary-screens` (aprobado e implementado). Pendientes (se escriben en orden de dependencia
   antes de planificar cada módulo): 
-  `session-tokens`, `hosts-notes`.
+  `hosts-notes`. `session-tokens` (pendiente de revisión).
 
 ## Ubicación del plan
 
