@@ -193,11 +193,11 @@ Detail in [plan-hosts-notes.md](plan-hosts-notes.md).
 - [x] H4: Header button, dialog and read-only matrix
 - [x] H5: Editable cells
 - [x] H6: Notes column and Add host
-- [ ] H7: Warnings under the table
+- [x] H7: Warnings under the table
 
 ### Checkpoint: Dialog
-- [ ] Editing a cell changes the environment and survives a reload; notes survive a reload
-- [ ] analyze clean, full suite green
+- [x] Editing a cell changes the environment and survives a reload; notes survive a reload
+- [x] analyze clean, full suite green
 
 ## Phase 3 — Verify
 - [ ] H8: Sweep and visual check

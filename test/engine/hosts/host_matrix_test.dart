@@ -190,4 +190,61 @@ void main() {
       expect(matrix.rows.last.isMissingSomewhere, isTrue);
     });
   });
+
+  group('hostWarnings', () {
+    final dev = env('dev', 'Dev', {'AUTH': 'https://dev/a', 'MARKET': 'https://dev/m', 'ONLY_DEV': 'https://dev/o'});
+    final qa = env('qa', 'QA', {'AUTH': 'https://qa/a'});
+    final prod = env('prod', 'Prod', {'AUTH': 'https://prod/a', 'MARKET': 'https://prod/m'});
+
+    List<HostWarning> warnings({String? active, List<Endpoint> endpoints = const []}) =>
+        hostWarnings(buildHostMatrix([dev, qa, prod], endpoints, const {}), activeEnvironmentId: active);
+
+    test('a base defined everywhere has no warning', () {
+      expect(warnings().map((w) => w.name), isNot(contains('AUTH')));
+    });
+
+    test('a missing base names every environment that lacks it, in column order', () {
+      final market = warnings().firstWhere((w) => w.name == 'MARKET');
+      final onlyDev = warnings().firstWhere((w) => w.name == 'ONLY_DEV');
+
+      expect(market.missingEnvironmentNames, ['QA']);
+      expect(onlyDev.missingEnvironmentNames, ['QA', 'Prod']);
+    });
+
+    test('warnings are sorted by name when none affects the active environment', () {
+      expect(warnings().map((w) => w.name), ['MARKET', 'ONLY_DEV']);
+    });
+
+    test('a used base missing in the active environment is flagged and listed first', () {
+      final result = warnings(active: 'qa', endpoints: [endpoint('{{ONLY_DEV}}/x')]);
+
+      expect(result.first.name, 'ONLY_DEV');
+      expect(result.first.affectsActiveEnvironment, isTrue);
+      expect(result.last.affectsActiveEnvironment, isFalse);
+    });
+
+    test('an unused base missing in the active environment is not flagged', () {
+      final result = warnings(active: 'qa');
+
+      expect(result.every((w) => !w.affectsActiveEnvironment), isTrue);
+    });
+
+    test('a used base missing only in other environments is not flagged for the active one', () {
+      final result = warnings(active: 'dev', endpoints: [endpoint('{{MARKET}}/x')]);
+
+      expect(result.every((w) => !w.affectsActiveEnvironment), isTrue);
+    });
+
+    test('with no active environment nothing is flagged', () {
+      final result = warnings(endpoints: [endpoint('{{MARKET}}/x')]);
+
+      expect(result.every((w) => !w.affectsActiveEnvironment), isTrue);
+    });
+
+    test('carries how many requests use the base', () {
+      final result = warnings(endpoints: [endpoint('{{MARKET}}/a', id: '1'), endpoint('{{MARKET}}/b', id: '2')]);
+
+      expect(result.firstWhere((w) => w.name == 'MARKET').usedBy, 2);
+    });
+  });
 }

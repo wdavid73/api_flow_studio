@@ -42,18 +42,16 @@ class HostMatrixTable extends ConsumerWidget {
     final width = _nameWidth + _environmentWidth * matrix.environments.length + _noteWidth;
 
     return SingleChildScrollView(
-      child: SingleChildScrollView(
-        key: const Key('hosts-table-scroll'),
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: width,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _HeaderRow(environments: matrix.environments, activeId: activeId),
-              for (final row in matrix.rows) _HostRowView(row: row, environments: matrix.environments),
-            ],
-          ),
+      key: const Key('hosts-table-scroll'),
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: width,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _HeaderRow(environments: matrix.environments, activeId: activeId),
+            for (final row in matrix.rows) _HostRowView(row: row, environments: matrix.environments),
+          ],
         ),
       ),
     );

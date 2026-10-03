@@ -115,3 +115,48 @@ Environment setHostValue(Environment environment, String name, String value) {
   }
   return environment.copyWith(variables: variables);
 }
+
+/// A base that is not defined in every environment.
+class HostWarning {
+  const HostWarning({
+    required this.name,
+    required this.missingEnvironmentNames,
+    required this.usedBy,
+    required this.affectsActiveEnvironment,
+  });
+
+  final String name;
+
+  /// Names of the environments that lack the base, in column order.
+  final List<String> missingEnvironmentNames;
+
+  final int usedBy;
+
+  /// True when the base is used by at least one request and missing in the
+  /// active environment, i.e. a Send there would go out with `{{name}}` literal.
+  final bool affectsActiveEnvironment;
+}
+
+/// One warning per base missing in some environment: those that affect the
+/// active environment first, then the rest, each group sorted by name.
+List<HostWarning> hostWarnings(HostMatrix matrix, {String? activeEnvironmentId}) {
+  final namesById = {for (final e in matrix.environments) e.id: e.name};
+  final warnings = [
+    for (final row in matrix.rows)
+      if (row.isMissingSomewhere)
+        HostWarning(
+          name: row.name,
+          missingEnvironmentNames: [for (final id in row.missingEnvironmentIds) namesById[id] ?? id],
+          usedBy: row.usedBy,
+          affectsActiveEnvironment: row.usedBy > 0 &&
+              activeEnvironmentId != null &&
+              row.missingEnvironmentIds.contains(activeEnvironmentId),
+        ),
+  ];
+  // List.sort is not stable, so order by (affects first, then name) explicitly.
+  warnings.sort((a, b) {
+    if (a.affectsActiveEnvironment != b.affectsActiveEnvironment) return a.affectsActiveEnvironment ? -1 : 1;
+    return a.name.compareTo(b.name);
+  });
+  return warnings;
+}

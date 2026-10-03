@@ -68,11 +68,11 @@ H1–H3 are independent. H5 needs H2 and H4; H6 needs H3 and H4; H7 needs H4
 - [x] H4: Header button, dialog and read-only matrix
 - [x] H5: Editable cells
 - [x] H6: Notes column and Add host
-- [ ] H7: Warnings under the table
+- [x] H7: Warnings under the table
 
 ### Checkpoint: Dialog
-- [ ] Editing a cell changes the environment and survives a reload; notes survive a reload
-- [ ] analyze clean, full suite green
+- [x] Editing a cell changes the environment and survives a reload; notes survive a reload
+- [x] analyze clean, full suite green
 
 ### Phase 3: Verify
 - [ ] H8: Sweep and visual check

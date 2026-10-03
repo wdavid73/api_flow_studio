@@ -8,6 +8,7 @@ import '../theme/app_typography.dart';
 import 'add_host_dialog.dart';
 import 'host_matrix_provider.dart';
 import 'host_matrix_table.dart';
+import 'host_warnings.dart';
 
 /// The "Hosts & notes" dialog: help text and the hosts-by-environment table.
 class HostsDialog extends ConsumerWidget {
@@ -59,7 +60,17 @@ class HostsDialog extends ConsumerWidget {
                 style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
               ),
               const SizedBox(height: AppSpacing.lg),
-              const Flexible(child: HostMatrixTable()),
+              // Table and warnings scroll together, so a long list never
+              // overflows the dialog.
+              const Flexible(
+                child: SingleChildScrollView(
+                  key: Key('hosts-body-scroll'),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [HostMatrixTable(), HostWarnings()],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
