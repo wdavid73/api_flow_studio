@@ -3,10 +3,12 @@ import 'package:uuid/uuid.dart';
 
 import '../../engine/models/models.dart';
 import '../../engine/storage/json_store.dart';
+import '../projects/projects_provider.dart';
 
-/// Overridden in tests with a temp-directory [JsonStore]; the real app uses
-/// the default OS-app-data-backed instance.
-final jsonStoreProvider = Provider<JsonStore>((ref) => JsonStore());
+/// The store of the active project, so everything that reads or writes data
+/// follows a change of project. Tests override it with a temp-directory or
+/// in-memory [JsonStore].
+final jsonStoreProvider = Provider<JsonStore>((ref) => ref.watch(projectsProvider.select((s) => s.store)));
 
 class EnvironmentsState {
   const EnvironmentsState({this.environments = const [], this.activeEnvironmentId});
@@ -47,7 +49,7 @@ class EnvironmentsNotifier extends AsyncNotifier<EnvironmentsState> {
 
   @override
   Future<EnvironmentsState> build() async {
-    final store = ref.read(jsonStoreProvider);
+    final store = ref.watch(jsonStoreProvider);
     final environments = await store.readEnvironments();
     final activeId = await store.readActiveEnvironmentId();
     return EnvironmentsState(environments: environments, activeEnvironmentId: activeId);

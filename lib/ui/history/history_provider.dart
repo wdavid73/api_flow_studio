@@ -10,7 +10,7 @@ import '../environments/environments_provider.dart' show jsonStoreProvider;
 class HistoryNotifier extends FamilyAsyncNotifier<List<HistoryEntry>, String> {
   @override
   Future<List<HistoryEntry>> build(String endpointId) =>
-      ref.read(jsonStoreProvider).readHistory(endpointId);
+      ref.watch(jsonStoreProvider).readHistory(endpointId);
 }
 
 final historyProvider =

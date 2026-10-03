@@ -52,10 +52,10 @@ de la UI si conviene. El orden de la lista es el de construcción.
 ### Phase 1: projects-core
 - [x] P1: Modelo de proyecto y repositorio
 - [x] P2: Migración de los datos actuales a Default
-- [ ] P3: El proyecto activo decide el store; todo recarga al cambiar
+- [x] P3: El proyecto activo decide el store; todo recarga al cambiar
 
 ### Checkpoint: Core
-- [ ] analyze limpio, `fvm flutter test` y recorridos en memoria verdes
+- [x] analyze limpio, `fvm flutter test` y recorridos en memoria verdes
 
 ### Phase 2: projects-ui
 - [ ] P4: Selector de proyecto en el header

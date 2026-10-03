@@ -6,6 +6,7 @@ import '../../engine/models/models.dart';
 import '../environments/environments_provider.dart';
 import '../history/all_history_provider.dart';
 import '../history/history_provider.dart';
+import '../projects/projects_provider.dart';
 import '../response_viewer/response_body_tab.dart' show rawResponseBody;
 import '../session/session_provider.dart' show sessionExecutorProvider;
 import 'request_draft_provider.dart';
@@ -20,10 +21,24 @@ class SendState {
 }
 
 class SendNotifier extends Notifier<SendState> {
+  /// The active project right now. `ref` cannot be read between a project change
+  /// and the rebuild it causes, so a send that outlives a switch compares
+  /// against this instead.
+  late String _projectId;
+
   @override
-  SendState build() => const SendState();
+  SendState build() {
+    _projectId = ref.watch(activeProjectIdProvider); // a response belongs to one project
+    ref.listen(activeProjectIdProvider, (_, next) => _projectId = next);
+    return const SendState();
+  }
 
   Future<void> send() async {
+    // The project the request was sent from: if the user switches while it is
+    // in flight, its history still goes to this project's store and nothing is
+    // shown in the new one.
+    final projectId = _projectId;
+    final store = ref.read(jsonStoreProvider);
     state = SendState(loading: true, response: state.response);
     final endpoint = ref.read(requestDraftProvider);
     final executor = ref.read(sessionExecutorProvider);
@@ -33,13 +48,13 @@ class SendNotifier extends Notifier<SendState> {
     // active when send() was first wired up.
     final variables = ref.read(environmentsProvider).value?.active?.resolvedVariables ?? const {};
     final response = await executor.execute(endpoint, variables: variables);
-    state = SendState(response: response);
+    if (_projectId == projectId) state = SendState(response: response);
 
     // Only a *saved* endpoint (a real persisted id, not the blank-draft
     // sentinel) gets history -- there's nowhere meaningful to attach it
     // for an endpoint that was never saved into a collection.
     if (endpoint.id != draftEndpointId) {
-      await ref.read(jsonStoreProvider).appendHistoryEntry(
+      await store.appendHistoryEntry(
             endpoint.id,
             HistoryEntry(
               id: const Uuid().v4(),
@@ -52,8 +67,10 @@ class SendNotifier extends Notifier<SendState> {
               error: response.error,
             ),
           );
-      ref.invalidate(historyProvider(endpoint.id));
-      ref.invalidate(allHistoryProvider);
+      if (_projectId == projectId) {
+        ref.invalidate(historyProvider(endpoint.id));
+        ref.invalidate(allHistoryProvider);
+      }
     }
   }
 }

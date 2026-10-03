@@ -54,12 +54,15 @@ class JsonStore {
     return result;
   }
 
+  /// The data folder the app uses: `api_flow_studio_data` next to the
+  /// executable, so the app stays portable. Not available on the web.
+  static Directory defaultDirectory() => Directory(
+        '${File(Platform.resolvedExecutable).parent.path}'
+        '${Platform.pathSeparator}api_flow_studio_data',
+      );
+
   Future<Directory> _directory() async {
-    final dir = _directoryOverride ??
-        Directory(
-          '${File(Platform.resolvedExecutable).parent.path}'
-          '${Platform.pathSeparator}api_flow_studio_data',
-        );
+    final dir = _directoryOverride ?? defaultDirectory();
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }

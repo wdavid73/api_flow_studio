@@ -16,6 +16,7 @@ import 'collections_provider.dart';
 import 'endpoint_filter.dart';
 import 'method_filter_chips.dart';
 import 'paste_curl_dialog.dart';
+import '../projects/projects_provider.dart';
 
 /// The real app version, shown in the sidebar footer in place of the
 /// design mockup's fake "Proxy: Localhost" line -- kept in sync with
@@ -34,8 +35,14 @@ final _headerIconButtonStyle = IconButton.styleFrom(
 
 /// Local UI-only state (not persisted, per SPEC 3.5's own acceptance
 /// criteria): which folders are expanded, and the current search text.
-final expandedGroupIdsProvider = StateProvider<Set<String>>((ref) => {});
-final sidebarSearchQueryProvider = StateProvider<String>((ref) => '');
+final expandedGroupIdsProvider = StateProvider<Set<String>>((ref) {
+  ref.watch(activeProjectIdProvider); // folder ids belong to one project
+  return {};
+});
+final sidebarSearchQueryProvider = StateProvider<String>((ref) {
+  ref.watch(activeProjectIdProvider);
+  return '';
+});
 
 /// Focus node of the search field, so the `/` shortcut can focus it.
 final sidebarSearchFocusNodeProvider = Provider<FocusNode>((ref) {

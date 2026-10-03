@@ -12,10 +12,14 @@ import 'add_step_picker.dart';
 import 'flow_run_view_screen.dart';
 import 'flows_provider.dart';
 import 'step_card.dart';
+import '../projects/projects_provider.dart';
 
 /// Which flow is currently shown in the right-hand builder. UI-only, not
 /// persisted (same pattern as [selectedEnvironmentIdProvider]).
-final selectedFlowIdProvider = StateProvider<String?>((ref) => null);
+final selectedFlowIdProvider = StateProvider<String?>((ref) {
+  ref.watch(activeProjectIdProvider);
+  return null;
+});
 
 /// The "Flows" nav destination: a list of saved flows on the left, the
 /// selected flow's builder (name, step pipeline, add/remove/reorder) on

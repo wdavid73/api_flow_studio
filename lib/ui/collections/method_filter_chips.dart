@@ -6,10 +6,14 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../theme/widgets/method_badge.dart';
 import 'endpoint_filter.dart';
+import '../projects/projects_provider.dart';
 
 /// The method the sidebar is filtered to ([allMethods] for none). UI-only
 /// state, not persisted.
-final sidebarMethodFilterProvider = StateProvider<String>((ref) => allMethods);
+final sidebarMethodFilterProvider = StateProvider<String>((ref) {
+  ref.watch(activeProjectIdProvider); // starts over in another project
+  return allMethods;
+});
 
 const _chips = [allMethods, 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 

@@ -11,9 +11,13 @@ import '../theme/app_typography.dart';
 import 'all_history_provider.dart';
 import 'day_label.dart';
 import 'history_row.dart';
+import '../projects/projects_provider.dart';
 
 /// Text typed in the History search field. UI-only state, not persisted.
-final historySearchQueryProvider = StateProvider<String>((ref) => '');
+final historySearchQueryProvider = StateProvider<String>((ref) {
+  ref.watch(activeProjectIdProvider);
+  return '';
+});
 
 /// Whether [entry] matches the lowercase [query]: its request's name, method
 /// or URL contains it (a deleted request matches on its `Deleted request`

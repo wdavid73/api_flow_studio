@@ -22,7 +22,7 @@ class FlowsNotifier extends AsyncNotifier<List<Flow>> {
   }
 
   @override
-  Future<List<Flow>> build() => ref.read(jsonStoreProvider).readFlows();
+  Future<List<Flow>> build() => ref.watch(jsonStoreProvider).readFlows();
 
   Future<void> _persist(List<Flow> next) async {
     state = AsyncData(next);

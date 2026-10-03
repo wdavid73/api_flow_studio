@@ -4,6 +4,7 @@ import '../../engine/http/request_executor.dart';
 import '../../engine/session/session.dart';
 import '../../engine/session/session_request_executor.dart';
 import '../environments/environments_provider.dart';
+import '../projects/projects_provider.dart';
 import '../request_builder/request_executor_provider.dart';
 import '../shell/app_toast.dart';
 
@@ -14,7 +15,14 @@ const String noEnvironmentKey = '';
 /// written to disk, so every token is gone when the app closes.
 class SessionsNotifier extends Notifier<Map<String, Session>> {
   @override
-  Map<String, Session> build() => const {};
+  Map<String, Session> build() {
+    // Environment ids are per project, so each session already belongs to one;
+    // only the shared "no environment" slot has to be dropped on a switch.
+    ref.listen(activeProjectIdProvider, (_, _) {
+      if (state.containsKey(noEnvironmentKey)) state = {...state}..remove(noEnvironmentKey);
+    });
+    return const {};
+  }
 
   /// The session of [environmentKey] (an environment id or [noEnvironmentKey]),
   /// empty if none exists yet.

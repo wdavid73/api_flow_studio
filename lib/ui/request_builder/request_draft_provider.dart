@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/models/models.dart';
+import '../projects/projects_provider.dart';
 
 const draftEndpointId = 'draft';
 
@@ -9,7 +10,12 @@ const draftEndpointId = 'draft';
 /// [Endpoint] into a collection is a later task (3.5).
 class RequestDraftNotifier extends Notifier<Endpoint> {
   @override
-  Endpoint build() => const Endpoint(
+  Endpoint build() {
+    ref.watch(activeProjectIdProvider); // the draft belongs to one project
+    return _blank;
+  }
+
+  static const _blank = Endpoint(
         id: draftEndpointId,
         groupId: '',
         name: 'Untitled Request',
@@ -38,7 +44,7 @@ class RequestDraftNotifier extends Notifier<Endpoint> {
   void loadEndpoint(Endpoint endpoint) => state = endpoint;
 
   /// Resets to a blank, unsaved draft (still `draftEndpointId`).
-  void reset() => state = build();
+  void reset() => state = _blank;
 }
 
 final requestDraftProvider = NotifierProvider<RequestDraftNotifier, Endpoint>(

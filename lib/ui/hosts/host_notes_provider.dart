@@ -8,7 +8,7 @@ class HostNotesNotifier extends AsyncNotifier<Map<String, String>> {
   Future<void> _writes = Future.value();
 
   @override
-  Future<Map<String, String>> build() => ref.read(jsonStoreProvider).readHostNotes();
+  Future<Map<String, String>> build() => ref.watch(jsonStoreProvider).readHostNotes();
 
   /// Sets the note of [hostName]; a blank [text] removes it.
   Future<void> setNote(String hostName, String text) {

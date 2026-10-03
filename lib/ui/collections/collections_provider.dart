@@ -113,7 +113,7 @@ class CollectionsNotifier extends AsyncNotifier<CollectionsState> {
 
   @override
   Future<CollectionsState> build() async {
-    final store = ref.read(jsonStoreProvider);
+    final store = ref.watch(jsonStoreProvider);
     final result = await store.readCollections();
     return CollectionsState(groups: result.groups, endpoints: result.endpoints);
   }

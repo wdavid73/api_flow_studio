@@ -9,11 +9,15 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'environments_provider.dart';
+import '../projects/projects_provider.dart';
 
 /// Which environment is currently shown in the right-hand editor. UI-only,
 /// not persisted (distinct from [EnvironmentsState.activeEnvironmentId],
 /// which is the one requests actually resolve variables against).
-final selectedEnvironmentIdProvider = StateProvider<String?>((ref) => null);
+final selectedEnvironmentIdProvider = StateProvider<String?>((ref) {
+  ref.watch(activeProjectIdProvider); // an id from another project would select nothing
+  return null;
+});
 
 class EnvironmentManagerScreen extends ConsumerWidget {
   const EnvironmentManagerScreen({super.key});
