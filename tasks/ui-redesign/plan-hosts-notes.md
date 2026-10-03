@@ -56,7 +56,7 @@ H1–H3 are independent. H5 needs H2 and H4; H6 needs H3 and H4; H7 needs H4
 ## Task List
 
 ### Phase 1: Engine
-- [ ] H1: `isHostUrl` and `buildHostMatrix`
+- [x] H1: `isHostUrl` and `buildHostMatrix`
 - [ ] H2: `setHostValue`
 - [ ] H3: Host notes in `JsonStore`
 

@@ -181,7 +181,7 @@ Detail in [plan-session-tokens.md](plan-session-tokens.md).
 Detail in [plan-hosts-notes.md](plan-hosts-notes.md).
 
 ## Phase 1 — Engine
-- [ ] H1: `isHostUrl` and `buildHostMatrix`
+- [x] H1: `isHostUrl` and `buildHostMatrix`
 - [ ] H2: `setHostValue`
 - [ ] H3: Host notes in `JsonStore`
 
