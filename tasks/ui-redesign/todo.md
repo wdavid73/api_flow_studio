@@ -14,7 +14,7 @@ Detail, acceptance criteria and verification for each item are in
 
 ## Phase 2 — Remaining theme surface
 - [x] T3: Variable chip and JSON syntax colors
-- [ ] T4: Component themes, radii, kicker style
+- [x] T4: Component themes, radii, kicker style
 - [ ] T5: Logo mark
 
 ### Checkpoint: Theme complete

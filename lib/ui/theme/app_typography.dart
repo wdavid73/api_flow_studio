@@ -11,6 +11,24 @@ class AppTypography {
   static const String uiFontFamily = 'Geist';
   static const String codeFontFamily = 'JetBrains Mono';
 
+  /// Request title (`h1` in the playground): 18px, -0.03em.
+  static const TextStyle title = TextStyle(
+    fontFamily: uiFontFamily,
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    height: 24 / 18,
+    letterSpacing: -0.54,
+  );
+
+  /// Small section label (`.kicker`): 11px, 0.08em. Callers uppercase the text.
+  static const TextStyle kicker = TextStyle(
+    fontFamily: uiFontFamily,
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    height: 14 / 11,
+    letterSpacing: 0.88,
+  );
+
   static const TextStyle headlineLg = TextStyle(
     fontFamily: uiFontFamily,
     fontSize: 20,

@@ -23,4 +23,9 @@ class AppRadius {
   static const double xl = 8;
   static const double xxl = 12;
   static const double full = 9999;
+
+  // Radii from the playground HTML (fields/buttons, code blocks, dialogs).
+  static const double field = 10;
+  static const double block = 12;
+  static const double dialog = 16;
 }

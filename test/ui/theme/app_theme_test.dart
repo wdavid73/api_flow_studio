@@ -87,6 +87,61 @@ void main() {
     });
   });
 
+  group('Playground radii and type', () {
+    test('adds the HTML radii without changing the existing scale', () {
+      expect(AppRadius.field, 10);
+      expect(AppRadius.dialog, 16);
+      expect(AppRadius.block, 12);
+      expect(AppRadius.xl, 8);
+    });
+
+    test('kicker and title styles follow the HTML', () {
+      expect(AppTypography.kicker.fontSize, 11);
+      expect(AppTypography.kicker.letterSpacing, closeTo(0.88, 0.001));
+      expect(AppTypography.title.fontSize, 18);
+      expect(AppTypography.title.letterSpacing, closeTo(-0.54, 0.001));
+      expect(AppTypography.title.fontFamily, 'Geist');
+    });
+  });
+
+  group('AppTheme.dark component themes', () {
+    final theme = AppTheme.dark();
+
+    test('inputs use 10px radius, outlineVariant border and primary focus', () {
+      final decoration = theme.inputDecorationTheme;
+      final enabled = decoration.enabledBorder! as OutlineInputBorder;
+      final focused = decoration.focusedBorder! as OutlineInputBorder;
+
+      expect(enabled.borderRadius, BorderRadius.circular(10));
+      expect(enabled.borderSide.color, AppColors.outlineVariant);
+      expect(focused.borderSide.color, AppColors.primary);
+      expect(decoration.filled, isTrue);
+      expect(decoration.fillColor, AppColors.surface);
+    });
+
+    test('filled buttons are lime on ink', () {
+      final style = theme.filledButtonTheme.style!;
+
+      expect(style.backgroundColor!.resolve({}), AppColors.primary);
+      expect(style.foregroundColor!.resolve({}), AppColors.onPrimary);
+    });
+
+    test('dialogs use 16px radius on surfaceContainerLow', () {
+      final dialog = theme.dialogTheme;
+
+      expect(dialog.backgroundColor, AppColors.surfaceContainerLow);
+      expect((dialog.shape! as RoundedRectangleBorder).borderRadius, BorderRadius.circular(16));
+    });
+
+    test('dividers use the outlineVariant line color', () {
+      expect(theme.dividerTheme.color, AppColors.outlineVariant);
+    });
+
+    test('keeps Geist as the default font family', () {
+      expect(theme.textTheme.bodyMedium?.fontFamily, 'Geist');
+    });
+  });
+
   Color? decoratedColor(WidgetTester tester, Finder finder) {
     final decoration = tester.widget<Container>(finder).decoration as BoxDecoration?;
     return decoration?.color;

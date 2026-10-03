@@ -53,7 +53,7 @@ T2–T5 are independent of each other and only need T1. T6 needs all of them.
 
 ### Phase 2: Remaining theme surface
 - [x] T3: Variable chip and JSON syntax colors
-- [ ] T4: Component themes, radii, kicker style
+- [x] T4: Component themes, radii, kicker style
 - [ ] T5: Logo mark
 
 ### Checkpoint: Theme complete

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'app_spacing.dart';
 import 'app_typography.dart';
 
 /// Builds the app's single (dark-only) [ThemeData] from the tokens in
@@ -39,12 +40,72 @@ class AppTheme {
       onErrorContainer: AppColors.onErrorContainer,
     );
 
+    OutlineInputBorder inputBorder(Color color, {double width = 1}) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.field),
+          borderSide: BorderSide(color: color, width: width),
+        );
+
+    final buttonShape = WidgetStatePropertyAll<OutlinedBorder>(
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.field)),
+    );
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.surface,
       fontFamily: AppTypography.uiFontFamily,
+      dividerTheme: const DividerThemeData(color: AppColors.outlineVariant, thickness: 1, space: 1),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.surface,
+        border: inputBorder(AppColors.outlineVariant),
+        enabledBorder: inputBorder(AppColors.outlineVariant),
+        focusedBorder: inputBorder(AppColors.primary),
+        errorBorder: inputBorder(AppColors.error),
+        focusedErrorBorder: inputBorder(AppColors.error),
+        hintStyle: const TextStyle(color: AppColors.outline),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
+          foregroundColor: const WidgetStatePropertyAll(AppColors.onPrimary),
+          shape: buttonShape,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: ButtonStyle(
+          foregroundColor: const WidgetStatePropertyAll(AppColors.onSurface),
+          side: const WidgetStatePropertyAll(BorderSide(color: AppColors.outlineVariant)),
+          shape: buttonShape,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+          foregroundColor: const WidgetStatePropertyAll(AppColors.onSurfaceVariant),
+          shape: buttonShape,
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.surfaceContainerLow,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.dialog),
+          side: const BorderSide(color: AppColors.outlineVariant),
+        ),
+      ),
+      tabBarTheme: const TabBarThemeData(
+        labelColor: AppColors.onSurface,
+        unselectedLabelColor: AppColors.onSurfaceVariant,
+        indicatorColor: AppColors.primary,
+        dividerColor: AppColors.outlineVariant,
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        textStyle: const TextStyle(color: AppColors.onSurface, fontSize: 12),
+      ),
     );
   }
 }
