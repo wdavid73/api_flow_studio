@@ -46,7 +46,7 @@ Reglas del mapa:
 - Cada módulo tendrá `SPEC-<module-id>.md` junto a este archivo. Specs
   escritos: `ui-theme` (aprobado e implementado), `app-shell` (aprobado e implementado), `workspace` (aprobado e implementado), `secondary-screens` (aprobado e implementado). Pendientes (se escriben en orden de dependencia
   antes de planificar cada módulo): 
-  `hosts-notes`. `session-tokens` (pendiente de revisión).
+  `hosts-notes`. `session-tokens` (aprobado).
 
 ## Ubicación del plan
 

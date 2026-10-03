@@ -133,4 +133,43 @@ Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 
 ### Checkpoint: Module done
 - [x] All SPEC-secondary-screens.md success criteria checked (visual check at 1440px: History, Environments and the Flows builder in the browser; the flow run view needs a real HTTP run and is verified by widget tests only)
-- [ ] Human review, then write `SPEC-session-tokens.md`
+- [x] Human review, then write `SPEC-session-tokens.md`
+
+---
+
+# Module `session-tokens`
+
+Detail in [plan-session-tokens.md](plan-session-tokens.md).
+
+## Phase 1 — Engine rules
+- [ ] K1: `Session`, `applySession` and `sessionVariables`
+- [ ] K2: JWT claims and expiry
+- [ ] K3: Token finder
+
+### Checkpoint: Engine rules
+- [ ] analyze clean, full suite green
+- [ ] `grep -r "package:flutter" lib/engine` is empty
+
+## Phase 2 — Behavior
+- [ ] K4: `SessionRequestExecutor`
+- [ ] K5: Per-environment sessions wired into send and flows
+
+### Checkpoint: Behavior
+- [ ] Sending a login stores tokens for the active environment; the next send carries them; another environment does not
+- [ ] analyze clean, full suite green
+
+## Phase 3 — UI
+- [ ] K6: Header session button and popover shell
+- [ ] K7: Popover contents
+- [ ] K8: Capture toast
+- [ ] K9: Effective variables for curl and URL highlighting
+
+### Checkpoint: UI
+- [ ] analyze clean, full suite green
+
+## Phase 4 — Verify
+- [ ] K10: Sweep and visual check
+
+### Checkpoint: Module done
+- [ ] All SPEC-session-tokens.md success criteria checked
+- [ ] Human review, then write `SPEC-hosts-notes.md`
