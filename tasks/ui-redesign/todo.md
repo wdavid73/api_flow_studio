@@ -105,7 +105,7 @@ Detail in [plan-workspace.md](plan-workspace.md).
 Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 
 ## Phase 1 — History
-- [ ] S1: `JsonStore.readAllHistory()`
+- [x] S1: `JsonStore.readAllHistory()`
 - [ ] S2: History screen with day groups and empty state
 - [ ] S3: History search, open request and deleted rows
 

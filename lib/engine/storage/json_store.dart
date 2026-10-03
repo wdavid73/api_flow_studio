@@ -188,6 +188,13 @@ class JsonStore {
         <String, List<HistoryEntry>>{},
       );
 
+  /// Every stored history entry across all endpoints, newest first.
+  Future<List<HistoryEntry>> readAllHistory() async {
+    final all = await _readAllHistory();
+    return [for (final entries in all.values) ...entries]
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
   Future<List<HistoryEntry>> readHistory(String endpointId) async =>
       (await _readAllHistory())[endpointId] ?? const [];
 

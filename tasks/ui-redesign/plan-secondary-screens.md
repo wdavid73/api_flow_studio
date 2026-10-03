@@ -46,7 +46,7 @@ needs both.
 ## Task List
 
 ### Phase 1: History
-- [ ] S1: `JsonStore.readAllHistory()`
+- [x] S1: `JsonStore.readAllHistory()`
 - [ ] S2: History screen with day groups and empty state
 - [ ] S3: History search, open request and deleted rows
 

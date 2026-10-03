@@ -61,4 +61,37 @@ void main() {
     // concurrent appends silently overwrote another's result.
     expect(await store.readHistory('e-1'), hasLength(10));
   });
+
+  group('readAllHistory', () {
+    test('is empty when nothing was ever sent', () async {
+      expect(await store.readAllHistory(), isEmpty);
+    });
+
+    test('returns entries of every endpoint mixed, newest first', () async {
+      await store.appendHistoryEntry('e-1', entryFor('e-1', 1));
+      await store.appendHistoryEntry('e-2', entryFor('e-2', 3));
+      await store.appendHistoryEntry('e-1', entryFor('e-1', 2));
+
+      final all = await store.readAllHistory();
+
+      expect(all.map((e) => e.id), ['h-3', 'h-2', 'h-1']);
+      expect(all.map((e) => e.endpointId), ['e-2', 'e-1', 'e-1']);
+    });
+
+    test('does not change what readHistory returns per endpoint', () async {
+      await store.appendHistoryEntry('e-1', entryFor('e-1', 1));
+      await store.appendHistoryEntry('e-1', entryFor('e-1', 2));
+      await store.readAllHistory();
+
+      expect((await store.readHistory('e-1')).map((e) => e.id), ['h-1', 'h-2']);
+    });
+
+    test('works the same on the in-memory store', () async {
+      final memory = JsonStore.inMemory();
+      await memory.appendHistoryEntry('e-1', entryFor('e-1', 1));
+      await memory.appendHistoryEntry('e-2', entryFor('e-2', 2));
+
+      expect((await memory.readAllHistory()).map((e) => e.id), ['h-2', 'h-1']);
+    });
+  });
 }
