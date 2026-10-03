@@ -42,7 +42,7 @@ Reglas del mapa:
 - `ui-theme` es el único módulo que toca `lib/ui/theme/` (salvo widgets
   nuevos) y los widgets base compartidos.
 - Cada módulo tendrá `SPEC-<module-id>.md` junto a este archivo. Specs
-  escritos: `ui-theme` (aprobado e implementado), `app-shell` (aprobado e implementado), `workspace` (pendiente de revisión). Pendientes (se escriben en orden de dependencia
+  escritos: `ui-theme` (aprobado e implementado), `app-shell` (aprobado e implementado), `workspace` (aprobado). Pendientes (se escriben en orden de dependencia
   antes de planificar cada módulo): 
   `secondary-screens`, `session-tokens`, `hosts-notes`.
 

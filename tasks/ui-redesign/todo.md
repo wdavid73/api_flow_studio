@@ -56,4 +56,44 @@ Detail in [plan-app-shell.md](plan-app-shell.md).
 
 ### Checkpoint: Module done
 - [x] All SPEC-app-shell.md success criteria checked (red prod state verified by widget tests only: the app has no environment rename, so it could not be shown in the browser)
-- [ ] Human review, then write `SPEC-workspace.md`
+- [x] Human review, then write `SPEC-workspace.md`
+
+---
+
+# Module `workspace`
+
+Detail in [plan-workspace.md](plan-workspace.md).
+
+## Phase 1 — Foundations
+- [ ] W1: `buildCurl` in the engine
+- [ ] W2: Three-panel layout
+
+### Checkpoint: Layout
+- [ ] analyze clean, full suite green
+- [ ] 1440px shows three panels, 900px stacks the response
+
+## Phase 2 — Response side
+- [ ] W3: Response status line, Copy and curl
+- [ ] W4: History inside the response panel
+
+### Checkpoint: Response side
+- [ ] analyze clean, full suite green
+
+## Phase 3 — Request side
+- [ ] W5: Request header, URL bar and pill tabs
+- [ ] W6: Body Format JSON and Invalid JSON
+
+### Checkpoint: Request side
+- [ ] analyze clean, full suite green
+
+## Phase 4 — Sidebar and keys
+- [ ] W7: Method chips and combined filter
+- [ ] W8: Sidebar rows, group headers and empty result
+- [ ] W9: Keyboard shortcuts
+
+## Phase 5 — Verify
+- [ ] W10: Sweep and visual check (>=1100px and <1100px)
+
+### Checkpoint: Module done
+- [ ] All SPEC-workspace.md success criteria checked
+- [ ] Human review, then write `SPEC-secondary-screens.md`
