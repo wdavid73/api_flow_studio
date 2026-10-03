@@ -6,12 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import 'session_clock.dart';
 import 'session_label.dart';
 import 'session_popover.dart';
 import 'session_provider.dart';
 
-/// Clock used for the expiry label. Overridden in tests.
-final sessionClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+export 'session_clock.dart' show sessionClockProvider;
 
 /// The header's session button: the time left on the access token (or `No
 /// token`) over `Authorization: Bearer`. Pressing it opens the session

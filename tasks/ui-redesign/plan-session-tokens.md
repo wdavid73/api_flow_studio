@@ -73,7 +73,7 @@ K1, K2 and K3 are independent. K6–K9 only need K5; K7 also uses K2.
 
 ### Phase 3: UI
 - [x] K6: Header session button and popover shell
-- [ ] K7: Popover contents
+- [x] K7: Popover contents
 - [ ] K8: Capture toast
 - [ ] K9: Effective variables for curl and URL highlighting
 
