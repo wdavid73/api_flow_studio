@@ -47,7 +47,7 @@ W1 and W2 are independent; W3–W9 need W2 (W3 also W1). W10 needs all.
 ## Task List
 
 ### Phase 1: Foundations
-- [ ] W1: `buildCurl` in the engine
+- [x] W1: `buildCurl` in the engine
 - [ ] W2: Three-panel layout
 
 ### Checkpoint: Layout

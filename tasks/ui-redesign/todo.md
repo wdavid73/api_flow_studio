@@ -65,7 +65,7 @@ Detail in [plan-app-shell.md](plan-app-shell.md).
 Detail in [plan-workspace.md](plan-workspace.md).
 
 ## Phase 1 — Foundations
-- [ ] W1: `buildCurl` in the engine
+- [x] W1: `buildCurl` in the engine
 - [ ] W2: Three-panel layout
 
 ### Checkpoint: Layout
