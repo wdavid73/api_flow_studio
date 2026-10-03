@@ -2,6 +2,7 @@ import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/engine/storage/json_store.dart';
 import 'package:api_flow_studio/ui/environments/environment_manager_screen.dart';
 import 'package:api_flow_studio/ui/environments/environments_provider.dart';
+import 'package:api_flow_studio/ui/shell/header_ghost_button.dart';
 import 'package:api_flow_studio/ui/theme/app_colors.dart';
 import 'package:api_flow_studio/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -88,5 +89,57 @@ void main() {
   test('the dot palette contains no red', () {
     expect(AppColors.environmentDotPalette, isNot(contains(AppColors.error)));
     expect(AppColors.environmentDotPalette, [AppColors.primary, AppColors.tertiary, AppColors.secondary]);
+  });
+
+  group('list/detail restyle', () {
+    testWidgets('the list panel is 300px with the ENVIRONMENTS kicker and a ghost New Environment button',
+        (tester) async {
+      await pumpManager(tester, names: ['Dev']);
+
+      expect(tester.getSize(find.byKey(const Key('list-detail-list-panel'))).width, 300);
+      expect(find.text('ENVIRONMENTS'), findsOneWidget);
+      expect(
+        find.descendant(of: find.byKey(const Key('new-environment-button')), matching: find.text('New Environment')),
+        findsOneWidget,
+      );
+      expect(find.byType(HeaderGhostButton), findsWidgets);
+    });
+
+    testWidgets('the selected row is surfaceContainerHigh and has no colored side bar', (tester) async {
+      await pumpManager(tester, names: ['Dev', 'QA']);
+
+      Color? fill(String id) => tester.widget<Material>(find.byKey(Key('env-row-surface-$id'))).color;
+
+      expect(fill('dev'), AppColors.surfaceContainerHigh);
+      expect(fill('qa'), Colors.transparent);
+      final row = tester.widget<Container>(find.byKey(const Key('env-row-body-dev')));
+      expect((row.decoration as BoxDecoration?)?.border, isNull);
+
+      await tester.tap(find.byKey(const ValueKey('env-list-item-qa')));
+      await tester.pump();
+
+      expect(fill('qa'), AppColors.surfaceContainerHigh);
+      expect(fill('dev'), Colors.transparent);
+    });
+
+    testWidgets('the editor titles the environment and labels its columns NAME, VALUE, SECRET', (tester) async {
+      await pumpManager(tester, names: ['Dev']);
+      await tester.tap(find.byKey(const Key('add-variable-button')));
+      await tester.pump();
+      await tester.pump();
+
+      expect(tester.widget<Text>(find.byKey(const Key('env-editor-title'))).data, 'Dev');
+      expect(find.text('NAME'), findsOneWidget);
+      expect(find.text('VALUE'), findsOneWidget);
+      expect(find.text('SECRET'), findsOneWidget);
+      expect(find.text('VARIABLE NAME'), findsNothing);
+    });
+
+    testWidgets('Add variable is a ghost button', (tester) async {
+      await pumpManager(tester, names: ['Dev']);
+
+      expect(find.byKey(const Key('add-variable-button')), findsOneWidget);
+      expect(tester.widget(find.byKey(const Key('add-variable-button'))), isA<HeaderGhostButton>());
+    });
   });
 }

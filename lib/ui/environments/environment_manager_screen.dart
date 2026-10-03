@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/models/models.dart';
+import '../shared/list_detail_layout.dart';
 import '../shell/environment_kind.dart';
+import '../shell/header_ghost_button.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -48,26 +50,24 @@ class _Loaded extends ConsumerWidget {
       }
     }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 260,
-          child: _EnvironmentList(
-            environments: state.environments,
-            selectedId: selectedId,
-            activeId: state.activeEnvironmentId,
-          ),
-        ),
-        Expanded(
-          child: selected == null
-              ? const Center(
-                  key: Key('no-environment-selected'),
-                  child: Text('Create your first environment to get started'),
-                )
-              : _VariableEditor(environment: selected),
-        ),
-      ],
+    return ListDetailLayout(
+      header: ListPanelHeader(
+        title: 'ENVIRONMENTS',
+        actionLabel: 'New Environment',
+        actionKey: const Key('new-environment-button'),
+        onAction: () => ref.read(environmentsProvider.notifier).create('New Environment'),
+      ),
+      list: _EnvironmentList(
+        environments: state.environments,
+        selectedId: selectedId,
+        activeId: state.activeEnvironmentId,
+      ),
+      detail: selected == null
+          ? const Center(
+              key: Key('no-environment-selected'),
+              child: Text('Create your first environment to get started'),
+            )
+          : _VariableEditor(environment: selected),
     );
   }
 }
@@ -84,15 +84,6 @@ class _EnvironmentList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          child: TextButton.icon(
-            key: const Key('new-environment-button'),
-            onPressed: () => ref.read(environmentsProvider.notifier).create('New Environment'),
-            icon: const Icon(Icons.add, size: 16),
-            label: const Text('New Environment'),
-          ),
-        ),
         Expanded(
           child: environments.isEmpty
               ? const Center(
@@ -114,21 +105,16 @@ class _EnvironmentList extends ConsumerWidget {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                       child: Material(
-                        color: isSelected ? AppColors.surfaceContainer : Colors.transparent,
-                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        key: Key('env-row-surface-${env.id}'),
+                        color: isSelected ? AppColors.surfaceContainerHigh : Colors.transparent,
+                        borderRadius: BorderRadius.circular(AppRadius.xl),
                         child: InkWell(
                           key: ValueKey('env-list-item-${env.id}'),
-                          borderRadius: BorderRadius.circular(AppRadius.lg),
+                          borderRadius: BorderRadius.circular(AppRadius.xl),
+                          hoverColor: AppColors.surfaceContainer,
                           onTap: () => ref.read(selectedEnvironmentIdProvider.notifier).state = env.id,
                           child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                left: BorderSide(
-                                  color: isSelected ? color : Colors.transparent,
-                                  width: 3,
-                                ),
-                              ),
-                            ),
+                            key: Key('env-row-body-${env.id}'),
                             padding: const EdgeInsets.symmetric(
                               horizontal: AppSpacing.sm,
                               vertical: AppSpacing.sm,
@@ -223,28 +209,27 @@ class _VariableEditor extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(environment.name, style: Theme.of(context).textTheme.titleMedium),
+          Text(environment.name, key: const Key('env-editor-title'), style: AppTypography.title),
           const SizedBox(height: AppSpacing.md),
           if (entries.isNotEmpty) ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(AppRadius.md),
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: AppColors.outlineVariant)),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'VARIABLE NAME',
-                      style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant),
+                      'NAME',
+                      style: AppTypography.kicker.copyWith(color: AppColors.outline),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
                       'VALUE',
-                      style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant),
+                      style: AppTypography.kicker.copyWith(color: AppColors.outline),
                     ),
                   ),
                   SizedBox(
@@ -252,7 +237,7 @@ class _VariableEditor extends ConsumerWidget {
                     child: Text(
                       'SECRET',
                       textAlign: TextAlign.center,
-                      style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant),
+                      style: AppTypography.kicker.copyWith(color: AppColors.outline),
                     ),
                   ),
                   const SizedBox(width: 48),
@@ -289,19 +274,21 @@ class _VariableEditor extends ConsumerWidget {
                 return {...current}..remove(entry.key);
               }),
             ),
-          TextButton.icon(
-            key: const Key('add-variable-button'),
-            onPressed: () => _mutate(ref, (current) {
-              var name = 'new_variable';
-              var suffix = 1;
-              while (current.containsKey(name)) {
-                name = 'new_variable_$suffix';
-                suffix++;
-              }
-              return {...current, name: const EnvironmentVariable(value: '')};
-            }),
-            icon: const Icon(Icons.add, size: 16),
-            label: const Text('Add variable'),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: HeaderGhostButton(
+              key: const Key('add-variable-button'),
+              label: 'Add variable',
+              onPressed: () => _mutate(ref, (current) {
+                var name = 'new_variable';
+                var suffix = 1;
+                while (current.containsKey(name)) {
+                  name = 'new_variable_$suffix';
+                  suffix++;
+                }
+                return {...current, name: const EnvironmentVariable(value: '')};
+              }),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Container(

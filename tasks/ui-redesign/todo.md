@@ -115,10 +115,10 @@ Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 
 ## Phase 2 — Environments
 - [x] S4: ACTIVE fix, PROD tag and dot colors
-- [ ] S5: Shared list/detail layout and Environments restyle
+- [x] S5: Shared list/detail layout and Environments restyle
 
 ### Checkpoint: Environments
-- [ ] analyze clean, full suite green
+- [x] analyze clean, full suite green
 
 ## Phase 3 — Flows
 - [ ] S6: Flows list and builder restyle
