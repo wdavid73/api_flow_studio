@@ -4,7 +4,7 @@ Detail for each item is in [plan.md](plan.md). Check items off as they land.
 The v1 list lives in `tasks/todo.md` and is separate.
 
 ## Phase 1 — The stack
-- [ ] I1: Shared stack and the navigation journey, run both ways
+- [x] I1: Shared stack and the navigation journey, run both ways
 - [ ] I2: Failure screenshots
 
 ### Checkpoint: The stack

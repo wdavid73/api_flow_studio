@@ -1,0 +1,11 @@
+import '../../integration_test/journeys/navigation_journey.dart';
+import 'in_memory_harness.dart';
+
+/// Runs every user journey against the whole app without a window, with an
+/// in-memory store. The same journeys run on the real Windows app from
+/// `integration_test/app_test.dart`.
+void main() {
+  final harness = InMemoryHarness();
+
+  defineNavigationJourney(() => harness);
+}

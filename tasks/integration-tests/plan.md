@@ -59,7 +59,7 @@ the environment helpers from I4; I8 reuses everything.
 ## Task List
 
 ### Phase 1: The stack
-- [ ] I1: Shared stack and the navigation journey, run both ways
+- [x] I1: Shared stack and the navigation journey, run both ways
 - [ ] I2: Failure screenshots
 
 ### Checkpoint: The stack
