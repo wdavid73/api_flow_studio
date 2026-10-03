@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'ui/environments/environment_manager_screen.dart';
 import 'ui/flows/flows_screen.dart';
+import 'ui/history/history_screen.dart';
 import 'ui/shell/app_background.dart';
 import 'ui/shell/app_banner.dart';
 import 'ui/shell/app_destination.dart';
@@ -66,7 +67,7 @@ class _DestinationBody extends StatelessWidget {
       case AppDestination.flows:
         return const FlowsScreen();
       case AppDestination.history:
-        return Center(child: Text('${destination.label} placeholder'));
+        return const HistoryScreen();
     }
   }
 }

@@ -106,7 +106,7 @@ Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 
 ## Phase 1 — History
 - [x] S1: `JsonStore.readAllHistory()`
-- [ ] S2: History screen with day groups and empty state
+- [x] S2: History screen with day groups and empty state
 - [ ] S3: History search, open request and deleted rows
 
 ### Checkpoint: History

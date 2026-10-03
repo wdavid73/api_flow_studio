@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:api_flow_studio/app.dart';
 import 'package:api_flow_studio/engine/storage/json_store.dart';
 import 'package:api_flow_studio/ui/environments/environments_provider.dart';
+import 'package:api_flow_studio/ui/shell/app_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +67,19 @@ void main() {
 
       expect(find.byKey(const Key('empty-environments-state')), findsOneWidget);
       expect(find.byKey(const Key('request-url-field')), findsNothing);
+    });
+  });
+
+  testWidgets('the History destination shows the global history screen, not a placeholder', (tester) async {
+    await tester.runAsync(() async {
+      await pumpDesktopApp(tester);
+
+      await tester.tap(find.descendant(of: find.byType(AppHeader), matching: find.text('History')));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byKey(const Key('history-screen')), findsOneWidget);
+      expect(find.textContaining('placeholder'), findsNothing);
     });
   });
 }
