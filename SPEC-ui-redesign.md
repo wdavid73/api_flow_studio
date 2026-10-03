@@ -45,8 +45,7 @@ Reglas del mapa:
   nuevos) y los widgets base compartidos.
 - Cada módulo tiene su `SPEC-<module-id>.md` junto a este archivo. Estado:
   `ui-theme`, `app-shell`, `workspace`, `secondary-screens` y `session-tokens`
-  están aprobados e implementados; `hosts-notes` está escrito y pendiente de
-  revisión.
+  están aprobados e implementados; `hosts-notes` está aprobado y planificado.
 
 ## Ubicación del plan
 

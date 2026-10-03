@@ -172,4 +172,36 @@ Detail in [plan-session-tokens.md](plan-session-tokens.md).
 
 ### Checkpoint: Module done
 - [x] All SPEC-session-tokens.md success criteria checked (visual check at 1440px: button and popover with a valid and an expired sample JWT; capture from a real login and the toast verified by tests only, no login endpoint was available)
-- [ ] Human review, then write `SPEC-hosts-notes.md`
+- [x] Human review, then write `SPEC-hosts-notes.md`
+
+---
+
+# Module `hosts-notes`
+
+Detail in [plan-hosts-notes.md](plan-hosts-notes.md).
+
+## Phase 1 — Engine
+- [ ] H1: `isHostUrl` and `buildHostMatrix`
+- [ ] H2: `setHostValue`
+- [ ] H3: Host notes in `JsonStore`
+
+### Checkpoint: Engine
+- [ ] analyze clean, full suite green
+- [ ] `grep -r "package:flutter" lib/engine` is empty
+
+## Phase 2 — Dialog
+- [ ] H4: Header button, dialog and read-only matrix
+- [ ] H5: Editable cells
+- [ ] H6: Notes column and Add host
+- [ ] H7: Warnings under the table
+
+### Checkpoint: Dialog
+- [ ] Editing a cell changes the environment and survives a reload; notes survive a reload
+- [ ] analyze clean, full suite green
+
+## Phase 3 — Verify
+- [ ] H8: Sweep and visual check
+
+### Checkpoint: Module done
+- [ ] All SPEC-hosts-notes.md success criteria checked
+- [ ] The redesign capability map is fully implemented
