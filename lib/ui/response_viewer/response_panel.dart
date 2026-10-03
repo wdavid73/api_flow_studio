@@ -13,6 +13,7 @@ import '../shell/header_ghost_button.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../theme/widgets/pill_tab_bar.dart';
 import '../theme/widgets/status_badge.dart';
 import 'response_body_tab.dart';
 import 'response_cookies_tab.dart';
@@ -61,13 +62,7 @@ class ResponsePanel extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Expanded(
-                child: TabBar(
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  tabs: [Tab(text: 'Response'), Tab(text: 'History')],
-                ),
-              ),
+              const Expanded(child: Align(alignment: Alignment.centerLeft, child: PillTabBar(labels: ['Response', 'History']))),
               copyButton,
               const SizedBox(width: AppSpacing.sm),
               curlButton,

@@ -90,7 +90,9 @@ void main() {
       await settle(tester);
 
       // The new endpoint shows up in the tree...
-      expect(find.text('New Request'), findsOneWidget);
+      expect(find.descendant(of: find.byType(SidebarTree), matching: find.text('New Request')), findsOneWidget);
+      // ...and its name is the request builder's title...
+      expect(find.byKey(const Key('request-header-title')), findsOneWidget);
       // ...and got loaded into the request builder draft (no longer the
       // blank sentinel, so Save is now enabled).
       expect(

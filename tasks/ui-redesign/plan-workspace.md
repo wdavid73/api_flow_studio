@@ -62,7 +62,7 @@ W1 and W2 are independent; W3–W9 need W2 (W3 also W1). W10 needs all.
 - [x] analyze clean, full suite green
 
 ### Phase 3: Request side
-- [ ] W5: Request header, URL bar and pill tabs
+- [x] W5: Request header, URL bar and pill tabs
 - [ ] W6: Body Format JSON and Invalid JSON
 
 ### Checkpoint: Request side

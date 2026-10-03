@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../collections/collections_provider.dart';
+import '../theme/widgets/pill_tab_bar.dart';
+import 'method_selector.dart';
 import 'request_draft_provider.dart';
+import 'request_header.dart';
 import 'send_provider.dart';
 import 'tabs/auth_tab.dart';
 import 'tabs/body_tab.dart';
@@ -10,8 +13,6 @@ import 'tabs/docs_tab.dart';
 import 'tabs/headers_tab.dart';
 import 'tabs/params_tab.dart';
 import 'url_field.dart';
-
-const _methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 /// The request builder: a method dropdown, a URL field, a Send button
 /// wired to the real [RequestExecutor], Params/Headers/Body/Auth/Docs tabs
@@ -30,19 +31,11 @@ class RequestBar extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const RequestHeader(),
+          const SizedBox(height: 12),
           Row(
             children: [
-              DropdownButton<String>(
-                value: draft.method,
-                items: [
-                  for (final method in _methods) DropdownMenuItem(value: method, child: Text(method)),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    ref.read(requestDraftProvider.notifier).setMethod(value);
-                  }
-                },
-              ),
+              const MethodSelector(),
               const SizedBox(width: 12),
               const Expanded(child: UrlField()),
               const SizedBox(width: 12),
@@ -79,18 +72,8 @@ class RequestBar extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const TabBar(
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    tabs: [
-                      Tab(text: 'Docs'),
-                      Tab(text: 'Params'),
-                      Tab(text: 'Headers'),
-                      Tab(text: 'Body'),
-                      Tab(text: 'Auth'),
-                      Tab(text: 'Tests'),
-                      Tab(text: 'Settings'),
-                    ],
+                  const PillTabBar(
+                    labels: ['Docs', 'Params', 'Headers', 'Body', 'Auth', 'Tests', 'Settings'],
                   ),
                   const Expanded(
                     child: TabBarView(
