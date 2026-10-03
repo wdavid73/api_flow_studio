@@ -43,11 +43,11 @@ from S3.
 
 ### Phase 1: Environment signals
 - [x] S1: Production rule and red strip
-- [ ] S2: Segmented environment pill
+- [x] S2: Segmented environment pill
 
 ### Checkpoint: Environment signals
-- [ ] analyze clean, full suite green
-- [ ] Switching environments in the pill changes variable resolution as before
+- [x] analyze clean, full suite green
+- [x] Switching environments in the pill changes variable resolution as before (setActive covered by pill tests; resolution by variable_interpolation_test)
 
 ### Phase 2: Header and feedback
 - [ ] S3: Header with brand, nav, actions zone and background

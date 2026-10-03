@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // Real dart:io calls (JsonStore, via environmentsProvider -- now watched by
-// ActiveEnvironmentStrip/EnvironmentSwitcher regardless of which nav
+// ProductionStrip/EnvironmentPill regardless of which nav
 // destination is showing) need tester.runAsync(); see the note in
 // tasks/plan.md and environment_manager_screen_test.dart.
 

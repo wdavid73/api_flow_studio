@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'ui/collections/sidebar_tree.dart';
 import 'ui/environments/environment_manager_screen.dart';
-import 'ui/environments/environment_switcher.dart';
 import 'ui/flows/flows_screen.dart';
 import 'ui/request_builder/request_bar.dart';
+import 'ui/shell/environment_pill.dart';
 import 'ui/shell/production_strip.dart';
 import 'ui/theme/app_colors.dart';
 import 'ui/theme/app_spacing.dart';
@@ -91,7 +91,7 @@ class _NavBar extends ConsumerWidget {
                   onTap: () => ref.read(selectedDestinationProvider.notifier).state = destination,
                 ),
               const Spacer(),
-              const EnvironmentSwitcher(),
+              const EnvironmentPill(),
             ],
           ),
         ),
