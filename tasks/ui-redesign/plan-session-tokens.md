@@ -57,11 +57,11 @@ K1, K2 and K3 are independent. K6–K9 only need K5; K7 also uses K2.
 ### Phase 1: Engine rules
 - [x] K1: `Session`, `applySession` and `sessionVariables`
 - [x] K2: JWT claims and expiry
-- [ ] K3: Token finder
+- [x] K3: Token finder
 
 ### Checkpoint: Engine rules
-- [ ] analyze clean, full suite green
-- [ ] `grep -r "package:flutter" lib/engine` is empty
+- [x] analyze clean, full suite green
+- [x] `grep -r "package:flutter" lib/engine` is empty
 
 ### Phase 2: Behavior
 - [ ] K4: `SessionRequestExecutor`
