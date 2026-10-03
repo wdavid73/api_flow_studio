@@ -96,4 +96,41 @@ Detail in [plan-workspace.md](plan-workspace.md).
 
 ### Checkpoint: Module done
 - [x] All SPEC-workspace.md success criteria checked (visual check: 1440px fully; 900px stacking verified by widget tests, the browser capture was cropped by the pane; toasts, History tab, Format JSON and shortcuts verified by tests only)
-- [ ] Human review, then write `SPEC-secondary-screens.md`
+- [x] Human review, then write `SPEC-secondary-screens.md`
+
+---
+
+# Module `secondary-screens`
+
+Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
+
+## Phase 1 — History
+- [ ] S1: `JsonStore.readAllHistory()`
+- [ ] S2: History screen with day groups and empty state
+- [ ] S3: History search, open request and deleted rows
+
+### Checkpoint: History
+- [ ] analyze clean, full suite green
+- [ ] Sending a saved request makes it appear in History; clicking it opens it in the Workspace
+
+## Phase 2 — Environments
+- [ ] S4: ACTIVE fix, PROD tag and dot colors
+- [ ] S5: Shared list/detail layout and Environments restyle
+
+### Checkpoint: Environments
+- [ ] analyze clean, full suite green
+
+## Phase 3 — Flows
+- [ ] S6: Flows list and builder restyle
+- [ ] S7: Flow run view restyle
+- [ ] S8: Step picker chips aligned with the sidebar
+
+### Checkpoint: Flows
+- [ ] analyze clean, full suite green
+
+## Phase 4 — Verify
+- [ ] S9: Sweep and visual check
+
+### Checkpoint: Module done
+- [ ] All SPEC-secondary-screens.md success criteria checked
+- [ ] Human review, then write `SPEC-session-tokens.md`
