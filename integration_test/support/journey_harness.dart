@@ -210,4 +210,17 @@ class AppDriver {
 
   /// Presses Run on the open flow and waits for the run view to finish.
   Future<void> runOpenFlow() => tapKey(const Key('run-flow-button'));
+
+  /// Opens the Hosts & notes dialog from the header.
+  Future<void> openHostsDialog() => tapKey(const Key('hosts-button'));
+
+  /// Closes the Hosts & notes dialog with its Close button.
+  Future<void> closeHostsDialog() => tapKey(const Key('hosts-close-button'));
+
+  /// Adds an empty host called [name] from the Hosts & notes dialog.
+  Future<void> addHost(String name) async {
+    await tapKey(const Key('hosts-add-button'));
+    await tester.enterText(find.byKey(const Key('host-name-field')), name);
+    await tapKey(const Key('host-name-confirm'));
+  }
 }

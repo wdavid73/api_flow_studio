@@ -22,10 +22,10 @@ The v1 list lives in `tasks/todo.md` and is separate.
 ## Phase 3 — Feature journeys
 - [x] I5: Session journey
 - [x] I6: Multi-step flow journey
-- [ ] I7: Hosts & notes journey
+- [x] I7: Hosts & notes journey
 
 ### Checkpoint: Feature journeys
-- [ ] analyze clean, both runners green
+- [x] analyze clean, both runners green
 
 ## Phase 4 — Whole-app journeys and wrap-up
 - [ ] I8: Persistence and keyboard journeys

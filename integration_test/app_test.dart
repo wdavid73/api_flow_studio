@@ -3,6 +3,7 @@ import 'package:integration_test/integration_test.dart';
 import 'journeys/environments_journey.dart';
 import 'journeys/flow_journey.dart';
 import 'journeys/history_journey.dart';
+import 'journeys/hosts_journey.dart';
 import 'journeys/navigation_journey.dart';
 import 'journeys/production_journey.dart';
 import 'journeys/send_request_journey.dart';
@@ -26,4 +27,5 @@ void main() {
   defineProductionJourney(() => harness);
   defineSessionJourney(() => harness);
   defineFlowJourney(() => harness);
+  defineHostsJourney(() => harness);
 }
