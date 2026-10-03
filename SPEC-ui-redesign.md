@@ -18,7 +18,8 @@ paneles). Complementa —no reemplaza— [SPEC.md](SPEC.md) (spec v1 de la app).
 - **Los datos de ejemplo de Commodo** (bases `AUTH_CORE`, rutas, etc.) no se
   embeben en la app; se cargan con Import / `sample-endpoints.json`.
 - **El motor (`lib/engine/`) no cambia** salvo en `session-tokens` y
-  `hosts-notes`, que necesitan modelos y almacenamiento nuevos.
+  `hosts-notes` (modelos y almacenamiento nuevos) y un añadido puro en
+  `workspace` (`curl_builder.dart`, el inverso del `curl_parser`).
 
 ## Mapa
 
@@ -41,8 +42,8 @@ Reglas del mapa:
 - `ui-theme` es el único módulo que toca `lib/ui/theme/` (salvo widgets
   nuevos) y los widgets base compartidos.
 - Cada módulo tendrá `SPEC-<module-id>.md` junto a este archivo. Specs
-  escritos: `ui-theme` (aprobado e implementado), `app-shell` (aprobado). Pendientes (se escriben en orden de dependencia
-  antes de planificar cada módulo): `workspace`,
+  escritos: `ui-theme` (aprobado e implementado), `app-shell` (aprobado e implementado), `workspace` (pendiente de revisión). Pendientes (se escriben en orden de dependencia
+  antes de planificar cada módulo): 
   `secondary-screens`, `session-tokens`, `hosts-notes`.
 
 ## Ubicación del plan
