@@ -92,8 +92,8 @@ Detail in [plan-workspace.md](plan-workspace.md).
 - [x] W9: Keyboard shortcuts
 
 ## Phase 5 — Verify
-- [ ] W10: Sweep and visual check (>=1100px and <1100px)
+- [x] W10: Sweep and visual check (>=1100px and <1100px)
 
 ### Checkpoint: Module done
-- [ ] All SPEC-workspace.md success criteria checked
+- [x] All SPEC-workspace.md success criteria checked (visual check: 1440px fully; 900px stacking verified by widget tests, the browser capture was cropped by the pane; toasts, History tab, Format JSON and shortcuts verified by tests only)
 - [ ] Human review, then write `SPEC-secondary-screens.md`
