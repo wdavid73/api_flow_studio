@@ -51,7 +51,7 @@ de la UI si conviene. El orden de la lista es el de construcción.
 
 ### Phase 1: projects-core
 - [x] P1: Modelo de proyecto y repositorio
-- [ ] P2: Migración de los datos actuales a Default
+- [x] P2: Migración de los datos actuales a Default
 - [ ] P3: El proyecto activo decide el store; todo recarga al cambiar
 
 ### Checkpoint: Core

@@ -5,6 +5,16 @@ import 'package:uuid/uuid.dart';
 import '../storage/json_store.dart';
 import 'project.dart';
 
+/// The files a version without projects kept in the data folder.
+const List<String> legacyDataFiles = [
+  'environments.json',
+  'settings.json',
+  'collections.json',
+  'flows.json',
+  'history.json',
+  'host_notes.json',
+];
+
 /// Longest project name accepted.
 const int maxProjectNameLength = 40;
 
@@ -45,20 +55,23 @@ class LastProjectException implements Exception {
 /// Every operation runs through one queue, so calls fired together (two fast
 /// clicks) each see the other's result instead of a stale list.
 class ProjectsRepository {
-  ProjectsRepository._(this._index, this._open, this._remove, this._now);
+  ProjectsRepository._(this._index, this._open, this._remove, this._now, {this._legacyRoot, this._dirFor});
 
   /// Keeps everything under [root] (the real app).
   factory ProjectsRepository.disk(Directory root, {DateTime Function()? now}) {
     String sep(String a, String b) => '$a${Platform.pathSeparator}$b';
     final projectsDir = sep(root.path, 'projects');
+    Directory dirFor(String id) => Directory(sep(projectsDir, id));
     return ProjectsRepository._(
       JsonStore(directory: root),
-      (id) => JsonStore(directory: Directory(sep(projectsDir, id))),
+      (id) => JsonStore(directory: dirFor(id)),
       (id) async {
-        final dir = Directory(sep(projectsDir, id));
+        final dir = dirFor(id);
         if (await dir.exists()) await dir.delete(recursive: true);
       },
       now ?? DateTime.now,
+      legacyRoot: root,
+      dirFor: dirFor,
     );
   }
 
@@ -70,6 +83,11 @@ class ProjectsRepository {
   final JsonStore Function(String id) _open;
   final Future<void> Function(String id) _remove;
   final DateTime Function() _now;
+
+  /// Disk only: the data folder and where each project's folder is, so data
+  /// from before projects existed can be moved into the first project.
+  final Directory? _legacyRoot;
+  final Directory Function(String id)? _dirFor;
 
   final Map<String, JsonStore> _stores = {};
   Future<void> _queue = Future<void>.value();
@@ -88,6 +106,67 @@ class ProjectsRepository {
         ? index.activeProjectId
         : index.projects.firstOrNull?.id;
     return ProjectIndex(projects: index.projects, activeProjectId: active);
+  }
+
+  /// Makes sure at least one project exists. When there is none, data left in
+  /// the data folder by versions without projects becomes the project named
+  /// "Default"; with no such data an empty "Default" is created.
+  ///
+  /// The data is copied first, the index written next and the originals removed
+  /// last, so a failure at any point leaves the originals in place and the next
+  /// start tries again. Calling it when projects exist does nothing.
+  Future<void> ensureDefaultProject() => _run(() async {
+        final index = await _read();
+        if (index.projects.isNotEmpty) return;
+
+        final id = const Uuid().v4();
+        final originals = await _copyLegacyData(id);
+        final project = Project(id: id, name: 'Default', createdAt: _now());
+        try {
+          await _index.writeProjectIndex(ProjectIndex(projects: [project], activeProjectId: id));
+        } catch (_) {
+          await _remove(id);
+          rethrow;
+        }
+        for (final file in originals) {
+          try {
+            await file.delete();
+          } on FileSystemException {
+            // Left behind: harmless, projects.json now exists so it is never read again.
+          }
+        }
+      });
+
+  /// Copies the old data files into project [id]'s folder and returns the
+  /// originals to remove once the project is registered. Cleans up and rethrows
+  /// if anything goes wrong.
+  Future<List<File>> _copyLegacyData(String id) async {
+    final root = _legacyRoot;
+    final dirFor = _dirFor;
+    if (root == null || dirFor == null) return const [];
+
+    final originals = [
+      for (final name in legacyDataFiles)
+        if (File('${root.path}${Platform.pathSeparator}$name').existsSync())
+          File('${root.path}${Platform.pathSeparator}$name'),
+    ];
+    if (originals.isEmpty) return const [];
+
+    final target = dirFor(id);
+    try {
+      await target.create(recursive: true);
+      for (final file in originals) {
+        final name = file.uri.pathSegments.last;
+        final copy = await file.copy('${target.path}${Platform.pathSeparator}$name');
+        if (await copy.length() != await file.length()) {
+          throw FileSystemException('Copy is not the same size as the original', file.path);
+        }
+      }
+    } catch (_) {
+      await _remove(id);
+      rethrow;
+    }
+    return originals;
   }
 
   Future<List<Project>> projects() => _run(() async => (await _read()).projects);
