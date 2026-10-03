@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'failure_screenshot.dart';
 import 'fake_backend.dart';
+import 'fixtures.dart';
 import 'seed_data.dart';
 
 /// A journey test: `testWidgets` that, when it fails, also saves a screenshot of
@@ -56,7 +57,7 @@ abstract class JourneyHarness {
       tester,
       store: theStore,
       backend: backend ?? FakeBackend(),
-      clock: now ?? DateTime.utc(2026, 10, 2, 12),
+      clock: now ?? seedNow,
     );
     await driver.mount();
     return driver;
@@ -194,4 +195,10 @@ class AppDriver {
 
   /// Makes the environment [id] the active one by pressing it in the header.
   Future<void> selectEnvironment(String id) => tapKey(Key('env-pill-$id'));
+
+  /// Presses the Escape key (closes the session popover, dialogs, ...).
+  Future<void> pressEscape() async {
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await settle();
+  }
 }

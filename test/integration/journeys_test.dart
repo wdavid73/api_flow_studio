@@ -3,6 +3,7 @@ import '../../integration_test/journeys/history_journey.dart';
 import '../../integration_test/journeys/navigation_journey.dart';
 import '../../integration_test/journeys/production_journey.dart';
 import '../../integration_test/journeys/send_request_journey.dart';
+import '../../integration_test/journeys/session_journey.dart';
 import 'in_memory_harness.dart';
 
 /// Runs every user journey against the whole app without a window, with an
@@ -16,4 +17,5 @@ void main() {
   defineHistoryJourney(() => harness);
   defineEnvironmentsJourney(() => harness);
   defineProductionJourney(() => harness);
+  defineSessionJourney(() => harness);
 }

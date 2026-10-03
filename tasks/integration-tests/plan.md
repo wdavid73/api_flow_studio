@@ -75,7 +75,7 @@ the environment helpers from I4; I8 reuses everything.
 - [x] analyze clean, both runners green, 614 existing tests untouched
 
 ### Phase 3: Feature journeys
-- [ ] I5: Session journey
+- [x] I5: Session journey
 - [ ] I6: Multi-step flow journey
 - [ ] I7: Hosts & notes journey
 

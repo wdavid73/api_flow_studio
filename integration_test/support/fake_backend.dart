@@ -5,6 +5,8 @@ import 'package:api_flow_studio/engine/http/request_executor.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/engine/variables/interpolator.dart';
 
+import 'fixtures.dart';
+
 /// One request as the (fake) server received it: what the real executor would
 /// have put on the wire, with `{{variables}}` resolved and the session's
 /// `Authorization` already attached.
@@ -102,6 +104,12 @@ Map<String, FakeRoute> _demoRoutes() => {
               {'id': 2, 'name': 'Pear'},
             ],
           }),
+      'POST /login': (_) => json({
+            'data': {'accessToken': fakeAccessToken, 'refreshToken': fakeRefreshToken},
+          }),
+      'GET /me': (call) => (call.header('Authorization') ?? '').startsWith('Bearer ')
+          ? json({'user': 'ana', 'id': 42})
+          : json({'error': 'unauthorized'}, status: 401),
       'GET /boom': (_) => const ExecutedResponse(error: 'Connection refused', elapsedMs: 3),
       'GET /flaky': (_) => json({'error': 'server exploded'}, status: 500),
     };
