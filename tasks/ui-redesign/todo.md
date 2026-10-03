@@ -26,4 +26,34 @@ Detail, acceptance criteria and verification for each item are in
 
 ### Checkpoint: Module done
 - [x] All SPEC-ui-theme.md success criteria checked
-- [ ] Human review, then write `SPEC-app-shell.md`
+- [x] Human review, then write `SPEC-app-shell.md`
+
+---
+
+# Module `app-shell`
+
+Detail in [plan-app-shell.md](plan-app-shell.md).
+
+## Phase 1 — Environment signals
+- [ ] S1: Production rule and red strip
+- [ ] S2: Segmented environment pill
+
+### Checkpoint: Environment signals
+- [ ] analyze clean, full suite green
+- [ ] Switching environments in the pill changes variable resolution as before
+
+## Phase 2 — Header and feedback
+- [ ] S3: Header with brand, nav, actions zone and background
+- [ ] S4: Toast
+- [ ] S5: Banner
+
+### Checkpoint: Shell complete
+- [ ] analyze clean, full suite green
+- [ ] No references to `EnvironmentSwitcher` / `ActiveEnvironmentStrip`
+
+## Phase 3 — Verify
+- [ ] S6: Sweep and visual check (>=1100px and <1100px)
+
+### Checkpoint: Module done
+- [ ] All SPEC-app-shell.md success criteria checked
+- [ ] Human review, then write `SPEC-workspace.md`
