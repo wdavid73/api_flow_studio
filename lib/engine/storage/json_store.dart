@@ -229,6 +229,10 @@ class JsonStore {
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
+  /// Deletes every stored history entry. Queued with the appends, so a send
+  /// recorded just before is cleared too and one just after is kept.
+  Future<void> clearHistory() => _writeAtomic('history.json', <String, dynamic>{});
+
   Future<List<HistoryEntry>> readHistory(String endpointId) async =>
       (await _readAllHistory())[endpointId] ?? const [];
 

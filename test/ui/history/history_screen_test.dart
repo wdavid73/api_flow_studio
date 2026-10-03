@@ -261,4 +261,56 @@ void main() {
       expect(container.read(selectedDestinationProvider), AppDestination.history);
     });
   });
+
+  group('clear history', () {
+    final entries = [
+      entry('h-1', 'e-get', DateTime(2026, 1, 1, 9)),
+      entry('h-2', 'e-create', DateTime(2026, 1, 1, 10)),
+    ];
+
+    testWidgets('the button is offered only when there is history', (tester) async {
+      await pumpScreen(tester);
+      expect(find.byKey(const Key('clear-history-button')), findsNothing);
+
+      await pumpScreen(tester, history: entries);
+      expect(find.byKey(const Key('clear-history-button')), findsOneWidget);
+    });
+
+    testWidgets('it asks first, naming what is deleted and what is not', (tester) async {
+      await pumpScreen(tester, history: entries);
+
+      await tester.tap(find.byKey(const Key('clear-history-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Clear the history'), findsOneWidget);
+      expect(find.textContaining('requests, environments and flows are not touched'), findsOneWidget);
+      expect(find.byKey(const Key('history-screen-empty')), findsNothing);
+    });
+
+    testWidgets('Cancel keeps the history', (tester) async {
+      await pumpScreen(tester, history: entries);
+      await tester.tap(find.byKey(const Key('clear-history-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('clear-history-cancel-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('history-entry-h-1')), findsOneWidget);
+      expect(find.byKey(const Key('history-entry-h-2')), findsOneWidget);
+    });
+
+    testWidgets('confirming empties the screen and says so', (tester) async {
+      await pumpScreen(tester, history: entries);
+      await tester.tap(find.byKey(const Key('clear-history-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('clear-history-confirm-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('history-screen-empty')), findsOneWidget);
+      expect(find.byKey(const Key('history-entry-h-1')), findsNothing);
+      expect(find.byKey(const Key('clear-history-button')), findsNothing);
+      await tester.pump(const Duration(seconds: 3)); // the toast timer
+    });
+  });
 }

@@ -89,5 +89,42 @@ void defineHistoryJourney(JourneyHarness Function() harness) {
 
       expect(find.text('List items'), findsNWidgets(3));
     });
+
+    journeyTest('Clear history asks first and Cancel keeps everything', (tester) async {
+      final app = await harness().launchApp(tester);
+      await app.openRequest('e-items');
+      await app.send();
+      await app.goTo('History');
+
+      await app.tapKey(const Key('clear-history-button'));
+      expect(find.textContaining('Clear the history of "Default"'), findsOneWidget);
+      await app.tapKey(const Key('clear-history-cancel-button'));
+
+      expect(find.byKey(const Key('history-screen-empty')), findsNothing);
+      expect(find.text('List items'), findsOneWidget);
+    });
+
+    journeyTest('clearing the history empties the screen and the request History tab, and sends are recorded again', (tester) async {
+      final app = await harness().launchApp(tester);
+      await app.openRequest('e-items');
+      await app.send();
+      await app.send();
+      await app.goTo('History');
+
+      await app.tapKey(const Key('clear-history-button'));
+      await app.tapKey(const Key('clear-history-confirm-button'));
+
+      expect(find.byKey(const Key('history-screen-empty')), findsOneWidget);
+      expect(find.text('History cleared'), findsOneWidget);
+      expect(await app.store.readAllHistory(), isEmpty);
+
+      await app.goTo('Workspace');
+      await app.openResponseHistoryTab();
+      expect(find.byKey(const Key('empty-history-state')), findsOneWidget);
+
+      await app.send();
+      await app.goTo('History');
+      expect(await app.store.readAllHistory(), hasLength(1));
+    });
   });
 }

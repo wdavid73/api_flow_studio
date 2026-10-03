@@ -96,6 +96,28 @@ void defineProjectsJourney(JourneyHarness Function() harness) {
       expect(find.text('List items'), findsOneWidget);
     });
 
+    journeyTest('clearing the history of one project leaves the other project history alone', (tester) async {
+      final app = await harness().launchApp(tester);
+      await app.openRequest('e-items');
+      await app.send();
+      await app.createProject('fin_track_pro');
+      await app.goTo('History');
+      expect(find.byKey(const Key('clear-history-button')), findsNothing); // nothing sent here
+
+      await app.goTo('Workspace');
+      await app.switchProject('Default');
+      await app.goTo('History');
+      await app.tapKey(const Key('clear-history-button'));
+      expect(find.textContaining('Clear the history of "Default"'), findsOneWidget);
+      await app.tapKey(const Key('clear-history-confirm-button'));
+
+      expect(find.byKey(const Key('history-screen-empty')), findsOneWidget);
+      await app.goTo('Workspace');
+      await app.switchProject('fin_track_pro');
+      expect(await (await app.activeStore()).readAllHistory(), isEmpty);
+      expect(app.backend.calls, hasLength(1));
+    });
+
     journeyTest('the request being edited does not follow to the other project', (tester) async {
       final app = await twoProjects(tester);
       await app.switchProject('Default');

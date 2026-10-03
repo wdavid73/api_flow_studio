@@ -8,8 +8,12 @@ import '../shell/app_destination.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../environments/environments_provider.dart' show jsonStoreProvider;
+import '../shell/app_toast.dart';
+import '../shell/header_ghost_button.dart';
 import 'all_history_provider.dart';
 import 'day_label.dart';
+import 'history_provider.dart';
 import 'history_row.dart';
 import '../projects/projects_provider.dart';
 
@@ -55,17 +59,27 @@ class HistoryScreen extends ConsumerWidget {
           Text('Request history', style: AppTypography.title),
           const SizedBox(height: AppSpacing.lg),
           if (entries.isNotEmpty) ...[
-            SizedBox(
-              width: 360,
-              child: TextField(
-                key: const Key('history-search-field'),
-                decoration: const InputDecoration(
-                  isDense: true,
-                  hintText: 'Filter history…',
-                  prefixIcon: Icon(Icons.search, size: 16),
+            Row(
+              children: [
+                SizedBox(
+                  width: 360,
+                  child: TextField(
+                    key: const Key('history-search-field'),
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      hintText: 'Filter history…',
+                      prefixIcon: Icon(Icons.search, size: 16),
+                    ),
+                    onChanged: (value) => ref.read(historySearchQueryProvider.notifier).state = value,
+                  ),
                 ),
-                onChanged: (value) => ref.read(historySearchQueryProvider.notifier).state = value,
-              ),
+                const Spacer(),
+                HeaderGhostButton(
+                  key: const Key('clear-history-button'),
+                  label: 'Clear history',
+                  onPressed: () => _confirmClear(context, ref),
+                ),
+              ],
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
@@ -92,6 +106,40 @@ class HistoryScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Asks before deleting the history of the active project, then does it.
+Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {
+  final project = ref.read(projectsProvider).active;
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Clear the history of "${project.name}"?'),
+      content: const Text(
+        'This deletes every saved response of this project. '
+        'Your requests, environments and flows are not touched.',
+      ),
+      actions: [
+        TextButton(
+          key: const Key('clear-history-cancel-button'),
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          key: const Key('clear-history-confirm-button'),
+          style: TextButton.styleFrom(foregroundColor: AppColors.error),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Clear'),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+
+  await ref.read(jsonStoreProvider).clearHistory();
+  ref.invalidate(allHistoryProvider);
+  ref.invalidate(historyProvider);
+  showToast(ref, 'History cleared');
 }
 
 class _DayGroups extends ConsumerWidget {

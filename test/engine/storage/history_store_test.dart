@@ -62,6 +62,50 @@ void main() {
     expect(await store.readHistory('e-1'), hasLength(10));
   });
 
+  group('clearHistory', () {
+    test('removes the history of every endpoint', () async {
+      await store.appendHistoryEntry('e-1', entryFor('e-1', 0));
+      await store.appendHistoryEntry('e-2', entryFor('e-2', 1));
+
+      await store.clearHistory();
+
+      expect(await store.readAllHistory(), isEmpty);
+      expect(await store.readHistory('e-1'), isEmpty);
+    });
+
+    test('works when there is no history yet', () async {
+      await store.clearHistory();
+
+      expect(await store.readAllHistory(), isEmpty);
+    });
+
+    test('later sends are recorded again', () async {
+      await store.appendHistoryEntry('e-1', entryFor('e-1', 0));
+      await store.clearHistory();
+
+      await store.appendHistoryEntry('e-1', entryFor('e-1', 1));
+
+      expect((await store.readHistory('e-1')).map((h) => h.id), ['h-1']);
+    });
+
+    test('leaves the rest of the data alone', () async {
+      await store.writeFlows([const Flow(id: 'f1', name: 'Kept')]);
+      await store.appendHistoryEntry('e-1', entryFor('e-1', 0));
+
+      await store.clearHistory();
+
+      expect(await store.readFlows(), hasLength(1));
+    });
+
+    test('a clear fired right after a send does not lose the order', () async {
+      final send = store.appendHistoryEntry('e-1', entryFor('e-1', 0));
+      final clear = store.clearHistory();
+      await Future.wait([send, clear]);
+
+      expect(await store.readAllHistory(), isEmpty);
+    });
+  });
+
   group('readAllHistory', () {
     test('is empty when nothing was ever sent', () async {
       expect(await store.readAllHistory(), isEmpty);

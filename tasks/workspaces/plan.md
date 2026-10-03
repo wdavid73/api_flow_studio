@@ -66,7 +66,7 @@ de la UI si conviene. El orden de la lista es el de construcción.
 
 ### Phase 3: history-limits
 - [x] P6: Recorte del cuerpo y límite global
-- [ ] P7: Borrar historial
+- [x] P7: Borrar historial
 
 ### Phase 4: workspace-transfer
 - [ ] P8: Formato del workspace y exportar (motor)
