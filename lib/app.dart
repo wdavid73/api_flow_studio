@@ -8,6 +8,7 @@ import 'ui/request_builder/request_bar.dart';
 import 'ui/shell/app_background.dart';
 import 'ui/shell/app_destination.dart';
 import 'ui/shell/app_header.dart';
+import 'ui/shell/app_toast.dart';
 import 'ui/shell/production_strip.dart';
 import 'ui/theme/app_theme.dart';
 
@@ -33,14 +34,16 @@ class AppShell extends ConsumerWidget {
     final selected = ref.watch(selectedDestinationProvider);
 
     return AppBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Column(
-          children: [
-            const ProductionStrip(),
-            const AppHeader(),
-            Expanded(child: _DestinationBody(destination: selected)),
-          ],
+      child: ToastHost(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Column(
+            children: [
+              const ProductionStrip(),
+              const AppHeader(),
+              Expanded(child: _DestinationBody(destination: selected)),
+            ],
+          ),
         ),
       ),
     );

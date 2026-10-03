@@ -44,7 +44,7 @@ Detail in [plan-app-shell.md](plan-app-shell.md).
 
 ## Phase 2 — Header and feedback
 - [x] S3: Header with brand, nav, actions zone and background
-- [ ] S4: Toast
+- [x] S4: Toast
 - [ ] S5: Banner
 
 ### Checkpoint: Shell complete
