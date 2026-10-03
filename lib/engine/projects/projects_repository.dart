@@ -15,6 +15,8 @@ const List<String> legacyDataFiles = [
   'host_notes.json',
 ];
 
+String _randomId() => const Uuid().v4();
+
 /// Longest project name accepted.
 const int maxProjectNameLength = 40;
 
@@ -55,10 +57,20 @@ class LastProjectException implements Exception {
 /// Every operation runs through one queue, so calls fired together (two fast
 /// clicks) each see the other's result instead of a stale list.
 class ProjectsRepository {
-  ProjectsRepository._(this._index, this._open, this._remove, this._now, {this._legacyRoot, this._dirFor, this._defaultStore});
+  ProjectsRepository._(
+    this._index,
+    this._open,
+    this._remove,
+    this._now,
+    this._newId, {
+    this._legacyRoot,
+    this._dirFor,
+    this._defaultStore,
+  });
 
   /// Keeps everything under [root] (the real app).
-  factory ProjectsRepository.disk(Directory root, {DateTime Function()? now}) {
+  /// [newId] makes the id of each project (a random one by default).
+  factory ProjectsRepository.disk(Directory root, {DateTime Function()? now, String Function()? newId}) {
     String sep(String a, String b) => '$a${Platform.pathSeparator}$b';
     final projectsDir = sep(root.path, 'projects');
     Directory dirFor(String id) => Directory(sep(projectsDir, id));
@@ -70,6 +82,7 @@ class ProjectsRepository {
         if (await dir.exists()) await dir.delete(recursive: true);
       },
       now ?? DateTime.now,
+      newId ?? _randomId,
       legacyRoot: root,
       dirFor: dirFor,
     );
@@ -78,12 +91,13 @@ class ProjectsRepository {
   /// Keeps everything in memory (tests, and the web where there are no files).
   /// [defaultStore], when given, is the store the project created by
   /// [ensureDefaultProject] uses, so existing data can be wrapped as a project.
-  factory ProjectsRepository.inMemory({DateTime Function()? now, JsonStore? defaultStore}) =>
+  factory ProjectsRepository.inMemory({DateTime Function()? now, JsonStore? defaultStore, String Function()? newId}) =>
       ProjectsRepository._(
         JsonStore.inMemory(),
         (_) => JsonStore.inMemory(),
         (_) async {},
         now ?? DateTime.now,
+        newId ?? _randomId,
         defaultStore: defaultStore,
       );
 
@@ -91,6 +105,7 @@ class ProjectsRepository {
   final JsonStore Function(String id) _open;
   final Future<void> Function(String id) _remove;
   final DateTime Function() _now;
+  final String Function() _newId;
 
   /// Disk only: the data folder and where each project's folder is, so data
   /// from before projects existed can be moved into the first project.
@@ -130,7 +145,7 @@ class ProjectsRepository {
         final index = await _read();
         if (index.projects.isNotEmpty) return;
 
-        final id = const Uuid().v4();
+        final id = _newId();
         final originals = await _copyLegacyData(id);
         final project = Project(id: id, name: 'Default', createdAt: _now());
         try {
@@ -193,7 +208,7 @@ class ProjectsRepository {
   Future<Project> create(String name, {int colorIndex = 0}) => _run(() async {
         final index = await _read();
         final clean = _validName(name, index.projects, exceptId: null);
-        final project = Project(id: const Uuid().v4(), name: clean, colorIndex: colorIndex, createdAt: _now());
+        final project = Project(id: _newId(), name: clean, colorIndex: colorIndex, createdAt: _now());
         await _index.writeProjectIndex(ProjectIndex(
           projects: [...index.projects, project],
           activeProjectId: index.activeProjectId ?? project.id,
