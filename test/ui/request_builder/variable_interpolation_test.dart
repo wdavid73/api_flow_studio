@@ -4,11 +4,9 @@ import 'package:api_flow_studio/engine/http/executed_response.dart';
 import 'package:api_flow_studio/engine/http/request_executor.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/engine/storage/json_store.dart';
-import 'package:api_flow_studio/ui/environments/active_environment_strip.dart';
 import 'package:api_flow_studio/ui/environments/environments_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/request_bar.dart';
 import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
-import 'package:api_flow_studio/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -138,33 +136,6 @@ void main() {
       ).captured.single as Endpoint;
       expect(endpoint.url, '{{nope}}/users');
       expect(tester.takeException(), isNull);
-    });
-  });
-
-  testWidgets('the environment-health strip colors match the active environment', (tester) async {
-    await tester.runAsync(() async {
-      final dev = Environment(id: 'env-dev', name: 'Development');
-      final qa = Environment(id: 'env-qa', name: 'QA');
-
-      final tempDir = await Directory.systemTemp.createTemp('strip_test_');
-      addTearDown(() async {
-        if (await tempDir.exists()) await tempDir.delete(recursive: true);
-      });
-      final store = JsonStore(directory: tempDir);
-      await store.writeEnvironments([dev, qa]);
-      await store.writeActiveEnvironmentId(qa.id);
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [jsonStoreProvider.overrideWithValue(store)],
-          child: const MaterialApp(home: Scaffold(body: ActiveEnvironmentStrip())),
-        ),
-      );
-      await settle(tester);
-
-      final strip = tester.widget<Container>(find.byKey(const Key('active-environment-strip')));
-      final decoration = strip.decoration as BoxDecoration?;
-      expect(decoration?.color ?? strip.color, AppColors.environmentDotColor(1));
     });
   });
 }

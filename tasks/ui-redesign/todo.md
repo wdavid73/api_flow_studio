@@ -35,7 +35,7 @@ Detail, acceptance criteria and verification for each item are in
 Detail in [plan-app-shell.md](plan-app-shell.md).
 
 ## Phase 1 — Environment signals
-- [ ] S1: Production rule and red strip
+- [x] S1: Production rule and red strip
 - [ ] S2: Segmented environment pill
 
 ### Checkpoint: Environment signals

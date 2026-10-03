@@ -42,7 +42,7 @@ from S3.
 ## Task List
 
 ### Phase 1: Environment signals
-- [ ] S1: Production rule and red strip
+- [x] S1: Production rule and red strip
 - [ ] S2: Segmented environment pill
 
 ### Checkpoint: Environment signals

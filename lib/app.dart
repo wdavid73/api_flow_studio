@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'ui/collections/sidebar_tree.dart';
-import 'ui/environments/active_environment_strip.dart';
 import 'ui/environments/environment_manager_screen.dart';
 import 'ui/environments/environment_switcher.dart';
 import 'ui/flows/flows_screen.dart';
 import 'ui/request_builder/request_bar.dart';
+import 'ui/shell/production_strip.dart';
 import 'ui/theme/app_colors.dart';
 import 'ui/theme/app_spacing.dart';
 import 'ui/theme/app_theme.dart';
@@ -52,7 +52,7 @@ class AppShell extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          const ActiveEnvironmentStrip(),
+          const ProductionStrip(),
           _NavBar(selected: selected),
           Expanded(child: _DestinationBody(destination: selected)),
         ],
