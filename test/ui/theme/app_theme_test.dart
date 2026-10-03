@@ -126,6 +126,22 @@ void main() {
       expect(style.foregroundColor!.resolve({}), AppColors.onPrimary);
     });
 
+    test('a disabled filled button is muted, not lime', () {
+      final style = theme.filledButtonTheme.style!;
+      final disabled = <WidgetState>{WidgetState.disabled};
+
+      expect(style.backgroundColor!.resolve(disabled), AppColors.surfaceContainerHigh);
+      expect(style.foregroundColor!.resolve(disabled), AppColors.outline);
+      expect(style.backgroundColor!.resolve(disabled), isNot(AppColors.primary));
+    });
+
+    test('a disabled outlined button dims its label', () {
+      final style = theme.outlinedButtonTheme.style!;
+
+      expect(style.foregroundColor!.resolve(<WidgetState>{WidgetState.disabled}), AppColors.outline);
+      expect(style.foregroundColor!.resolve({}), AppColors.onSurface);
+    });
+
     test('dialogs use 16px radius on surfaceContainerLow', () {
       final dialog = theme.dialogTheme;
 

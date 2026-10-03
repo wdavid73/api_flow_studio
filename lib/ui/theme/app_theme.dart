@@ -68,14 +68,20 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
-          foregroundColor: const WidgetStatePropertyAll(AppColors.onPrimary),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled) ? AppColors.surfaceContainerHigh : AppColors.primary,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled) ? AppColors.outline : AppColors.onPrimary,
+          ),
           shape: buttonShape,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
-          foregroundColor: const WidgetStatePropertyAll(AppColors.onSurface),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled) ? AppColors.outline : AppColors.onSurface,
+          ),
           side: const WidgetStatePropertyAll(BorderSide(color: AppColors.outlineVariant)),
           shape: buttonShape,
         ),
