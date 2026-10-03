@@ -33,15 +33,8 @@ class SessionPopover extends ConsumerWidget {
         Positioned(
           top: 58,
           right: AppSpacing.lg + 2,
-          child: Focus(
-            autofocus: true,
-            onKeyEvent: (node, event) {
-              if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape) {
-                onClose();
-                return KeyEventResult.handled;
-              }
-              return KeyEventResult.ignored;
-            },
+          child: _CloseOnEscape(
+            onClose: onClose,
             child: Material(
               type: MaterialType.transparency,
               child: Container(
@@ -68,6 +61,52 @@ class SessionPopover extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Closes the popover on Escape. It takes focus itself when it opens: the
+/// `autofocus` flag only applies while nothing else is focused, and the app
+/// already has a focused widget (the workspace shortcuts) by then.
+class _CloseOnEscape extends StatefulWidget {
+  const _CloseOnEscape({required this.onClose, required this.child});
+
+  final VoidCallback onClose;
+  final Widget child;
+
+  @override
+  State<_CloseOnEscape> createState() => _CloseOnEscapeState();
+}
+
+class _CloseOnEscapeState extends State<_CloseOnEscape> {
+  final FocusNode _focusNode = FocusNode(debugLabel: 'session-popover');
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      focusNode: _focusNode,
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape) {
+          widget.onClose();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: widget.child,
     );
   }
 }

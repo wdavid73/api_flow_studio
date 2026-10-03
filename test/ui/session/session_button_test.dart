@@ -30,6 +30,7 @@ void main() {
     List<Environment> environments = const [Environment(id: 'a', name: 'Dev'), Environment(id: 'b', name: 'QA')],
     String? activeId = 'a',
     bool inHeader = false,
+    bool competingFocus = false,
   }) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
@@ -52,10 +53,15 @@ void main() {
         container: container,
         child: MaterialApp(
           theme: AppTheme.dark(),
-          home: Scaffold(
+          // The real app already has a focused widget (WorkspaceShortcuts
+          // autofocuses itself) before the popover opens.
+          home: Focus(
+            autofocus: competingFocus,
+            child: Scaffold(
             body: inHeader
                 ? const Column(children: [AppHeader(actions: [SessionButton()])])
                 : const Align(alignment: Alignment.topRight, child: SessionButton()),
+          ),
           ),
         ),
       ),
@@ -164,6 +170,18 @@ void main() {
     testWidgets('Esc closes it', (tester) async {
       await pumpButton(tester);
       await tester.tap(find.byKey(const Key('session-button')));
+      await tester.pump();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+
+      expect(find.byKey(const Key('session-popover')), findsNothing);
+    });
+
+    testWidgets('Esc closes it even when something else in the app already has focus', (tester) async {
+      await pumpButton(tester, competingFocus: true);
+      await tester.tap(find.byKey(const Key('session-button')));
+      await tester.pump();
       await tester.pump();
 
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
