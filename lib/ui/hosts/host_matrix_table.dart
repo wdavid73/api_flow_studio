@@ -139,15 +139,87 @@ class _HostRowView extends StatelessWidget {
             ),
           ),
           for (final environment in environments)
-            Container(
+            _HostCell(
               key: Key('host-cell-${row.name}-${environment.id}'),
-              width: _environmentWidth,
-              padding: const EdgeInsets.only(right: AppSpacing.md),
-              child: row.valueIn(environment.id) == null
-                  ? Text('missing', style: AppTypography.bodySm.copyWith(color: AppColors.warning))
-                  : Text(row.valueIn(environment.id)!, style: AppTypography.codeSm, overflow: TextOverflow.ellipsis),
+              hostName: row.name,
+              environmentId: environment.id,
+              value: row.valueIn(environment.id) ?? '',
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// One editable cell: the value of a base in one environment. Typing saves it
+/// to that environment (blank removes the variable there).
+class _HostCell extends ConsumerStatefulWidget {
+  const _HostCell({super.key, required this.hostName, required this.environmentId, required this.value});
+
+  final String hostName;
+  final String environmentId;
+  final String value;
+
+  @override
+  ConsumerState<_HostCell> createState() => _HostCellState();
+}
+
+class _HostCellState extends ConsumerState<_HostCell> {
+  late final TextEditingController _controller = TextEditingController(text: widget.value);
+
+  @override
+  void didUpdateWidget(_HostCell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Follow changes made elsewhere, but never fight what is being typed
+    // (blank text and an absent value are the same thing).
+    final typed = _controller.text;
+    final sameBlank = typed.trim().isEmpty && widget.value.isEmpty;
+    if (typed != widget.value && !sameBlank) _controller.text = widget.value;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onChanged(String text) {
+    // Read the freshest copy: two quick edits must each build on the other.
+    final environments = ref.read(environmentsProvider).value?.environments ?? const <Environment>[];
+    final environment = environments.where((e) => e.id == widget.environmentId).firstOrNull;
+    if (environment == null) return;
+
+    ref.read(pinnedHostsProvider.notifier).update((pinned) => {...pinned, widget.hostName});
+    ref.read(environmentsProvider.notifier).updateEnvironment(setHostValue(environment, widget.hostName, text));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final missing = widget.value.trim().isEmpty;
+
+    return SizedBox(
+      width: _environmentWidth,
+      child: Padding(
+        padding: const EdgeInsets.only(right: AppSpacing.md),
+        child: TextField(
+          key: Key('host-field-${widget.hostName}-${widget.environmentId}'),
+          controller: _controller,
+          style: AppTypography.codeSm,
+          autocorrect: false,
+          enableSuggestions: false,
+          decoration: InputDecoration(
+            isDense: true,
+            hintText: missing ? 'missing' : null,
+            hintStyle: AppTypography.bodySm.copyWith(color: AppColors.warning),
+            enabledBorder: missing
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.field),
+                    borderSide: const BorderSide(color: AppColors.warning),
+                  )
+                : null,
+          ),
+          onChanged: _onChanged,
+        ),
       ),
     );
   }

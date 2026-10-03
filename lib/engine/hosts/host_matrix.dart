@@ -48,11 +48,17 @@ class HostMatrix {
 
 /// Builds the matrix. A variable is a base when its value is a URL in at least
 /// one environment and it is `secret` in none (secrets are never listed).
+///
+/// [pinnedNames] are kept as rows even when their value is not (or no longer) a
+/// URL, or when no environment defines them yet: the UI pins the bases being
+/// edited so a row never vanishes mid-keystroke. A secret variable is never
+/// shown, pinned or not.
 HostMatrix buildHostMatrix(
   List<Environment> environments,
   List<Endpoint> endpoints,
-  Map<String, String> notes,
-) {
+  Map<String, String> notes, {
+  Set<String> pinnedNames = const {},
+}) {
   final names = <String>{};
   final secretNames = <String>{};
   for (final environment in environments) {
@@ -61,6 +67,7 @@ HostMatrix buildHostMatrix(
       if (isHostUrl(entry.value.value)) names.add(entry.key);
     }
   }
+  names.addAll(pinnedNames);
   names.removeAll(secretNames);
 
   final rows = [

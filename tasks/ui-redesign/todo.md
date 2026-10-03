@@ -191,7 +191,7 @@ Detail in [plan-hosts-notes.md](plan-hosts-notes.md).
 
 ## Phase 2 — Dialog
 - [x] H4: Header button, dialog and read-only matrix
-- [ ] H5: Editable cells
+- [x] H5: Editable cells
 - [ ] H6: Notes column and Add host
 - [ ] H7: Warnings under the table
 

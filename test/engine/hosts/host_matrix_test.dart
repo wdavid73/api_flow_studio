@@ -135,6 +135,54 @@ void main() {
       expect(build(environments: [env('a', 'A', {})]).rows, isEmpty);
     });
 
+    group('pinned names', () {
+      test('a pinned name stays a row even when its value is no longer a URL', () {
+        final matrix = buildHostMatrix(
+          [env('a', 'A', {'X': 'h'})],
+          const [],
+          const {},
+          pinnedNames: {'X'},
+        );
+
+        expect(matrix.rows.map((r) => r.name), ['X']);
+        expect(matrix.rows.single.valueIn('a'), 'h');
+      });
+
+      test('a pinned name with no variable anywhere is a row missing in every environment', () {
+        final matrix = buildHostMatrix(
+          [env('a', 'A', {}), env('b', 'B', {})],
+          const [],
+          const {},
+          pinnedNames: {'NEW_HOST'},
+        );
+
+        expect(matrix.rows.single.name, 'NEW_HOST');
+        expect(matrix.rows.single.missingEnvironmentIds, ['a', 'b']);
+      });
+
+      test('pinning never reveals a secret variable', () {
+        final matrix = buildHostMatrix(
+          [env('a', 'A', {'KEY': 'https://secret'}, secret: {'KEY'})],
+          const [],
+          const {},
+          pinnedNames: {'KEY'},
+        );
+
+        expect(matrix.rows, isEmpty);
+      });
+
+      test('a pinned name that is already a base is not duplicated', () {
+        final matrix = buildHostMatrix(
+          [env('a', 'A', {'X': 'https://x'})],
+          const [],
+          const {},
+          pinnedNames: {'X'},
+        );
+
+        expect(matrix.rows, hasLength(1));
+      });
+    });
+
     test('rows that are missing somewhere are found with isMissingSomewhere', () {
       final matrix = build();
 
