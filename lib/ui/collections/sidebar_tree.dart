@@ -13,6 +13,8 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../theme/widgets/method_badge.dart';
 import 'collections_provider.dart';
+import 'endpoint_filter.dart';
+import 'method_filter_chips.dart';
 import 'paste_curl_dialog.dart';
 
 /// The real app version, shown in the sidebar footer in place of the
@@ -63,7 +65,8 @@ class _Loaded extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final query = ref.watch(sidebarSearchQueryProvider).trim().toLowerCase();
     final tree = buildGroupTree(state.groups, state.endpoints);
-    final filtered = query.isEmpty ? tree : _filterTree(tree, query);
+    final method = ref.watch(sidebarMethodFilterProvider);
+    final filtered = filterTree(tree, query: query, method: method);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -124,6 +127,11 @@ class _Loaded extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          child: MethodFilterChips(),
+        ),
+        const SizedBox(height: AppSpacing.xs),
         Expanded(
           child: state.groups.isEmpty
               ? const Center(
@@ -150,24 +158,6 @@ class _Loaded extends ConsumerWidget {
         ),
       ],
     );
-  }
-
-  List<GroupTreeNode> _filterTree(List<GroupTreeNode> nodes, String query) {
-    final result = <GroupTreeNode>[];
-    for (final node in nodes) {
-      final matchingEndpoints = node.endpoints
-          .where((e) => e.name.toLowerCase().contains(query) || e.url.toLowerCase().contains(query))
-          .toList();
-      final filteredChildren = _filterTree(node.children, query);
-      if (matchingEndpoints.isNotEmpty || filteredChildren.isNotEmpty) {
-        result.add(GroupTreeNode(
-          group: node.group,
-          children: filteredChildren,
-          endpoints: matchingEndpoints,
-        ));
-      }
-    }
-    return result;
   }
 }
 
@@ -285,7 +275,11 @@ class _FolderNode extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final expandedIds = ref.watch(expandedGroupIdsProvider);
-    final isExpanded = expandedIds.contains(node.group.id);
+    // While any filter is active, show every folder that survived it open:
+    // otherwise a match inside a collapsed folder would stay hidden.
+    final filtering = ref.watch(sidebarSearchQueryProvider).trim().isNotEmpty ||
+        ref.watch(sidebarMethodFilterProvider) != allMethods;
+    final isExpanded = filtering || expandedIds.contains(node.group.id);
     final indent = EdgeInsets.only(left: AppSpacing.md * depth);
 
     return Column(

@@ -69,7 +69,7 @@ W1 and W2 are independent; W3–W9 need W2 (W3 also W1). W10 needs all.
 - [x] analyze clean, full suite green
 
 ### Phase 4: Sidebar and keys
-- [ ] W7: Method chips and combined filter
+- [x] W7: Method chips and combined filter
 - [ ] W8: Sidebar rows, group headers and empty result
 - [ ] W9: Keyboard shortcuts
 

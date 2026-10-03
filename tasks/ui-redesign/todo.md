@@ -87,7 +87,7 @@ Detail in [plan-workspace.md](plan-workspace.md).
 - [x] analyze clean, full suite green
 
 ## Phase 4 — Sidebar and keys
-- [ ] W7: Method chips and combined filter
+- [x] W7: Method chips and combined filter
 - [ ] W8: Sidebar rows, group headers and empty result
 - [ ] W9: Keyboard shortcuts
 
