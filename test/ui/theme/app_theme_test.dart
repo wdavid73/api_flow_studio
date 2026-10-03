@@ -9,8 +9,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('AppColors Commodo tokens', () {
+    test('surfaces follow the playground :root backgrounds', () {
+      expect(AppColors.surface, const Color(0xFF10110E));
+      expect(AppColors.surfaceContainerLowest, const Color(0xFF0C0D0A));
+      expect(AppColors.surfaceContainerLow, const Color(0xFF171910));
+      expect(AppColors.surfaceContainer, const Color(0xFF202318));
+      expect(AppColors.surfaceContainerHigh, const Color(0xFF282B1E));
+      expect(AppColors.surfaceContainerHighest, const Color(0xFF31351F));
+    });
+
+    test('text and outline tokens', () {
+      expect(AppColors.onSurface, const Color(0xFFF4F5EE));
+      expect(AppColors.onSurfaceVariant, const Color(0xFFA3A892));
+      expect(AppColors.outline, const Color(0xFF737864));
+      expect(AppColors.outlineVariant, const Color(0xFF2B2D26));
+    });
+
+    test('accent, status and derived roles', () {
+      expect(AppColors.primary, const Color(0xFFD6FF4A));
+      expect(AppColors.onPrimary, const Color(0xFF141A08));
+      expect(AppColors.error, const Color(0xFFFF6B4A));
+      expect(AppColors.tertiary, const Color(0xFFB6F25C));
+      expect(AppColors.warning, const Color(0xFFFFD27A));
+      expect(AppColors.secondary, const Color(0xFFA3D93A));
+      expect(AppColors.secondaryContainer, const Color(0xFF3D5212));
+      expect(AppColors.primaryContainer, const Color(0xFF4A6600));
+      expect(AppColors.inversePrimary, const Color(0xFF5A7A00));
+    });
+  });
+
   group('AppTheme.dark colorScheme', () {
-    test('matches DESIGN.md frontmatter tokens 1:1', () {
+    test('matches the Commodo tokens', () {
       final scheme = AppTheme.dark().colorScheme;
 
       expect(scheme.surface, AppColors.surface);

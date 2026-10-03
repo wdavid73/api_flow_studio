@@ -1,53 +1,55 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens copied 1:1 from `design/api_flow_studio/DESIGN.md`'s YAML
-/// frontmatter (the Material 3 role palette actually wired into the
-/// exported `screen.png` references -- see Architecture Decision #1 in
-/// tasks/plan.md for why the frontmatter, not the prose "Colors" section,
-/// is the source of truth for these).
+/// Design tokens from the `:root` block of `commodo-api-playground.html`
+/// (see SPEC-ui-theme.md for the HTML-variable -> role mapping). Member
+/// names follow the Material 3 role vocabulary so existing consumers keep
+/// compiling; only the values changed from the old indigo/cyan palette.
+/// Roles the HTML doesn't define are derived from the lime accent.
 class AppColors {
   const AppColors._();
 
-  static const Color surface = Color(0xFF111319);
-  static const Color surfaceDim = Color(0xFF111319);
-  static const Color surfaceBright = Color(0xFF373940);
-  static const Color surfaceContainerLowest = Color(0xFF0C0E14);
-  static const Color surfaceContainerLow = Color(0xFF191B22);
-  static const Color surfaceContainer = Color(0xFF1E1F26);
-  static const Color surfaceContainerHigh = Color(0xFF282A30);
-  static const Color surfaceContainerHighest = Color(0xFF33343B);
-  static const Color onSurface = Color(0xFFE2E2EB);
-  static const Color onSurfaceVariant = Color(0xFFC7C4D7);
-  static const Color inverseSurface = Color(0xFFE2E2EB);
-  static const Color inverseOnSurface = Color(0xFF2E3037);
-  static const Color outline = Color(0xFF908FA0);
-  static const Color outlineVariant = Color(0xFF464554);
-  static const Color surfaceTint = Color(0xFFC0C1FF);
+  static const Color surface = Color(0xFF10110E); // --bg
+  static const Color surfaceDim = Color(0xFF10110E);
+  static const Color surfaceBright = Color(0xFF373A28);
+  static const Color surfaceContainerLowest = Color(0xFF0C0D0A); // pre/code bg
+  static const Color surfaceContainerLow = Color(0xFF171910); // --bg-2
+  static const Color surfaceContainer = Color(0xFF202318); // --bg-3
+  static const Color surfaceContainerHigh = Color(0xFF282B1E); // --bg-4
+  static const Color surfaceContainerHighest = Color(0xFF31351F);
+  static const Color onSurface = Color(0xFFF4F5EE); // --text
+  static const Color onSurfaceVariant = Color(0xFFA3A892); // --muted
+  static const Color inverseSurface = Color(0xFFF4F5EE);
+  static const Color inverseOnSurface = Color(0xFF202318);
+  static const Color outline = Color(0xFF737864); // --faint
+  static const Color outlineVariant = Color(0xFF2B2D26); // --line, flattened
+  static const Color surfaceTint = Color(0xFFD6FF4A);
 
-  static const Color primary = Color(0xFFC0C1FF);
-  static const Color onPrimary = Color(0xFF1000A9);
-  static const Color primaryContainer = Color(0xFF8083FF);
-  static const Color onPrimaryContainer = Color(0xFF0D0096);
-  static const Color inversePrimary = Color(0xFF494BD6);
+  static const Color primary = Color(0xFFD6FF4A); // --accent
+  static const Color onPrimary = Color(0xFF141A08); // --ink
+  static const Color primaryContainer = Color(0xFF4A6600);
+  static const Color onPrimaryContainer = Color(0xFFE6FFA0);
+  static const Color inversePrimary = Color(0xFF5A7A00);
 
-  static const Color secondary = Color(0xFF4CD7F6);
-  static const Color onSecondary = Color(0xFF003640);
-  static const Color secondaryContainer = Color(0xFF03B5D3);
-  static const Color onSecondaryContainer = Color(0xFF00424E);
+  static const Color secondary = Color(0xFFA3D93A);
+  static const Color onSecondary = Color(0xFF141A08);
+  static const Color secondaryContainer = Color(0xFF3D5212);
+  static const Color onSecondaryContainer = Color(0xFFE0F7A8);
 
-  static const Color tertiary = Color(0xFF4EDEA3);
-  static const Color onTertiary = Color(0xFF003824);
-  static const Color tertiaryContainer = Color(0xFF00885D);
-  static const Color onTertiaryContainer = Color(0xFF000703);
+  static const Color tertiary = Color(0xFFB6F25C); // --ok
+  static const Color onTertiary = Color(0xFF141A08);
+  static const Color tertiaryContainer = Color(0xFF3A5A14);
+  static const Color onTertiaryContainer = Color(0xFFE8FFC4);
 
-  static const Color error = Color(0xFFFFB4AB);
-  static const Color onError = Color(0xFF690005);
-  static const Color errorContainer = Color(0xFF93000A);
-  static const Color onErrorContainer = Color(0xFFFFDAD6);
+  static const Color error = Color(0xFFFF6B4A); // --danger
+  static const Color onError = Color(0xFFFFFFFF);
+  static const Color errorContainer = Color(0xFF5C1A0D);
+  static const Color onErrorContainer = Color(0xFFFFDAD2);
 
-  static const Color background = Color(0xFF111319);
-  static const Color onBackground = Color(0xFFE2E2EB);
-  static const Color surfaceVariant = Color(0xFF33343B);
+  static const Color warning = Color(0xFFFFD27A); // --warn
+
+  static const Color background = Color(0xFF10110E);
+  static const Color onBackground = Color(0xFFF4F5EE);
+  static const Color surfaceVariant = Color(0xFF31351F);
 
   // -- Semantic extension: layered on top of the M3 roles above, not part
   // of them. Sourced from DESIGN.md's prose "Method Badge System" /
