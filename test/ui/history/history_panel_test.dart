@@ -146,4 +146,51 @@ void main() {
       expect(find.textContaining('"alice"'), findsOneWidget);
     });
   });
+
+  Future<void> pumpHistoryWith(WidgetTester tester, HistoryEntry entry) async {
+    final store = await makeStore();
+    await store.appendHistoryEntry('e-1', entry);
+    final container = ProviderContainer(overrides: [jsonStoreProvider.overrideWithValue(store)]);
+    addTearDown(container.dispose);
+    container.read(requestDraftProvider.notifier).loadEndpoint(savedEndpoint);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: HistoryTab())),
+      ),
+    );
+    await settle(tester);
+  }
+
+  testWidgets('an entry whose body was cut says so', (tester) async {
+    await tester.runAsync(() async {
+      await pumpHistoryWith(
+        tester,
+        HistoryEntry(id: 'h-1', endpointId: 'e-1', timestamp: DateTime(2026, 1, 1), status: 200, body: 'z' * (200 * 1024)),
+      );
+
+      await tester.tap(find.byKey(const Key('history-row-h-1')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.byKey(const Key('history-truncated-label')), findsOneWidget);
+      expect(find.text('Body truncated to 100 KB'), findsOneWidget);
+    });
+  });
+
+  testWidgets('an entry stored whole shows no truncation note', (tester) async {
+    await tester.runAsync(() async {
+      await pumpHistoryWith(
+        tester,
+        HistoryEntry(id: 'h-1', endpointId: 'e-1', timestamp: DateTime(2026, 1, 1), status: 200, body: '{"a":1}'),
+      );
+
+      await tester.tap(find.byKey(const Key('history-row-h-1')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.byKey(const Key('historical-label')), findsOneWidget); // it did expand
+      expect(find.byKey(const Key('history-truncated-label')), findsNothing);
+    });
+  });
 }

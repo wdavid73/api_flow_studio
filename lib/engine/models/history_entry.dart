@@ -14,6 +14,9 @@ class HistoryEntry with _$HistoryEntry {
     String? body,
     @Default(0) int elapsedMs,
     String? error,
+
+    /// True when [body] was cut to the size kept in the history.
+    @Default(false) bool truncated,
   }) = _HistoryEntry;
 
   factory HistoryEntry.fromJson(Map<String, dynamic> json) =>

@@ -18,7 +18,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-workspaces.md](../../SPEC-workspaces.md)
 - [x] analyze limpio, ambos runners verdes
 
 ## Phase 3 — history-limits
-- [ ] P6: Recorte del cuerpo y límite global
+- [x] P6: Recorte del cuerpo y límite global
 - [ ] P7: Borrar historial
 
 ## Phase 4 — workspace-transfer

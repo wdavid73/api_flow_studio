@@ -3,6 +3,7 @@ import 'dart:io';
 
 import '../models/models.dart';
 import '../projects/project.dart';
+import 'history_limits.dart';
 
 /// Reads and writes the app's collections/environments/flows as plain JSON
 /// files on disk, under a folder next to the running executable by default
@@ -207,14 +208,17 @@ class JsonStore {
   Future<void> writeFlows(List<Flow> flows) =>
       _writeAtomic('flows.json', flows.map((f) => f.toJson()).toList());
 
+  /// The stored history, already within the limits: a file written before they
+  /// existed (or grown by hand) is trimmed on the way in, and the next append
+  /// writes the trimmed version back.
   Future<Map<String, List<HistoryEntry>>> _readAllHistory() => _readOrDefault(
         'history.json',
-        (decoded) => {
+        (decoded) => enforceHistoryLimits({
           for (final entry in (decoded as Map<String, dynamic>).entries)
             entry.key: (entry.value as List)
                 .map((e) => HistoryEntry.fromJson(e as Map<String, dynamic>))
                 .toList(),
-        },
+        }),
         <String, List<HistoryEntry>>{},
       );
 
@@ -228,25 +232,25 @@ class JsonStore {
   Future<List<HistoryEntry>> readHistory(String endpointId) async =>
       (await _readAllHistory())[endpointId] ?? const [];
 
-  /// Appends [entry] to [endpointId]'s history, trimming to the last
-  /// [maxPerEndpoint] (oldest evicted first). The read-modify-write cycle
+  /// Appends [entry] to [endpointId]'s history. The body is cut to
+  /// [maxHistoryBodyBytes], the request keeps its last [maxPerEndpoint] entries
+  /// and the project at most [maxTotal], oldest evicted first. The read-modify-write cycle
   /// runs inside [_serialized] on `history.json` -- two appends fired close
   /// together (e.g. sending the same request twice in a row) must not both
   /// read the same pre-append list and race to overwrite each other.
   Future<void> appendHistoryEntry(
     String endpointId,
     HistoryEntry entry, {
-    int maxPerEndpoint = 20,
+    int maxPerEndpoint = maxHistoryEntriesPerEndpoint,
+    int maxTotal = maxHistoryEntriesPerProject,
   }) =>
       _serialized('history.json', () async {
         final all = await _readAllHistory();
         final current = all[endpointId] ?? const <HistoryEntry>[];
-        final next = [...current, entry];
-        final trimmed =
-            next.length > maxPerEndpoint ? next.sublist(next.length - maxPerEndpoint) : next;
-        all[endpointId] = trimmed;
+        all[endpointId] = [...current, entry];
+        final limited = enforceHistoryLimits(all, perEndpoint: maxPerEndpoint, perProject: maxTotal);
         await _writeAtomicUnqueued('history.json', {
-          for (final e in all.entries) e.key: e.value.map((h) => h.toJson()).toList(),
+          for (final e in limited.entries) e.key: e.value.map((h) => h.toJson()).toList(),
         });
       });
 }

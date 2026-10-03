@@ -92,6 +92,14 @@ class _HistoryRow extends StatelessWidget {
                   ),
                 ],
               ),
+              if (entry.truncated) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Body truncated to 100 KB',
+                  key: const Key('history-truncated-label'),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.warning),
+                ),
+              ],
               const SizedBox(height: AppSpacing.sm),
               if (entry.error != null)
                 Text('Error: ${entry.error}')
