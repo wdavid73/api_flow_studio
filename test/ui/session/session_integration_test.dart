@@ -11,6 +11,7 @@ import 'package:api_flow_studio/ui/flows/flow_run_view_screen.dart';
 import 'package:api_flow_studio/ui/request_builder/request_draft_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
 import 'package:api_flow_studio/ui/session/session_provider.dart';
+import 'package:api_flow_studio/ui/shell/app_toast.dart';
 import 'package:flutter/material.dart' hide Flow;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,6 +77,57 @@ void main() {
     expect(sessionOf('a').refreshToken, 'ref-secret-A');
     expect(sessionOf('b').hasToken, isFalse);
     expect(container.read(activeSessionProvider).accessToken, 'tok-secret-A');
+  });
+
+  group('capture toast', () {
+    test('a send that captures tokens toasts with the environment name', () async {
+      await setUpContainer();
+      answerWith(loginOrOk);
+
+      await send(_login);
+
+      expect(container.read(toastProvider), 'Tokens captured for Dev');
+    });
+
+    test('says No environment when none is active', () async {
+      await setUpContainer(activeId: null);
+      answerWith(loginOrOk);
+
+      await send(_login);
+
+      expect(container.read(toastProvider), 'Tokens captured for No environment');
+    });
+
+    test('a send that captures nothing does not toast', () async {
+      await setUpContainer();
+      answerWith(loginOrOk);
+
+      await send(_profile);
+
+      expect(container.read(toastProvider), isNull);
+    });
+
+    test('the toast never contains a token value', () async {
+      await setUpContainer();
+      answerWith(loginOrOk);
+
+      await send(_login);
+
+      final toast = container.read(toastProvider)!;
+      expect(toast, isNot(contains('tok-secret-A')));
+      expect(toast, isNot(contains('ref-secret-A')));
+    });
+
+    test('the same tokens again do not toast a second time', () async {
+      await setUpContainer();
+      answerWith(loginOrOk);
+      await send(_login);
+      container.read(toastProvider.notifier).show('marker');
+
+      await send(_login);
+
+      expect(container.read(toastProvider), 'marker');
+    });
   });
 
   test('the next send in that environment carries the Bearer token, another environment does not', () async {

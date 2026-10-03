@@ -5,6 +5,7 @@ import '../../engine/session/session.dart';
 import '../../engine/session/session_request_executor.dart';
 import '../environments/environments_provider.dart';
 import '../request_builder/request_executor_provider.dart';
+import '../shell/app_toast.dart';
 
 /// Key of the session used when no environment is active.
 const String noEnvironmentKey = '';
@@ -47,5 +48,11 @@ final sessionExecutorProvider = Provider<RequestExecutor>((ref) {
     inner: ref.watch(requestExecutorProvider),
     readSession: () => ref.read(sessionsProvider.notifier).sessionFor(environmentKey),
     writeSession: (session) => ref.read(sessionsProvider.notifier).update(environmentKey, session),
+    onTokensCaptured: () {
+      final environments = ref.read(environmentsProvider).value?.environments ?? const [];
+      final name = environments.where((e) => e.id == environmentKey).firstOrNull?.name ?? 'No environment';
+      // Only the environment name: a toast must never carry a token.
+      ref.read(toastProvider.notifier).show('Tokens captured for $name');
+    },
   );
 });

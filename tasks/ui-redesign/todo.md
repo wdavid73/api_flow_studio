@@ -161,7 +161,7 @@ Detail in [plan-session-tokens.md](plan-session-tokens.md).
 ## Phase 3 — UI
 - [x] K6: Header session button and popover shell
 - [x] K7: Popover contents
-- [ ] K8: Capture toast
+- [x] K8: Capture toast
 - [ ] K9: Effective variables for curl and URL highlighting
 
 ### Checkpoint: UI
