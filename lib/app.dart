@@ -6,6 +6,7 @@ import 'ui/environments/environment_manager_screen.dart';
 import 'ui/flows/flows_screen.dart';
 import 'ui/request_builder/request_bar.dart';
 import 'ui/shell/app_background.dart';
+import 'ui/shell/app_banner.dart';
 import 'ui/shell/app_destination.dart';
 import 'ui/shell/app_header.dart';
 import 'ui/shell/app_toast.dart';
@@ -41,6 +42,7 @@ class AppShell extends ConsumerWidget {
             children: [
               const ProductionStrip(),
               const AppHeader(),
+              const BannerHost(),
               Expanded(child: _DestinationBody(destination: selected)),
             ],
           ),

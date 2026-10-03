@@ -45,11 +45,11 @@ Detail in [plan-app-shell.md](plan-app-shell.md).
 ## Phase 2 — Header and feedback
 - [x] S3: Header with brand, nav, actions zone and background
 - [x] S4: Toast
-- [ ] S5: Banner
+- [x] S5: Banner
 
 ### Checkpoint: Shell complete
-- [ ] analyze clean, full suite green
-- [ ] No references to `EnvironmentSwitcher` / `ActiveEnvironmentStrip`
+- [x] analyze clean, full suite green
+- [x] No references to `EnvironmentSwitcher` / `ActiveEnvironmentStrip`
 
 ## Phase 3 — Verify
 - [ ] S6: Sweep and visual check (>=1100px and <1100px)
