@@ -49,7 +49,12 @@ class StepCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(radius: 12, child: Text('${index + 1}')),
+                CircleAvatar(
+                  radius: 12,
+                  backgroundColor: AppColors.surfaceContainerHigh,
+                  foregroundColor: AppColors.onSurface,
+                  child: Text('${index + 1}', style: AppTypography.codeSm),
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 if (endpoint != null) MethodBadge(method: endpoint!.method),
                 const SizedBox(width: AppSpacing.sm),
@@ -98,7 +103,7 @@ class StepCard extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 32, top: AppSpacing.xs),
                 child: Text(
                   endpoint!.url,
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: AppTypography.codeSm.copyWith(color: AppColors.onSurfaceVariant),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

@@ -121,7 +121,7 @@ Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 - [x] analyze clean, full suite green
 
 ## Phase 3 — Flows
-- [ ] S6: Flows list and builder restyle
+- [x] S6: Flows list and builder restyle
 - [ ] S7: Flow run view restyle
 - [ ] S8: Step picker chips aligned with the sidebar
 
