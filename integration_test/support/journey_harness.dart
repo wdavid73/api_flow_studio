@@ -5,6 +5,7 @@ import 'package:api_flow_studio/ui/request_builder/request_executor_provider.dar
 import 'package:api_flow_studio/ui/session/session_button.dart';
 import 'package:api_flow_studio/ui/shell/app_header.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -78,8 +79,25 @@ class AppDriver {
   /// The time the session expiry is computed against. Move it to age a token.
   DateTime clock;
 
+  String? _clipboard;
+
+  /// The last text the app put on the clipboard (empty if none). The system
+  /// clipboard itself is replaced so a journey never touches the real one.
+  String get clipboard => _clipboard ?? '';
+
+  /// The pane that shows the response of the request just sent.
+  Finder get responsePane => find.byKey(const Key('workspace-response-pane'));
+
   /// Mounts the app on [store] and [backend].
   Future<void> mount() async {
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') {
+        _clipboard = (call.arguments as Map)['text'] as String?;
+      }
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -126,6 +144,51 @@ class AppDriver {
     final toggle = find.byKey(ValueKey('toggle-group-$groupId'));
     expect(toggle, findsOneWidget, reason: 'folder $groupId');
     await tester.tap(toggle);
+    await settle();
+  }
+
+  /// Loads a saved request into the builder by clicking it in the sidebar,
+  /// opening [groupId]'s folder first if the row is not visible.
+  Future<void> openRequest(String endpointId, {String groupId = 'g-demo'}) async {
+    final row = find.byKey(ValueKey('endpoint-row-$endpointId'));
+    if (row.evaluate().isEmpty) await expandFolder(groupId);
+    await tester.tap(row);
+    await settle();
+  }
+
+  /// Types [url] into the URL field.
+  Future<void> setUrl(String url) async {
+    await tester.enterText(find.byKey(const Key('request-url-field')), url);
+    await settle();
+  }
+
+  /// Presses Save.
+  Future<void> save() => tapKey(const Key('save-request-button'));
+
+  /// Presses Send and waits for the response.
+  Future<void> send() async {
+    await tester.tap(find.widgetWithText(FilledButton, 'Send'));
+    await settle();
+  }
+
+  /// Creates a top-level folder called [name] from the sidebar.
+  Future<void> createFolder(String name) async {
+    await tapKey(const Key('new-root-folder-button'));
+    await tester.enterText(find.byKey(const Key('new-folder-name-field')), name);
+    await tapKey(const Key('confirm-new-folder-button'));
+  }
+
+  /// Adds a new request to the folder called [folderName] (which loads it into
+  /// the builder).
+  Future<void> addRequestIn(String folderName) async {
+    final groups = (await store.readCollections()).groups;
+    final group = groups.firstWhere((g) => g.name == folderName);
+    await tapKey(ValueKey('add-endpoint-${group.id}'));
+  }
+
+  /// Opens the History tab next to the response.
+  Future<void> openResponseHistoryTab() async {
+    await tester.tap(find.widgetWithText(Tab, 'History'));
     await settle();
   }
 }

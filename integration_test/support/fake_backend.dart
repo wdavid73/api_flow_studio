@@ -44,9 +44,11 @@ typedef FakeRoute = ExecutedResponse Function(RecordedCall call);
 /// history, flows) is the real thing. It resolves variables the same way the
 /// real executor does, logs every call and answers by `"METHOD /path"`.
 class FakeBackend implements RequestExecutor {
-  FakeBackend({Map<String, FakeRoute> routes = const {}}) : routes = {...routes};
+  FakeBackend({Map<String, FakeRoute> routes = const {}}) : routes = {..._demoRoutes(), ...routes};
 
-  /// Routes by `"GET /items"`; anything not listed answers `200 {}`.
+  /// Routes by `"GET /items"`; anything not listed answers `200 {}`. The demo
+  /// routes are there from the start and a route given to the constructor
+  /// replaces the demo one with the same key.
   final Map<String, FakeRoute> routes;
 
   /// Every call received, oldest first.
@@ -91,3 +93,15 @@ ExecutedResponse json(Object? body, {int status = 200}) => ExecutedResponse(
       elapsedMs: 5,
       sizeBytes: utf8.encode(jsonEncode(body)).length,
     );
+
+/// The routes every journey can rely on.
+Map<String, FakeRoute> _demoRoutes() => {
+      'GET /items': (_) => json({
+            'items': [
+              {'id': 1, 'name': 'Apple'},
+              {'id': 2, 'name': 'Pear'},
+            ],
+          }),
+      'GET /boom': (_) => const ExecutedResponse(error: 'Connection refused', elapsedMs: 3),
+      'GET /flaky': (_) => json({'error': 'server exploded'}, status: 500),
+    };

@@ -68,7 +68,7 @@ the environment helpers from I4; I8 reuses everything.
 - [x] A forced failure leaves a PNG in `build/integration_failures/`
 
 ### Phase 2: Core journeys
-- [ ] I3: Send a request and history journeys
+- [x] I3: Send a request and history journeys
 - [ ] I4: Environments, variables and production journeys
 
 ### Checkpoint: Core journeys
