@@ -21,7 +21,7 @@ The v1 list lives in `tasks/todo.md` and is separate.
 
 ## Phase 3 — Feature journeys
 - [x] I5: Session journey
-- [ ] I6: Multi-step flow journey
+- [x] I6: Multi-step flow journey
 - [ ] I7: Hosts & notes journey
 
 ### Checkpoint: Feature journeys

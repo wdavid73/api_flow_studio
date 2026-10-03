@@ -1,4 +1,5 @@
 import '../../integration_test/journeys/environments_journey.dart';
+import '../../integration_test/journeys/flow_journey.dart';
 import '../../integration_test/journeys/history_journey.dart';
 import '../../integration_test/journeys/navigation_journey.dart';
 import '../../integration_test/journeys/production_journey.dart';
@@ -18,4 +19,5 @@ void main() {
   defineEnvironmentsJourney(() => harness);
   defineProductionJourney(() => harness);
   defineSessionJourney(() => harness);
+  defineFlowJourney(() => harness);
 }

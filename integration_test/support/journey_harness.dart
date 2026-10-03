@@ -201,4 +201,13 @@ class AppDriver {
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await settle();
   }
+
+  /// Opens the Flows screen and selects the flow [flowId] in the list.
+  Future<void> openFlow(String flowId) async {
+    await goTo('Flows');
+    await tapKey(ValueKey('flow-list-item-$flowId'));
+  }
+
+  /// Presses Run on the open flow and waits for the run view to finish.
+  Future<void> runOpenFlow() => tapKey(const Key('run-flow-button'));
 }

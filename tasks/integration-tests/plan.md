@@ -76,7 +76,7 @@ the environment helpers from I4; I8 reuses everything.
 
 ### Phase 3: Feature journeys
 - [x] I5: Session journey
-- [ ] I6: Multi-step flow journey
+- [x] I6: Multi-step flow journey
 - [ ] I7: Hosts & notes journey
 
 ### Checkpoint: Feature journeys
