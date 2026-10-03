@@ -129,8 +129,8 @@ Detail in [plan-secondary-screens.md](plan-secondary-screens.md).
 - [x] analyze clean, full suite green
 
 ## Phase 4 — Verify
-- [ ] S9: Sweep and visual check
+- [x] S9: Sweep and visual check
 
 ### Checkpoint: Module done
-- [ ] All SPEC-secondary-screens.md success criteria checked
+- [x] All SPEC-secondary-screens.md success criteria checked (visual check at 1440px: History, Environments and the Flows builder in the browser; the flow run view needs a real HTTP run and is verified by widget tests only)
 - [ ] Human review, then write `SPEC-session-tokens.md`
