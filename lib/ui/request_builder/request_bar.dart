@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../collections/collections_provider.dart';
 import '../history/history_tab.dart';
-import '../response_viewer/response_panel.dart';
 import 'request_draft_provider.dart';
 import 'send_provider.dart';
 import 'tabs/auth_tab.dart';
@@ -17,9 +16,8 @@ const _methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 /// The request builder: a method dropdown, a URL field, a Send button
 /// wired to the real [RequestExecutor], Params/Headers/Body/Auth/Docs tabs
-/// (Tests/Settings are out of MVP scope -- stub placeholders), and a plain
-/// status/body view of the result. Environment-variable interpolation
-/// comes in Task 3.3.
+/// (Tests/Settings are out of MVP scope -- stub placeholders). The response
+/// lives in its own pane, see `WorkspaceScreen`.
 class RequestBar extends ConsumerWidget {
   const RequestBar({super.key});
 
@@ -114,8 +112,6 @@ class RequestBar extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          Expanded(child: ResponsePanel(sendState: sendState)),
         ],
       ),
     );

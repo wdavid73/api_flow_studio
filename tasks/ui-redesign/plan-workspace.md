@@ -48,11 +48,11 @@ W1 and W2 are independent; W3–W9 need W2 (W3 also W1). W10 needs all.
 
 ### Phase 1: Foundations
 - [x] W1: `buildCurl` in the engine
-- [ ] W2: Three-panel layout
+- [x] W2: Three-panel layout
 
 ### Checkpoint: Layout
-- [ ] analyze clean, full suite green (tests moved off `RequestBar` where needed)
-- [ ] 1440px shows three panels, 900px stacks the response
+- [x] analyze clean, full suite green (tests moved off `RequestBar` where needed)
+- [x] 1440px shows three panels, 900px stacks the response
 
 ### Phase 2: Response side
 - [ ] W3: Response status line, Copy and curl

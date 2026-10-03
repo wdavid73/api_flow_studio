@@ -3,6 +3,7 @@ import 'package:api_flow_studio/engine/http/request_executor.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/ui/request_builder/request_bar.dart';
 import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
+import 'package:api_flow_studio/ui/response_viewer/response_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,10 +21,30 @@ void main() {
   late MockRequestExecutor executor;
 
   Future<void> pumpRequestBar(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1440, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [requestExecutorProvider.overrideWithValue(executor)],
-        child: const MaterialApp(home: Scaffold(body: RequestBar())),
+        // The response lives in its own pane (see WorkspaceScreen), so mount
+        // it beside the request builder the way the workspace does.
+        child: MaterialApp(
+          home: Scaffold(
+            body: Row(
+              children: [
+                const Expanded(child: RequestBar()),
+                Expanded(
+                  child: Consumer(
+                    builder: (context, ref, _) => ResponsePanel(sendState: ref.watch(sendStateProvider)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

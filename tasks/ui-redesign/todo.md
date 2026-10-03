@@ -66,11 +66,11 @@ Detail in [plan-workspace.md](plan-workspace.md).
 
 ## Phase 1 — Foundations
 - [x] W1: `buildCurl` in the engine
-- [ ] W2: Three-panel layout
+- [x] W2: Three-panel layout
 
 ### Checkpoint: Layout
-- [ ] analyze clean, full suite green
-- [ ] 1440px shows three panels, 900px stacks the response
+- [x] analyze clean, full suite green
+- [x] 1440px shows three panels, 900px stacks the response
 
 ## Phase 2 — Response side
 - [ ] W3: Response status line, Copy and curl
