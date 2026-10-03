@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/models/models.dart';
 import '../collections/collections_provider.dart';
+import '../collections/method_filter_chips.dart' show MethodChip;
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -185,11 +186,12 @@ class _AddStepPickerDialogState extends State<_AddStepPickerDialog> {
     }
 
     Widget methodChip(String method) {
-      final color = MethodBadge.colorForMethod(method);
       final active = _activeMethods.contains(method);
-      return InkWell(
+      return MethodChip(
         key: ValueKey('add-step-picker-method-chip-$method'),
-        borderRadius: BorderRadius.circular(AppRadius.full),
+        label: method,
+        color: MethodBadge.colorForMethod(method),
+        selected: active,
         onTap: () => setState(() {
           if (active) {
             _activeMethods.remove(method);
@@ -197,15 +199,6 @@ class _AddStepPickerDialogState extends State<_AddStepPickerDialog> {
             _activeMethods.add(method);
           }
         }),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
-          decoration: BoxDecoration(
-            color: active ? color.withValues(alpha: 0.16) : Colors.transparent,
-            border: Border.all(color: color),
-            borderRadius: BorderRadius.circular(AppRadius.full),
-          ),
-          child: Text(method, style: AppTypography.badgeMono.copyWith(color: color)),
-        ),
       );
     }
 

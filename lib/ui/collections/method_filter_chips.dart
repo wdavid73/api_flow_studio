@@ -31,29 +31,63 @@ class MethodFilterChips extends ConsumerWidget {
       childAspectRatio: 4,
       children: [
         for (final method in _chips)
-          InkWell(
+          MethodChip(
+            containerKey: Key('method-filter-$method'),
+            label: method == allMethods ? 'All' : method,
+            color: method == allMethods ? AppColors.onSurfaceVariant : MethodBadge.colorForMethod(method),
+            selected: method == selected,
             onTap: () => ref.read(sidebarMethodFilterProvider.notifier).state = method,
-            borderRadius: BorderRadius.circular(AppRadius.full),
-            child: Container(
-              key: Key('method-filter-$method'),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: method == selected ? AppColors.onSurface : null,
-                borderRadius: BorderRadius.circular(AppRadius.full),
-                border: Border.all(color: method == selected ? AppColors.onSurface : AppColors.outlineVariant),
-              ),
-              child: Text(
-                method == allMethods ? 'All' : method,
-                style: AppTypography.labelMd.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: method == selected
-                      ? AppColors.surface
-                      : (method == allMethods ? AppColors.onSurfaceVariant : MethodBadge.colorForMethod(method)),
-                ),
-              ),
-            ),
           ),
       ],
+    );
+  }
+}
+
+/// A pill chip for a method filter: outlined with the verb [color] when idle,
+/// filled with the on-surface color when [selected]. Shared by the sidebar and
+/// the add-step picker so both read as the same control. Fills its parent when
+/// the parent gives it tight constraints (a grid cell) and otherwise sizes to
+/// its label.
+class MethodChip extends StatelessWidget {
+  const MethodChip({
+    super.key,
+    required this.label,
+    required this.color,
+    required this.selected,
+    required this.onTap,
+    this.containerKey,
+  });
+
+  final String label;
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+
+  /// Key for the chip's visual container (what tests inspect).
+  final Key? containerKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.full),
+      child: Container(
+        key: containerKey,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.onSurface : null,
+          borderRadius: BorderRadius.circular(AppRadius.full),
+          border: Border.all(color: selected ? AppColors.onSurface : AppColors.outlineVariant),
+        ),
+        child: Text(
+          label,
+          style: AppTypography.labelMd.copyWith(
+            fontWeight: FontWeight.w700,
+            color: selected ? AppColors.surface : color,
+          ),
+        ),
+      ),
     );
   }
 }

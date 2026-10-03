@@ -64,10 +64,10 @@ needs both.
 ### Phase 3: Flows
 - [x] S6: Flows list and builder restyle
 - [x] S7: Flow run view restyle
-- [ ] S8: Step picker chips aligned with the sidebar
+- [x] S8: Step picker chips aligned with the sidebar
 
 ### Checkpoint: Flows
-- [ ] analyze clean, full suite green
+- [x] analyze clean, full suite green
 
 ### Phase 4: Verify
 - [ ] S9: Sweep and visual check
