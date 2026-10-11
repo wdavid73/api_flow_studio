@@ -7,7 +7,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-generated-variables.md](../../SPEC-gener
   - Verify: `fvm flutter test test/engine/variables/dynamic_values_test.dart`
   - Files: `lib/engine/variables/dynamic_values.dart`, `test/engine/variables/dynamic_values_test.dart`
 
-- [ ] **G2: `interpolate*` con generador opcional**
+- [x] **G2: `interpolate*` con generador opcional**
   - Acceptance: un token → valor; dos apariciones → distintos; desconocido o sin generador → literal; `{{$uuid}}` dentro de un valor de variable se resuelve sin re-escanear lo generado; tests existentes sin cambios
   - Verify: `fvm flutter test test/engine/variables`
   - Files: `lib/engine/variables/interpolator.dart`, `test/engine/variables/interpolator_test.dart`

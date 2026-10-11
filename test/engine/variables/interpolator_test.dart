@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:api_flow_studio/engine/models/models.dart';
+import 'package:api_flow_studio/engine/variables/dynamic_values.dart';
 import 'package:api_flow_studio/engine/variables/interpolator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -89,6 +92,97 @@ void main() {
         orElse: () => const <KeyValueEntry>[],
       );
       expect(fields.single.value, 'rtok');
+    });
+  });
+
+  group('dynamic tokens', () {
+    DynamicValues dyn() => DynamicValues(random: Random(1));
+
+    test('replaces a known token with a generated value', () {
+      final out = interpolate('id={{\$uuid}}', {}, dynamicValues: dyn());
+      expect(out, matches(RegExp(r'^id=[0-9a-f-]{36}$')));
+    });
+
+    test('generates a different value for each occurrence', () {
+      final out = interpolate(
+        '{{\$uuid}} {{\$uuid}}',
+        {},
+        dynamicValues: dyn(),
+      );
+      final parts = out.split(' ');
+      expect(parts, hasLength(2));
+      expect(parts[0], isNot(parts[1]));
+    });
+
+    test('leaves an unknown token literal', () {
+      expect(interpolate('{{\$nope}}', {}, dynamicValues: dyn()), '{{\$nope}}');
+    });
+
+    test('leaves the token literal when no generator is given', () {
+      expect(interpolate('{{\$uuid}}', {}), '{{\$uuid}}');
+    });
+
+    test('does not change normal variables', () {
+      expect(
+        interpolate(
+          '{{a}}-{{\$timestamp}}',
+          {'a': 'x'},
+          dynamicValues: DynamicValues(now: () => DateTime.utc(2026)),
+        ),
+        'x-1767225600',
+      );
+    });
+
+    test('a variable value containing a token is resolved', () {
+      final out = interpolate('{{run_id}}', {
+        'run_id': '{{\$randomInt}}',
+      }, dynamicValues: dyn());
+      expect(out, matches(RegExp(r'^\d+$')));
+    });
+
+    test('generated values are not scanned again', () {
+      final out = interpolate('{{\$randomString}}', {}, dynamicValues: dyn());
+      expect(out, isNot(contains('{{')));
+    });
+
+    test('interpolateEntries resolves tokens in enabled entries only', () {
+      final result = interpolateEntries(
+        [
+          const KeyValueEntry(key: 'X-Id', value: '{{\$uuid}}'),
+          const KeyValueEntry(
+            key: 'X-Off',
+            value: '{{\$uuid}}',
+            enabled: false,
+          ),
+        ],
+        {},
+        dynamicValues: dyn(),
+      );
+      expect(result[0].value, isNot(contains('{{')));
+      expect(result[1].value, '{{\$uuid}}');
+    });
+
+    test('interpolateBody resolves tokens in json and form bodies', () {
+      final json = interpolateBody(
+        const RequestBody.json('{"e":"{{\$randomEmail}}","n":{{\$randomInt}}}'),
+        {},
+        dynamicValues: dyn(),
+      );
+      final raw = json.maybeMap(json: (b) => b.raw, orElse: () => '');
+      expect(raw, isNot(contains('{{')));
+
+      final form = interpolateBody(
+        const RequestBody.formUrlEncoded([
+          KeyValueEntry(key: 'k', value: '{{\$uuid}}'),
+        ]),
+        {},
+        dynamicValues: dyn(),
+      );
+      final value = form.maybeMap(
+        formUrlEncoded: (b) => b.fields.single.value,
+        orElse: () => '',
+      );
+      expect(value, isNot(contains('{{')));
     });
   });
 }
