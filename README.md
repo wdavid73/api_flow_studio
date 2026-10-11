@@ -14,6 +14,9 @@ Beyond a basic request/response cycle, it supports:
   run again without clashing with data it created before. The "Request Sent"
   tab of a flow step shows the URL that was really sent; copied curl commands
   keep the token as written.
+- **Terminal runner**: the flows of a workspace file run without the app
+  (`bin/api_flow_runner.dart`), with JUnit and JSON reports and exit codes for CI;
+  see [Running flows from the terminal](#running-flows-from-the-terminal).
 - **Collections** of saved requests, grouped into nested folders.
 - **Flows** — ordered sequences of saved requests where each step can
   extract a value from its response (dot-notation, e.g.
@@ -29,9 +32,9 @@ Beyond a basic request/response cycle, it supports:
   works). The expected value can use `{{variables}}`. All assertions of a step
   run, and the run view shows which held and which did not. A flow saved with the
   old single "assert field / expected value" pair opens as one `==` assertion.
-  Workspace files are now version 2; version 1 files still import, but an older
-  copy of the app will refuse (or, for `flows.json`, silently ignore) assertions
-  written by this one.
+  A workspace file written before assertions existed still imports; an older copy of
+  the app will refuse (or, for `flows.json`, silently ignore) assertions written by
+  this one.
 - **Form Data bodies** (`multipart/form-data`): text fields and files, each row
   with its own on/off switch. Choose a file with the system dialog or type its
   path (`{{fixtures}}/avatar.png` works); its type is worked out from the
@@ -83,6 +86,10 @@ to keep in sync.
   drive) carries the data with it. Inside it, `projects.json` lists the
   projects and each one keeps its files in `projects/<id>/`. Not versioned by git automatically; see
   [SPEC.md](SPEC.md)'s Open Questions.
+- [`file_picker`](https://pub.dev/packages/file_picker) — the open dialogs of Import
+  and Form Data files.
+- [`yaml`](https://pub.dev/packages/yaml) — reads OpenAPI specs written in YAML.
+- [`args`](https://pub.dev/packages/args) — options of the terminal runner.
 - `uuid` — entity ids.
 - `mocktail` + `flutter_test` — engine tests, mocking the `dio` client.
 
@@ -98,6 +105,9 @@ lib/
     flows/value_extractor.dart   # dot-notation: "response.body.data.otp" -> value
     storage/json_store.dart      # reads/writes environments/collections/flows/history to disk
     curl/curl_parser.dart        # parses a pasted curl command into an Endpoint
+    import/                      # Importer contract + registry; app_collections, postman/, openapi/
+    workspace/                   # export/import of a whole project as one file
+  cli/                    # the terminal runner (options, selection, reporters, redaction)
   ui/                     # feature-first, consumes engine/ via Riverpod providers
     environments/
     collections/
@@ -107,6 +117,7 @@ lib/
     theme/                 # ThemeData built from design/*/DESIGN.md tokens
   app.dart
   main.dart
+bin/api_flow_runner.dart  # entry point of the terminal runner
 test/
   engine/                 # unit tests, mirroring lib/engine/
 design/                   # Stitch exports: screen.png + code.html + DESIGN.md tokens
@@ -200,7 +211,8 @@ its extension) and brings it in:
 - A file that is not a format it knows says so and lists the formats it does know; a
   **workspace** file is explained, not imported (open it with Project ▸ Import
   workspace…, which makes a whole new project); files over 32 MB are refused without
-  being read.
+  being read. Files over 256 KB are translated on a separate isolate, so the window does
+not freeze on a big spec.
 
 ### Formats
 
@@ -230,7 +242,17 @@ made up. OAuth2, OpenID Connect and mutual TLS have no equivalent here and are l
 the summary; so are cookie parameters, webhooks and callbacks, servers beyond the first
 (only `servers[0]` becomes `base_url`), and binary request bodies. Only `$ref`s inside the
 file are followed: a reference to another file or a URL is never read or fetched, only
-reported. A **Swagger 2.0** file is refused with a note to convert it first.
+reported. A **Swagger 2.0** file is refused with a note to convert it first. A server URL
+with a variable that has no default (`https://{tenant}.api.test`) becomes
+`https://{{tenant}}.api.test`, with `tenant` an empty variable of the environment to fill in.
+
+**Variables the file uses but does not define.** A value in a file can read `{{token}}`,
+and when the request is sent that takes whatever variable of yours has that name. That is
+often what a collection expects (Postman collections lean on a separate environment file),
+but a file could also use it to send one of your secrets somewhere it chose. So the summary
+names each `{{variable}}` that an import uses and does not define, once, with the request
+where it first appears. Generated values (`{{$uuid}}`) are built in and are not listed. The
+summary shows at most 200 items and says how many more there are.
 
 ## Projects and workspaces
 
@@ -352,5 +374,11 @@ smoke-tests:
   code style, testing strategy, and the v1 success criteria.
 - [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) — architecture rationale, data
   model, and what's explicitly out of scope for v1.
+- `SPEC-<module>.md` — one spec per feature, with its plan and checklist in
+  `tasks/<module>/`: [generated-variables](SPEC-generated-variables.md),
+  [flow-assertions](SPEC-flow-assertions.md), [flow-cli](SPEC-flow-cli.md), and the
+  import family indexed by [SPEC-import-map.md](SPEC-import-map.md)
+  ([multipart-body](SPEC-multipart-body.md), [import-core](SPEC-import-core.md),
+  [postman-import](SPEC-postman-import.md), [openapi-import](SPEC-openapi-import.md)).
 - [tasks/plan.md](tasks/plan.md) / [tasks/todo.md](tasks/todo.md) —
   phase-by-phase implementation plan and checklist.
