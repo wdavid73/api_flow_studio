@@ -6,7 +6,7 @@ Aprobado. Cada módulo tiene su propia spec, nombrada por su id; este mapa es el
 | Module id | Responsabilidad | Depende de | Spec |
 |---|---|---|---|
 | `multipart-body` | Cuerpo `multipart/form-data` con campos de texto y de archivo: modelo (variante nueva de `RequestBody`), envío con `dio`, editor en la pestaña Body, `-F` en el curl copiado y pegado, y cambio de versión del formato de workspace. | — | [SPEC-multipart-body.md](SPEC-multipart-body.md) |
-| `import-core` | Base común de toda importación: resultado puro (carpetas, requests, ambientes y avisos), detección del formato del archivo, inserción no destructiva en una carpeta nueva del proyecto activo, resumen de lo importado y lo omitido. Mueve a engine la importación del JSON propio, hoy dentro de `sidebar_tree.dart`. | — | `SPEC-import-core.md` (pendiente) |
+| `import-core` | Base común de toda importación: resultado puro (carpetas, requests, ambientes y avisos), detección del formato del archivo, inserción no destructiva en una carpeta nueva del proyecto activo, resumen de lo importado y lo omitido. Mueve a engine la importación del JSON propio, hoy dentro de `sidebar_tree.dart`. | — | [SPEC-import-core.md](SPEC-import-core.md) |
 | `postman-import` | Colección Postman v2.1 y archivo de ambientes: carpetas, requests, cuerpos (raw/JSON, urlencoded, formdata), auth bearer/basic, variables. Los scripts no se ejecutan y se avisa. | `multipart-body`, `import-core` | `SPEC-postman-import.md` (pendiente) |
 | `openapi-import` | OpenAPI 3.0/3.1: un request por ruta y método agrupado por tag, `servers` → `base_url`, parámetros, cuerpo de ejemplo, seguridad como auth con marcador. | `multipart-body`, `import-core` | `SPEC-openapi-import.md` (pendiente) |
 
