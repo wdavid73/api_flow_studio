@@ -2,7 +2,7 @@
 
 Plan: [plan.md](plan.md) · Spec: [SPEC-flow-cli.md](../../SPEC-flow-cli.md)
 
-- [ ] **C1: `isProductionEnvironment` al engine y `args` declarada**
+- [x] **C1: `isProductionEnvironment` al engine y `args` declarada**
   - Acceptance: la función vive en `lib/engine/models/environment_kind.dart` con tests; la UI la reexporta sin cambiar llamadores; `args: ^2.7.0` en `pubspec.yaml`
   - Verify: `fvm flutter pub get && fvm flutter test test/engine test/ui/shell test/ui/environments`
   - Files: `lib/engine/models/environment_kind.dart`, `lib/ui/shell/environment_kind.dart`, `pubspec.yaml`, `pubspec.lock`, `test/engine/models/environment_kind_test.dart`
