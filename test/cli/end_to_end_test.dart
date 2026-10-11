@@ -201,4 +201,19 @@ void main() {
     expect(out.toString(), contains('[FAIL] 1. Log in'));
     expect(err.toString(), isNot(contains('error:')));
   });
+
+  test('a url that still has an undefined {{variable}} fails the step with a plain explanation', () async {
+    final path = await workspace([
+      const Flow(id: 'f', name: 'Typo', steps: [FlowStep(endpointId: 'typo')]),
+    ], endpoints: [
+      const Endpoint(id: 'typo', groupId: 'g', name: 'Typo', method: 'GET', url: '{{base_ulr}}/items'),
+    ]);
+
+    final code = await run(['-w', path]);
+
+    expect(code, 1);
+    expect(out.toString(), contains('Unresolved variable in the URL: {{base_ulr}}'));
+    expect(out.toString(), isNot(contains('DioException')));
+    expect(received, isEmpty);
+  });
 }

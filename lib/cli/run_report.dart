@@ -120,7 +120,13 @@ StepReport stepReportFrom({
         failures = failedAssertions;
       } else {
         kind = response?.error != null ? FailureKind.network : FailureKind.configuration;
-        failures = [result.failureReason ?? response?.error ?? 'The step failed'];
+        final unresolved = kind == FailureKind.network ? _unresolvedIn(response?.requestUrl) : const <String>[];
+        failures = [
+          if (unresolved.isNotEmpty)
+            _unresolvedMessage(unresolved)
+          else
+            result.failureReason ?? response?.error ?? 'The step failed',
+        ];
       }
   }
 
@@ -137,3 +143,19 @@ StepReport stepReportFrom({
     assertions: assertions,
   );
 }
+
+final RegExp _unresolvedToken = RegExp(r'\{\{\$?\w+\}\}');
+
+/// The `{{variable}}` and `{{$token}}` references still in [url], in order and
+/// without repeats. The interpolator leaves a name it does not know as it was
+/// written, so what remains was never defined.
+List<String> _unresolvedIn(String? url) =>
+    url == null ? const [] : {for (final m in _unresolvedToken.allMatches(url)) m[0]!}.toList();
+
+/// What to tell the person when the request could not even be sent because its URL
+/// still holds references: the transport error ("No host specified in URI ...") says
+/// nothing about the cause.
+String _unresolvedMessage(List<String> names) =>
+    'Unresolved ${names.length == 1 ? 'variable' : 'variables'} in the URL: ${names.join(', ')} '
+    '- define ${names.length == 1 ? 'it' : 'them'} in the environment, extract ${names.length == 1 ? 'it' : 'them'} '
+    'in an earlier step, or give ${names.length == 1 ? 'it' : 'them'} with --var';

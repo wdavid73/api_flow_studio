@@ -71,6 +71,43 @@ void main() {
       expect(r.httpStatus, isNull);
     });
 
+    test('a transport error on a url that still has {{variables}} says which are unresolved', () {
+      final r = report(FlowStepResult(
+        status: FlowStepStatus.failure,
+        response: const ExecutedResponse(
+          error: 'DioException [unknown]: null\nError: Invalid argument(s): No host specified in URI',
+          requestUrl: '{{base}}/items/{{id}}?x={{\$uuid}}&again={{base}}',
+        ),
+        failureReason: 'DioException [unknown]: null',
+      ));
+
+      expect(r.failureKind, FailureKind.network);
+      expect(r.failures, hasLength(1));
+      expect(r.failures.single, startsWith('Unresolved variables in the URL: {{base}}, {{id}}, {{\$uuid}}'));
+      expect(r.failures.single, contains('--var'));
+      expect(r.failures.single, isNot(contains('DioException')));
+    });
+
+    test('a single unresolved variable is named in the singular', () {
+      final r = report(FlowStepResult(
+        status: FlowStepStatus.failure,
+        response: const ExecutedResponse(error: 'boom', requestUrl: '{{nope}}/x'),
+        failureReason: 'boom',
+      ));
+
+      expect(r.failures.single, startsWith('Unresolved variable in the URL: {{nope}}'));
+    });
+
+    test('a transport error on a fully resolved url keeps its own text', () {
+      final r = report(FlowStepResult(
+        status: FlowStepStatus.failure,
+        response: const ExecutedResponse(error: 'Connection refused', requestUrl: 'https://x/items'),
+        failureReason: 'Connection refused',
+      ));
+
+      expect(r.failures, ['Connection refused']);
+    });
+
     test('a missing endpoint is a configuration failure, named by its id', () {
       final r = report(
         const FlowStepResult(status: FlowStepStatus.failure, failureReason: 'Endpoint "e-9" not found'),
