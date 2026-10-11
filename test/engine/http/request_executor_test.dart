@@ -332,7 +332,7 @@ void main() {
       await executor.execute(
         dynamicEndpoint.copyWith(
           body: const RequestBody.formUrlEncoded([KeyValueEntry(key: 'e', value: '{{\$randomEmail}}')]),
-          authConfig: const AuthConfig.basic(username: 'u-{{\$randomInt}}', password: 'p'),
+          authConfig: const AuthConfig.basic(username: 'u-{{\$randomInt}}', password: 'p-{{\$randomString}}'),
         ),
         variables: const {},
       );
@@ -345,7 +345,7 @@ void main() {
       expect((captured[0] as Map)['e'], isNot(contains('{{')));
       final auth = (captured[1] as Options).headers!['Authorization'] as String;
       final decoded = utf8.decode(base64Decode(auth.substring('Basic '.length)));
-      expect(decoded, matches(RegExp(r'^u-\d+:p$')));
+      expect(decoded, matches(RegExp(r'^u-\d+:p-[a-z0-9]{12}$')));
     });
 
     test('two sends produce different values and requestUrl is the url sent', () async {

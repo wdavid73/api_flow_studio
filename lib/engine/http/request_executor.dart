@@ -31,13 +31,14 @@ class RequestExecutor {
     Endpoint endpoint, {
     required Map<String, String> variables,
   }) async {
-    final url = interpolate(endpoint.url, variables, dynamicValues: _dynamicValues);
-    final headers = _resolveEnabled(
-      interpolateEntries(endpoint.headers, variables, dynamicValues: _dynamicValues),
-    );
-    final queryParams = _resolveEnabled(
-      interpolateEntries(endpoint.queryParams, variables, dynamicValues: _dynamicValues),
-    );
+    // Every `{{variable}}` and `{{$token}}` is resolved here, once per send.
+    String text(String template) => interpolate(template, variables, dynamicValues: _dynamicValues);
+    List<KeyValueEntry> entries(List<KeyValueEntry> list) =>
+        interpolateEntries(list, variables, dynamicValues: _dynamicValues);
+
+    final url = text(endpoint.url);
+    final headers = _resolveEnabled(entries(endpoint.headers));
+    final queryParams = _resolveEnabled(entries(endpoint.queryParams));
 
     final resolvedBody = interpolateBody(endpoint.body, variables, dynamicValues: _dynamicValues);
     final (Object? data, String? contentType) = resolvedBody.when(
@@ -51,7 +52,7 @@ class RequestExecutor {
     if (contentType != null) {
       headers.putIfAbsent('Content-Type', () => contentType);
     }
-    _applyAuth(endpoint.authConfig, variables, headers);
+    _applyAuth(endpoint.authConfig, text, headers);
 
     final sentUrl = _withQuery(url, queryParams);
 
@@ -105,19 +106,17 @@ class RequestExecutor {
 
   void _applyAuth(
     AuthConfig auth,
-    Map<String, String> variables,
+    String Function(String) text,
     Map<String, String> headers,
   ) {
     auth.when(
       none: () {},
       basic: (username, password) {
-        final resolvedUser = interpolate(username, variables, dynamicValues: _dynamicValues);
-        final resolvedPassword = interpolate(password, variables, dynamicValues: _dynamicValues);
-        final token = base64Encode(utf8.encode('$resolvedUser:$resolvedPassword'));
+        final token = base64Encode(utf8.encode('${text(username)}:${text(password)}'));
         headers['Authorization'] = 'Basic $token';
       },
       bearer: (token) {
-        headers['Authorization'] = 'Bearer ${interpolate(token, variables, dynamicValues: _dynamicValues)}';
+        headers['Authorization'] = 'Bearer ${text(token)}';
       },
     );
   }
