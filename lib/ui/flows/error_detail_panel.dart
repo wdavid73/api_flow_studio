@@ -11,6 +11,16 @@ class ErrorDetailPanel extends StatelessWidget {
 
   final FlowStepResult result;
 
+  List<String> get _lines {
+    final failed = [
+      for (final r in result.assertionResults)
+        if (!r.passed && r.message != null) r.message!,
+    ];
+    if (failed.isNotEmpty) return failed;
+    final reason = result.failureReason;
+    return reason == null ? const [] : [reason];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -26,17 +36,18 @@ class ErrorDetailPanel extends StatelessWidget {
             classifyFailure(result),
             style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
           ),
-          // One line per failed assertion (a step can fail several).
-          if (result.failureReason != null)
-            for (final (i, line) in result.failureReason!.split('\n').indexed)
-              Padding(
-                key: ValueKey('error-line-$i'),
-                padding: const EdgeInsets.only(top: AppSpacing.xs),
-                child: Text(
-                  line,
-                  style: const TextStyle(color: AppColors.onSurface),
-                ),
+          // One line per failed assertion (a step can fail several). They come from
+          // the structured results, not from splitting the reason text: the value
+          // an assertion saw may itself contain line breaks.
+          for (final (i, line) in _lines.indexed)
+            Padding(
+              key: ValueKey('error-line-$i'),
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(
+                line,
+                style: const TextStyle(color: AppColors.onSurface),
               ),
+            ),
         ],
       ),
     );

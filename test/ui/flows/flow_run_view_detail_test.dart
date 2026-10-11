@@ -263,6 +263,26 @@ void main() {
       });
     });
 
+    testWidgets('one failed assertion is one error line even when the actual value has line breaks', (tester) async {
+      await tester.runAsync(() async {
+        final flow = Flow(
+          id: 'f-1',
+          name: 'Flow',
+          steps: const [
+            FlowStep(endpointId: 'e-1', assertions: [Assertion(field: 'response.body', expected: 'x')]),
+          ],
+        );
+        final executor = MockRequestExecutor();
+        when(() => executor.execute(checkUser, variables: any(named: 'variables')))
+            .thenAnswer((_) async => const ExecutedResponse(status: 200, body: 'line1\nline2'));
+
+        await pumpRunView(tester, flow, executor: executor);
+
+        expect(find.byKey(const Key('error-line-0')), findsOneWidget);
+        expect(find.byKey(const Key('error-line-1')), findsNothing);
+      });
+    });
+
     testWidgets('an invalid path is a failed row with its message', (tester) async {
       await tester.runAsync(() async {
         final flow = Flow(
