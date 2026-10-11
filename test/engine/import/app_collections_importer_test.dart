@@ -167,7 +167,11 @@ void main() {
     test('refuses a file of a shape nobody here reads, listing what is supported', () {
       expect(
         () => runImport('{"hello": 1}', importers),
-        throwsA(isA<ImportException>().having((e) => e.message, 'message', 'That file is not a format I can import. Supported: API Flow Studio collections.')),
+        throwsA(isA<ImportException>().having(
+          (e) => e.message,
+          'message',
+          allOf(startsWith('That file is not a format I can import. Supported: '), contains('API Flow Studio collections')),
+        )),
       );
     });
 

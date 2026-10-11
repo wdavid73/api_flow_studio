@@ -7,7 +7,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-postman-import.md](../../SPEC-postman-im
   - Verify: `fvm flutter test test/ui/import test/engine/import`
   - Files: `lib/ui/import/import_actions.dart`, `test/ui/import/apply_import_test.dart`
 
-- [ ] **P2: variables de Postman y el importador de ambientes**
+- [x] **P2: variables de Postman y el importador de ambientes**
   - Acceptance: `matches` correcto; `secret`, `enabled: false` avisado, nombre (globales incluidas), nombres saneados con un aviso, `{{ x }}` normalizado, dinámicas traducidas o avisadas; el registro real importa un ambiente sin activarlo
   - Verify: `fvm flutter test test/engine/import`
   - Files: `lib/engine/import/postman/postman_variables.dart`, `postman_environment_importer.dart`, `lib/engine/import/import_registry.dart`, `test/engine/import/postman/`
