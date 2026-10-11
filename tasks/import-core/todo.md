@@ -2,7 +2,7 @@
 
 Plan: [plan.md](plan.md) · Spec: [SPEC-import-core.md](../../SPEC-import-core.md)
 
-- [ ] **I1: el contrato y `runImport` (engine puro)**
+- [x] **I1: el contrato y `runImport` (engine puro)**
   - Acceptance: `ImportSource` decodifica una vez; `runImport` elige por orden, mensajes de formato desconocido / vacío / workspace, `matches` que lanza = no; `uniqueName`; `ImportSummary.describe()` con plurales
   - Verify: `fvm flutter test test/engine/import`
   - Files: `lib/engine/import/import_result.dart`, `import_source.dart`, `importer.dart`, `import_naming.dart`, `test/engine/import/`
