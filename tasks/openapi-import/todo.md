@@ -7,7 +7,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-openapi-import.md](../../SPEC-openapi-im
   - Verify: `fvm flutter pub get && fvm flutter test test/engine/import`
   - Files: `lib/engine/import/import_json.dart`, `lib/engine/import/variable_names.dart`, `lib/engine/import/postman/*`, `pubspec.yaml`, `pubspec.lock`, tests
 
-- [ ] **O2: reconocer y leer JSON y YAML**
+- [x] **O2: reconocer y leer JSON y YAML**
   - Acceptance: `matches` (JSON, sniff de YAML, Swagger); YAML válido/ inválido; Swagger → mensaje; alias anidados acotados; sin registrar
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_importer.dart`, `test/engine/import/openapi/openapi_recognition_test.dart`
