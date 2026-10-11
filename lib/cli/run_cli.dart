@@ -52,24 +52,8 @@ Future<int> runCli(
     return 2;
   }
 
-  final String text;
-  try {
-    text = await File(options.workspace).readAsString();
-  } on FileSystemException catch (e) {
-    err.writeln('error: cannot read ${options.workspace}: ${e.osError?.message ?? e.message}');
-    return 2;
-  } on FormatException {
-    err.writeln('error: cannot read ${options.workspace}: it is not valid UTF-8 text');
-    return 2;
-  }
-
-  final WorkspaceFile file;
-  try {
-    file = WorkspaceFile.parse(text);
-  } on WorkspaceFileException catch (e) {
-    err.writeln('error: ${e.message}');
-    return 2;
-  }
+  final file = await _loadWorkspace(options.workspace, err);
+  if (file == null) return 2;
 
   if (options.list) {
     _printList(file, out);
@@ -84,18 +68,70 @@ Future<int> runCli(
     case final RunSelection selected:
       selection = selected;
   }
-
   for (final name in selection.emptySecrets) {
     err.writeln('warning: secret variable "$name" has no value');
   }
 
   final redactor = Redactor.forSelection(selection);
-  final runner = FlowRunner(executor: executor ?? _realExecutor(options.timeout));
-  final endpoints = {for (final e in file.endpoints) e.id: e};
-
   final startedAt = (now ?? DateTime.now)();
   final total = Stopwatch()..start();
-  final flowReports = <FlowReport>[];
+  final flows = await _runFlows(
+    selection,
+    file,
+    options,
+    redactor,
+    executor ?? _realExecutor(options.timeout),
+    out,
+  );
+  final run = RunReport(
+    workspace: file.name,
+    environment: selection.environment?.name,
+    startedAt: startedAt,
+    duration: total.elapsed,
+    flows: flows,
+  );
+  out.writeln();
+  out.writeln(formatSummary(run, redactor));
+
+  if (!await _writeReports(run, options, redactor, err)) return 2;
+  return run.passed ? 0 : 1;
+}
+
+/// Reads and parses the workspace file. On failure it says why on [err] and
+/// returns null.
+Future<WorkspaceFile?> _loadWorkspace(String path, StringSink err) async {
+  final String text;
+  try {
+    text = await File(path).readAsString();
+  } on FileSystemException catch (e) {
+    err.writeln('error: cannot read $path: ${e.osError?.message ?? e.message}');
+    return null;
+  } on FormatException {
+    err.writeln('error: cannot read $path: it is not valid UTF-8 text');
+    return null;
+  }
+
+  try {
+    return WorkspaceFile.parse(text);
+  } on WorkspaceFileException catch (e) {
+    err.writeln('error: ${e.message}');
+    return null;
+  }
+}
+
+/// Runs the selected flows one after another, printing each step as it finishes.
+/// Stops after the first failed flow with `--fail-fast`.
+Future<List<FlowReport>> _runFlows(
+  RunSelection selection,
+  WorkspaceFile file,
+  CliOptions options,
+  Redactor redactor,
+  RequestExecutor executor,
+  StringSink out,
+) async {
+  final runner = FlowRunner(executor: executor);
+  final endpoints = {for (final e in file.endpoints) e.id: e};
+  final reports = <FlowReport>[];
 
   for (final flow in selection.flows) {
     out.writeln(formatFlowHeader(flow.name, flow.steps.length, redactor));
@@ -117,30 +153,23 @@ Future<int> runCli(
     );
 
     final report = FlowReport(id: flow.id, name: flow.name, steps: steps, duration: watch.elapsed);
-    flowReports.add(report);
+    reports.add(report);
     if (!report.passed && options.failFast) break;
   }
+  return reports;
+}
 
-  final run = RunReport(
-    workspace: file.name,
-    environment: selection.environment?.name,
-    startedAt: startedAt,
-    duration: total.elapsed,
-    flows: flowReports,
-  );
-  out.writeln();
-  out.writeln(formatSummary(run, redactor));
-
-  var reportsWritten = true;
+/// Writes the `--junit` and `--json` reports that were asked for. Both are
+/// attempted; false when any could not be written.
+Future<bool> _writeReports(RunReport run, CliOptions options, Redactor redactor, StringSink err) async {
+  var written = true;
   if (options.junit != null) {
-    reportsWritten &= await _writeReport(options.junit!, junitReport(run, redactor), err);
+    written &= await _writeReport(options.junit!, junitReport(run, redactor), err);
   }
   if (options.json != null) {
-    reportsWritten &= await _writeReport(options.json!, jsonReport(run, redactor), err);
+    written &= await _writeReport(options.json!, jsonReport(run, redactor), err);
   }
-
-  if (!reportsWritten) return 2;
-  return run.passed ? 0 : 1;
+  return written;
 }
 
 /// Why a report path cannot be used, or null. A report is written over whatever
