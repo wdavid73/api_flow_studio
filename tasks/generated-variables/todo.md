@@ -2,7 +2,7 @@
 
 Plan: [plan.md](plan.md) · Spec: [SPEC-generated-variables.md](../../SPEC-generated-variables.md)
 
-- [ ] **G1: `DynamicValues`**
+- [x] **G1: `DynamicValues`**
   - Acceptance: los 6 tokens con formato correcto (semilla/reloj fijos); `isKnown`/`names` expuestos; desconocido → `null`
   - Verify: `fvm flutter test test/engine/variables/dynamic_values_test.dart`
   - Files: `lib/engine/variables/dynamic_values.dart`, `test/engine/variables/dynamic_values_test.dart`
