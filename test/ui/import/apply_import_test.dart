@@ -122,6 +122,46 @@ void main() {
     });
   });
 
+  group('values to fill in', () {
+    Endpoint upload(List<MultipartField> fields) =>
+        endpoint('up', 'g', 'Upload', body: RequestBody.multipart(fields));
+
+    ImportResult withFiles(List<MultipartField> fields, {List<Environment> environments = const []}) => ImportResult(
+          source: 'S',
+          groups: const [Group(id: 'g', name: 'G')],
+          endpoints: [upload(fields)],
+          environments: environments,
+        );
+
+    test('an enabled file field is a file still to choose', () async {
+      final summary = await apply(withFiles(const [
+        MultipartField(name: 'a', kind: MultipartFieldKind.file, value: '/Users/someone/a.png'),
+        MultipartField(name: 'b', kind: MultipartFieldKind.file),
+        MultipartField(name: 'text', value: 'x'),
+      ]));
+
+      expect(summary.valuesToFill, 2);
+    });
+
+    test('a disabled file field is not', () async {
+      final summary = await apply(withFiles(const [MultipartField(name: 'a', kind: MultipartFieldKind.file, enabled: false)]));
+
+      expect(summary.valuesToFill, 0);
+    });
+
+    test('files add up with the secrets of the imported environments', () async {
+      final summary = await apply(withFiles(
+        const [MultipartField(name: 'a', kind: MultipartFieldKind.file)],
+        environments: const [
+          Environment(id: 'x', name: 'Dev', variables: {'api_key': EnvironmentVariable(value: '', secret: true)}),
+        ],
+      ));
+
+      expect(summary.valuesToFill, 2);
+      expect(summary.describe(), endsWith(' — 2 values to fill in'));
+    });
+  });
+
   group('root folder names', () {
     List<String> rootNames(CollectionsState s) => [for (final g in s.groups) if (g.parentGroupId == null) g.name];
 

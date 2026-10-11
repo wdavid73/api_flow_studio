@@ -2,7 +2,7 @@
 
 Plan: [plan.md](plan.md) · Spec: [SPEC-postman-import.md](../../SPEC-postman-import.md)
 
-- [ ] **P1: `valuesToFill` cuenta también los archivos sin elegir (core)**
+- [x] **P1: `valuesToFill` cuenta también los archivos sin elegir (core)**
   - Acceptance: campo de archivo habilitado suma 1, deshabilitado 0; secretos + archivos suman; el texto no cambia
   - Verify: `fvm flutter test test/ui/import test/engine/import`
   - Files: `lib/ui/import/import_actions.dart`, `test/ui/import/apply_import_test.dart`

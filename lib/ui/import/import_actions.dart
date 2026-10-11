@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/import/import_registry.dart';
 import '../../engine/import/import_result.dart';
 import '../../engine/import/importer.dart';
+import '../../engine/models/file_paths.dart';
 import '../../engine/models/models.dart';
 import '../collections/collections_provider.dart';
 import '../environments/environments_provider.dart';
@@ -43,11 +44,14 @@ Future<ImportSummary> applyImport(T Function<T>(ProviderListenable<T> provider) 
     folders: after.groups.length - before.groups.length,
     requests: after.endpoints.length - before.endpoints.length,
     environments: added.length,
+    // Secrets that came empty, and the files of Form Data bodies: a path is never
+    // imported, so each one has to be chosen again.
     valuesToFill: [
-      for (final environment in added)
-        for (final variable in environment.variables.values)
-          if (variable.secret && variable.value.isEmpty) variable,
-    ].length,
+          for (final environment in added)
+            for (final variable in environment.variables.values)
+              if (variable.secret && variable.value.isEmpty) variable,
+        ].length +
+        filePathsToFill(result.endpoints),
     warnings: result.warnings,
   );
 }
