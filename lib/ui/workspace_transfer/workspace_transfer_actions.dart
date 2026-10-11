@@ -44,7 +44,7 @@ Future<void> importWorkspaceFromFile(BuildContext context, WidgetRef ref) async 
       ref,
       pending == 0
           ? 'Imported "$name"'
-          : 'Imported "$name" — $pending secret ${pending == 1 ? 'value' : 'values'} to fill in',
+          : 'Imported "$name" — $pending ${pending == 1 ? 'value' : 'values'} to fill in',
     );
   } on WorkspaceFileException catch (error) {
     if (!context.mounted) return;

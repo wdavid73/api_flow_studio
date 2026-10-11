@@ -1,3 +1,4 @@
+import '../models/file_paths.dart';
 import '../models/models.dart';
 import '../projects/project.dart';
 import '../storage/json_store.dart';
@@ -7,9 +8,10 @@ import 'workspace_file.dart';
 /// file: environments, collections, flows and host notes, with every secret
 /// removed. Never included: history, the active environment, session tokens.
 ///
-/// Removed: the value of every secret variable (its name and flag stay), and
-/// literal credentials in a request's authentication (a bearer token or a basic
-/// password; a `{{variable}}` reference is kept, it holds no secret).
+/// Removed: the value of every secret variable (its name and flag stay), literal
+/// credentials in a request's authentication (a bearer token or a basic password;
+/// a `{{variable}}` reference is kept, it holds no secret), and the local path of
+/// every file in a multipart body (the field stays, as "no file chosen").
 Future<WorkspaceFile> exportWorkspace(
   JsonStore store,
   Project project, {
@@ -23,7 +25,7 @@ Future<WorkspaceFile> exportWorkspace(
     colorIndex: project.colorIndex,
     environments: [for (final env in environments) _withoutSecrets(env)],
     groups: collections.groups,
-    endpoints: [for (final endpoint in collections.endpoints) _withoutCredentials(endpoint)],
+    endpoints: [for (final endpoint in collections.endpoints) withoutFilePaths(_withoutCredentials(endpoint))],
     flows: await store.readFlows(),
     hostNotes: await store.readHostNotes(),
     exportedAt: (now ?? DateTime.now)(),

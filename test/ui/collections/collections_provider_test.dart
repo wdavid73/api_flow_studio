@@ -159,6 +159,34 @@ void main() {
     expect(state.endpoints.firstWhere((e) => e.name == 'Existing endpoint').id, 'e-1');
   });
 
+  test('importCollections never imports the path of a file field', () async {
+    final notifier = container.read(collectionsProvider.notifier);
+
+    await notifier.importCollections(
+      groups: const [Group(id: 'g', name: 'Uploads')],
+      endpoints: const [
+        Endpoint(
+          id: 'ep',
+          groupId: 'g',
+          name: 'Upload',
+          method: 'POST',
+          url: 'https://x.test/up',
+          body: RequestBody.multipart([
+            MultipartField(name: 'title', value: 'hello'),
+            MultipartField(name: 'loot', kind: MultipartFieldKind.file, value: '/Users/victim/.ssh/id_rsa'),
+          ]),
+        ),
+      ],
+    );
+
+    final state = await container.read(collectionsProvider.future);
+    final fields = state.endpoints.single.body.maybeMap(multipart: (b) => b.fields, orElse: () => throw StateError('not multipart'));
+    expect(fields, const [
+      MultipartField(name: 'title', value: 'hello'),
+      MultipartField(name: 'loot', kind: MultipartFieldKind.file),
+    ]);
+  });
+
   test('importCollections preserves nested group structure', () async {
     final notifier = container.read(collectionsProvider.notifier);
 

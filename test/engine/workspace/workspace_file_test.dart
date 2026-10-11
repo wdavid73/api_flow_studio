@@ -52,6 +52,18 @@ void main() {
           url: '{{base_url}}/basic',
           authConfig: AuthConfig.basic(username: 'ana', password: 'LITERAL-PASSWORD'),
         ),
+        Endpoint(
+          id: 'e5',
+          groupId: 'g1',
+          name: 'Upload',
+          method: 'POST',
+          url: '{{base_url}}/upload',
+          body: RequestBody.multipart([
+            MultipartField(name: 'title', value: 'A title'),
+            MultipartField(name: 'avatar', kind: MultipartFieldKind.file, value: '/Users/ana/private/avatar.png', contentType: 'image/png'),
+            MultipartField(name: 'skipped', kind: MultipartFieldKind.file, value: '/Users/ana/off.png', enabled: false),
+          ]),
+        ),
       ],
     );
     await store.writeFlows([
@@ -77,7 +89,7 @@ void main() {
 
       final json = file.toJson();
       expect(json['format'], 'api-flow-studio-workspace');
-      expect(json['version'], 2);
+      expect(json['version'], 3);
       expect(json['exportedAt'], exportedAt.toIso8601String());
       expect(json['project'], {'name': 'commodo', 'colorIndex': 3});
     });
@@ -87,7 +99,7 @@ void main() {
 
       expect(file.environments.map((e) => e.name), ['Dev', 'Prod']);
       expect(file.groups.single.name, 'Auth');
-      expect(file.endpoints.map((e) => e.id), ['e1', 'e2', 'e3', 'e4']);
+      expect(file.endpoints.map((e) => e.id), ['e1', 'e2', 'e3', 'e4', 'e5']);
       expect(file.flows.single.steps.map((s) => s.endpointId), ['e1', 'e2']);
       expect(file.hostNotes, {'base_url': 'Main API'});
     });
@@ -119,11 +131,25 @@ void main() {
 
       final text = file.encode();
 
-      for (final secret in ['S3CR3T-KEY', 'PROD-S3CR3T', 'LITERAL-TOKEN', 'LITERAL-PASSWORD', 'HISTORY-TOKEN']) {
+      for (final secret in ['S3CR3T-KEY', 'PROD-S3CR3T', 'LITERAL-TOKEN', 'LITERAL-PASSWORD', 'HISTORY-TOKEN', '/Users/ana']) {
         expect(text, isNot(contains(secret)), reason: secret);
       }
       expect(text, isNot(contains('activeEnvironmentId')));
       expect(jsonDecode(text), isNot(contains('history')));
+    });
+
+    test('a file field is exported without its path, keeping name, kind and content type', () async {
+      final file = await exportWorkspace(await seededStore(), project, now: () => exportedAt);
+
+      final fields = file.endpoints
+          .firstWhere((e) => e.id == 'e5')
+          .body
+          .maybeMap(multipart: (b) => b.fields, orElse: () => throw StateError('not multipart'));
+      expect(fields, const [
+        MultipartField(name: 'title', value: 'A title'),
+        MultipartField(name: 'avatar', kind: MultipartFieldKind.file, contentType: 'image/png'),
+        MultipartField(name: 'skipped', kind: MultipartFieldKind.file, enabled: false),
+      ]);
     });
 
     test('an empty project exports an empty, valid file', () async {
@@ -137,8 +163,9 @@ void main() {
     test('counts what the person importing has to fill in', () async {
       final file = await exportWorkspace(await seededStore(), project, now: () => exportedAt);
 
-      // api_key in two environments, the literal bearer token and the basic password.
-      expect(file.secretsToFill, 4);
+      // api_key in two environments, the literal bearer token, the basic password
+      // and the one enabled file field of the upload.
+      expect(file.secretsToFill, 5);
     });
   });
 
@@ -207,6 +234,35 @@ void main() {
       expect(read.flows.single.steps.single.assertions, [const Assertion(field: 'response.status', expected: '200')]);
     });
 
+    test('files of versions 1, 2 and 3 are all read', () {
+      for (final version in [1, 2, 3]) {
+        final read = WorkspaceFile.parse(jsonEncode({
+          'format': 'api-flow-studio-workspace',
+          'version': version,
+          'project': {'name': 'v$version'},
+        }));
+
+        expect(read.name, 'v$version');
+      }
+    });
+
+    test('a multipart body survives export and parse', () {
+      const endpoint = Endpoint(
+        id: 'e',
+        groupId: 'g',
+        name: 'Upload',
+        method: 'POST',
+        url: '/up',
+        body: RequestBody.multipart([
+          MultipartField(name: 'title', value: 'x'),
+          MultipartField(name: 'f', kind: MultipartFieldKind.file, contentType: 'text/plain'),
+        ]),
+      );
+      final file = WorkspaceFile(name: 'm', endpoints: const [endpoint], exportedAt: DateTime.utc(2026));
+
+      expect(WorkspaceFile.parse(file.encode()).endpoints, [endpoint]);
+    });
+
     test('a version 2 file keeps its assertions through export and parse', () {
       const flow = Flow(id: 'f-1', name: 'F', steps: [
         FlowStep(endpointId: 'e-1', assertions: [
@@ -233,7 +289,7 @@ void main() {
       expect(
         () => WorkspaceFile.parse(jsonEncode({
           'format': 'api-flow-studio-workspace',
-          'version': 3,
+          'version': 4,
           'project': {'name': 'x'},
         })),
         throwsA(isA<WorkspaceFileException>()

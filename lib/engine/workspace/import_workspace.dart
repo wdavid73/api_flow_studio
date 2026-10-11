@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
 
+import '../models/file_paths.dart';
 import '../models/models.dart';
 import '../projects/project.dart';
 import '../projects/projects_repository.dart';
@@ -101,7 +102,8 @@ _Data _withNewIds(WorkspaceFile file) {
       () {
         final id = uuid.v4();
         endpointIds.putIfAbsent(e.id, () => id);
-        return e.copyWith(id: id);
+        // A path in a file from someone else is not a file you chose to send.
+        return withoutFilePaths(e).copyWith(id: id);
       }(),
   ];
 

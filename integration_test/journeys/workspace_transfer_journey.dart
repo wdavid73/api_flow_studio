@@ -75,7 +75,7 @@ void defineWorkspaceTransferJourney(JourneyHarness Function() harness) {
       await app.importWorkspaceFile(app.files.savedText!);
 
       expect(app.projectLabel('Default (2)'), findsOneWidget);
-      expect(find.text('Imported "Default (2)" — 1 secret value to fill in'), findsOneWidget);
+      expect(find.text('Imported "Default (2)" — 1 value to fill in'), findsOneWidget);
       expect(find.text('Demo API'), findsOneWidget);
       expect((await app.projects.projects()).map((p) => p.name), ['Default', 'Default (2)']);
       await app.goTo('Environments');

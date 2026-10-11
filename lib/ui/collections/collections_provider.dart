@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../engine/models/file_paths.dart';
 import '../../engine/models/models.dart';
 import '../../engine/storage/json_store.dart';
 import '../environments/environments_provider.dart' show jsonStoreProvider;
@@ -72,7 +73,8 @@ CollectionsState mergeImportedCollections(
 
   final newEndpoints = [
     for (final e in importedEndpoints)
-      if (idMap[e.groupId] case final newGroupId?) e.copyWith(id: uuid.v4(), groupId: newGroupId),
+      // A path in a file from someone else is not a file you chose to send.
+      if (idMap[e.groupId] case final newGroupId?) withoutFilePaths(e).copyWith(id: uuid.v4(), groupId: newGroupId),
   ];
 
   return current.copyWith(

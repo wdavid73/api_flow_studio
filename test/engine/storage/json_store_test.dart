@@ -115,6 +115,29 @@ void main() {
     });
   });
 
+  group('collections with a multipart body', () {
+    test('round-trip through disk without losing a field', () async {
+      const endpoints = [
+        Endpoint(
+          id: 'e',
+          groupId: 'g',
+          name: 'Upload',
+          method: 'POST',
+          url: '/up',
+          body: RequestBody.multipart([
+            MultipartField(name: 'title', value: 'hello'),
+            MultipartField(name: 'f', kind: MultipartFieldKind.file, value: '/tmp/a.png', contentType: 'image/png'),
+            MultipartField(name: 'off', value: 'x', enabled: false),
+          ]),
+        ),
+      ];
+
+      await store.writeCollections(groups: const [Group(id: 'g', name: 'G')], endpoints: endpoints);
+
+      expect((await store.readCollections()).endpoints, endpoints);
+    });
+  });
+
   group('flows written before assertions existed', () {
     test('a step with assertField/assertExpected is read as one equals assertion', () async {
       await File('${tempDir.path}/flows.json').writeAsString(jsonEncode([

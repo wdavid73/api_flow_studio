@@ -182,7 +182,7 @@ void main() {
       expect(state.active.colorIndex, 5);
       expect(state.projects.map((p) => p.name), ['commodo', 'shared']);
       expect((await state.store.readCollections()).endpoints.single.name, 'One');
-      expect(container.read(toastProvider), 'Imported "shared" — 1 secret value to fill in');
+      expect(container.read(toastProvider), 'Imported "shared" — 1 value to fill in');
     });
 
     transferTest('the original project is untouched', (tester) async {
@@ -234,7 +234,7 @@ void main() {
 
     transferTest('a file from a newer version says to update', (tester) async {
       await pump(tester);
-      dialogs.textToOpen = validFile.replaceFirst('"version": 1', '"version": 3');
+      dialogs.textToOpen = validFile.replaceFirst('"version": 1', '"version": 4');
 
       await choose(tester, 'import-workspace-button');
 

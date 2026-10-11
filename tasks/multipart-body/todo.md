@@ -14,7 +14,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-multipart-body.md](../../SPEC-multipart-
   - Verify: `fvm flutter test test/engine/curl test/ui/collections/paste_curl_dialog_test.dart`
   - Files: `lib/engine/curl/curl_parser.dart`, `test/engine/curl/curl_parser_test.dart`, `curl_builder_test.dart`
 
-- [ ] **M3: rutas fuera de exportaciones e importaciones; versión 3**
+- [x] **M3: rutas fuera de exportaciones e importaciones; versión 3**
   - Acceptance: export y ambos imports vacían rutas; `secretsToFill` suma los archivos habilitados; mensaje `N value(s) to fill in`; versión 3 (se leen 1–3, ≥4 rechazada); `collections.json` con multipart sin pérdida
   - Verify: `fvm flutter test test/engine/workspace test/engine/storage test/ui/projects test/ui/collections`
   - Files: `lib/engine/models/file_paths.dart`, `lib/engine/workspace/export_workspace.dart`, `import_workspace.dart`, `workspace_file.dart`, `lib/ui/collections/collections_provider.dart`, `lib/ui/workspace_transfer/workspace_transfer_actions.dart`, tests

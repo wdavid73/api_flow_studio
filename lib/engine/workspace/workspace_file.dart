@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../models/file_paths.dart';
 import '../models/models.dart';
 
 /// Value of the `format` field that marks a workspace file.
@@ -11,7 +12,9 @@ const String workspaceFormat = 'api-flow-studio-workspace';
 /// 2: steps carry a list of `assertions`. Version 1 files are still read (the
 /// old pair is migrated by `FlowStep.fromJson`); bumping it keeps an older app
 /// from opening a version 2 file and silently dropping its assertions.
-const int workspaceFormatVersion = 2;
+/// 3: a request body can be `multipart` (text and file fields; file paths are
+/// never written). Versions 1 and 2 are still read.
+const int workspaceFormatVersion = 3;
 
 /// Largest workspace text read (characters). A bigger file is refused before it
 /// is parsed.
@@ -62,8 +65,9 @@ class WorkspaceFile {
   final Map<String, String> hostNotes;
   final DateTime exportedAt;
 
-  /// How many values the person who imports the file has to type in: secret
-  /// variables and request credentials that came empty.
+  /// How many values the person who imports the file has to fill in: secret
+  /// variables and request credentials that came empty, and the files of multipart
+  /// bodies (a path is never imported, so each one has to be chosen again).
   int get secretsToFill {
     var count = 0;
     for (final env in environments) {
@@ -76,7 +80,7 @@ class WorkspaceFile {
         _ => 0,
       };
     }
-    return count;
+    return count + filePathsToFill(endpoints);
   }
 
   Map<String, dynamic> toJson() => {
