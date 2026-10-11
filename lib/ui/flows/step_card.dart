@@ -6,6 +6,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../theme/widgets/json_view.dart';
 import '../theme/widgets/method_badge.dart';
+import 'assertions_editor.dart';
 
 /// One step in the flow builder's vertical pipeline. [endpoint] is null
 /// when the step's endpointId no longer resolves to a saved endpoint
@@ -198,34 +199,10 @@ class StepCard extends StatelessWidget {
               label: const Text('Add extracted variable'),
             ),
             const Divider(height: AppSpacing.lg * 2),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    key: ValueKey('assert-field-$index'),
-                    initialValue: _firstAssertion.field,
-                    decoration: const InputDecoration(
-                      labelText: 'Assert field (optional)',
-                      hintText: 'response.status',
-                      isDense: true,
-                    ),
-                    onChanged: (value) => _setFirstAssertion(_firstAssertion.copyWith(field: value)),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: TextFormField(
-                    key: ValueKey('assert-expected-$index'),
-                    initialValue: _firstAssertion.expected,
-                    decoration: const InputDecoration(
-                      labelText: 'Expected value',
-                      hintText: '200',
-                      isDense: true,
-                    ),
-                    onChanged: (value) => _setFirstAssertion(_firstAssertion.copyWith(expected: value)),
-                  ),
-                ),
-              ],
+            AssertionsEditor(
+              stepIndex: index,
+              assertions: step.assertions,
+              onChanged: (assertions) => onUpdateStep(step.copyWith(assertions: assertions)),
             ),
             SwitchListTile(
               key: ValueKey('stop-on-failure-$index'),
@@ -238,17 +215,6 @@ class StepCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  // Stand-in editor: the two fields edit the first assertion until the
-  // assertion list editor replaces them.
-  Assertion get _firstAssertion =>
-      step.assertions.isEmpty ? const Assertion(field: '') : step.assertions.first;
-
-  void _setFirstAssertion(Assertion assertion) {
-    final rest = step.assertions.skip(1);
-    final blank = assertion.field.isEmpty && assertion.expected.isEmpty;
-    onUpdateStep(step.copyWith(assertions: [if (!blank) assertion, ...rest]));
   }
 
   /// The endpoint's raw JSON body text, or null if it has no body / a

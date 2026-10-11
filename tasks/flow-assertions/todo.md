@@ -19,7 +19,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-assertions.md](../../SPEC-flow-asse
   - Verify: `fvm flutter test test/engine/workspace`
   - Files: `lib/engine/workspace/workspace_file.dart`, `test/engine/workspace/workspace_file_test.dart`, `test/engine/workspace/*`
 
-- [ ] **A4: editor de assertions**
+- [x] **A4: editor de assertions**
   - Acceptance: filas campo/operador/esperado/quitar + `Add assertion` (propone `response.status == 200`); `exists`/`not exists` ocultan el esperado; persiste vía `onUpdateStep`
   - Verify: `fvm flutter test test/ui/flows/step_card_editor_test.dart test/ui/flows/flow_builder_screen_test.dart`
   - Files: `lib/ui/flows/step_card.dart`, `test/ui/flows/step_card_editor_test.dart`
