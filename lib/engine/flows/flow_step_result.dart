@@ -1,8 +1,21 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../http/executed_response.dart';
+import '../models/assertion.dart';
 
 part 'flow_step_result.freezed.dart';
+
+/// The outcome of one [Assertion] against a response. [actual] is the value
+/// found (null if missing) and [message] says why it failed (null when [passed]).
+@freezed
+class AssertionResult with _$AssertionResult {
+  const factory AssertionResult({
+    required Assertion assertion,
+    required bool passed,
+    String? actual,
+    String? message,
+  }) = _AssertionResult;
+}
 
 enum FlowStepStatus { success, failure, skipped }
 

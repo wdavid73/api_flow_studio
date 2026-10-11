@@ -1,3 +1,4 @@
+export 'assertion.dart';
 export 'auth_config.dart';
 export 'endpoint.dart';
 export 'environment.dart';

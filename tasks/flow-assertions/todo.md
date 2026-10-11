@@ -2,7 +2,7 @@
 
 Plan: [plan.md](plan.md) · Spec: [SPEC-flow-assertions.md](../../SPEC-flow-assertions.md)
 
-- [ ] **A1: `Assertion`, `AssertionResult` y evaluador**
+- [x] **A1: `Assertion`, `AssertionResult` y evaluador**
   - Acceptance: 9 operadores según la spec; ruta o regex inválida → fallo sin excepción; `>`/`<` con texto → fallo; `{{variable}}` en esperado; campo vacío = sin configurar
   - Verify: `fvm dart run build_runner build --delete-conflicting-outputs && fvm flutter test test/engine/flows/assertion_evaluator_test.dart`
   - Files: `lib/engine/models/assertion.dart`, `lib/engine/models/models.dart`, `lib/engine/flows/assertion_evaluator.dart`, `test/engine/flows/assertion_evaluator_test.dart`
