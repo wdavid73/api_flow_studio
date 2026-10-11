@@ -6,6 +6,7 @@ import 'journeys/flow_journey.dart';
 import 'journeys/history_journey.dart';
 import 'journeys/hosts_journey.dart';
 import 'journeys/keyboard_journey.dart';
+import 'journeys/import_journey.dart';
 import 'journeys/multipart_journey.dart';
 import 'journeys/navigation_journey.dart';
 import 'journeys/persistence_journey.dart';
@@ -45,4 +46,5 @@ void main() {
   defineProjectsJourney(() => harness);
   defineWorkspaceTransferJourney(() => harness);
   defineMultipartJourney(() => harness);
+  defineImportJourney(() => harness);
 }

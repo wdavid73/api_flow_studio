@@ -24,9 +24,9 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-import-core.md](../../SPEC-import-core.m
   - Verify: `fvm flutter test test/ui/import test/ui/collections`
   - Files: `lib/ui/import/import_file_dialogs.dart`, `import_actions.dart`, `import_summary_dialog.dart`, `lib/ui/collections/sidebar_tree.dart`, tests
 
-- [ ] **I5: journey y README**
+- [x] **I5: journey y README**
   - Acceptance: importar desde el sidebar y ver carpeta y toast; dos veces → `Nombre (2)`; README con la sección "Importing"; criterios marcados
   - Verify: `fvm flutter test && fvm flutter analyze`
   - Files: `integration_test/journeys/import_journey.dart`, `integration_test/support/`, `integration_test/app_test.dart`, `test/integration/journeys_test.dart`, `README.md`, `SPEC-import-core.md`
 
-- [ ] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana
+- [x] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana

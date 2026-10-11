@@ -253,3 +253,25 @@ tests, sin `print`, estilo de línea largo del repo.
    Fuera de v1, pero se puede construir encima de `ImportSummary` si lo pides.
 5. **El import de workspace** (menú del proyecto) sigue siendo aparte, porque crea un proyecto entero
    y no una carpeta. ¿Te parece bien que el sidebar solo lo explique y no lo redirija?
+
+## Estado
+
+Implementado de I1 a I5 (`tasks/import-core/`). Criterios de éxito y dónde se comprueban:
+
+| # | Criterio | Pruebas |
+|---|---|---|
+| 1 | Importar `sample-endpoints.json` crea carpetas y requests y muestra el toast; dos veces numera la raíz | `app_collections_importer_test.dart`, `import_file_test.dart`, `import_journey.dart` |
+| 2 | Otro formato, workspace, demasiado grande o vacío se rechazan con su mensaje y no cambian nada | `run_import_test.dart`, `import_file_test.dart`, `import_journey.dart` |
+| 3 | Un request con carpeta ausente se omite y aparece en los avisos | `app_collections_importer_test.dart`, `import_journey.dart` |
+| 4 | Ambientes con nombres únicos e ids nuevos, ninguno activo, el activo sigue | `apply_import_test.dart` |
+| 5 | Un fallo al escribir deja colecciones y ambientes como estaban | `apply_import_test.dart` (`all or nothing`) |
+| 6 | Con avisos, diálogo de resumen; sin avisos, toast | `import_file_test.dart`, `import_journey.dart` |
+| 7 | Un importador nuevo se añade solo en `importers` | `run_import_test.dart` (importadores falsos), `import_registry.dart` |
+| 8 | `analyze` y `test` en verde | CI |
+
+Decisiones al implementar: `ImportSource` no se pasa a los importadores como texto sino con su JSON
+decodificado una vez; `applyImport` recibe `ref.read` (o `container.read`) en lugar de los notifiers,
+porque `AsyncNotifier.future` es protegido; `EnvironmentsNotifier.addImported` escribe en disco
+**antes** de actualizar el estado, para que un fallo no deje ambientes "importados" que no están
+guardados; los avisos de carpetas con padre ausente y de requests huérfanos se generan en el
+importador, donde todavía se conoce el nombre.

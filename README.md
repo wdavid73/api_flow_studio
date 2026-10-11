@@ -38,6 +38,10 @@ Beyond a basic request/response cycle, it supports:
   extension unless you set one. The file is read when the request is sent, never
   stored. A missing or unchosen file fails the request with a clear message
   instead of sending anything.
+- **Import** (sidebar): bring a file of requests into the active project as a **new
+  folder**, with a summary of what came in and what had to be left out. Today it
+  reads the collections JSON that the sidebar's own Export writes (and the bundled
+  `sample-endpoints.json`); see [Importing](#importing).
 - **Paste-a-curl-command** to prefill a new request's method, URL, headers,
   and body (`-d`, and `-F`/`--form`/`--form-string` for Form Data); the copied
   curl writes Form Data back as `-F`.
@@ -174,6 +178,27 @@ executable you're running (see above), a freshly downloaded build always
 starts empty. Use the **Import** button in the sidebar to load that file
 (or any collections JSON exported from another machine via the **Export**
 button) and get a few working example endpoints right away.
+
+## Importing
+
+The **Import** button of the sidebar works out what a file is from its contents (not
+its extension) and brings it in:
+
+- **It never overwrites or merges.** Everything arrives as new folders, requests and
+  environments with new ids; a top-level folder whose name is already taken becomes
+  `Name (2)`, `Name (3)`…, so importing the same file twice leaves two folders. Imported
+  environments get their own names and **none is made active**.
+- **All or nothing.** If something fails while saving, the project is left as it was.
+- **It tells you what it left out.** A clean import shows a one-line toast
+  (`Imported …: 12 requests in 4 folders`); one that had to drop or change something
+  opens a summary that lists each item. A request whose folder is not in the file, for
+  example, is skipped and named there.
+- **File paths are never imported** from a Form Data body (see below): the field arrives
+  as "no file chosen".
+- A file that is not a format it knows says so and lists the formats it does know; a
+  **workspace** file is explained, not imported (open it with Project ▸ Import
+  workspace…, which makes a whole new project); files over 32 MB are refused without
+  being read.
 
 ## Projects and workspaces
 

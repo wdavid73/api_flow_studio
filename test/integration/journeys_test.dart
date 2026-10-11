@@ -3,6 +3,7 @@ import '../../integration_test/journeys/flow_journey.dart';
 import '../../integration_test/journeys/history_journey.dart';
 import '../../integration_test/journeys/hosts_journey.dart';
 import '../../integration_test/journeys/keyboard_journey.dart';
+import '../../integration_test/journeys/import_journey.dart';
 import '../../integration_test/journeys/multipart_journey.dart';
 import '../../integration_test/journeys/navigation_journey.dart';
 import '../../integration_test/journeys/persistence_journey.dart';
@@ -32,4 +33,5 @@ void main() {
   defineProjectsJourney(() => harness);
   defineWorkspaceTransferJourney(() => harness);
   defineMultipartJourney(() => harness);
+  defineImportJourney(() => harness);
 }
