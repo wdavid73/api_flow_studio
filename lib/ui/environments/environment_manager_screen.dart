@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/models/models.dart';
+import '../../engine/variables/dynamic_values.dart';
 import '../shared/list_detail_layout.dart';
 import '../shell/environment_kind.dart';
 import '../shell/header_ghost_button.dart';
@@ -333,6 +334,21 @@ class _VariableEditor extends ConsumerWidget {
                               style: AppTypography.codeSm.copyWith(color: AppColors.secondary),
                             ),
                             const TextSpan(text: ' syntax.'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text.rich(
+                        key: const Key('generated-tokens-tip'),
+                        TextSpan(
+                          style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
+                          children: [
+                            const TextSpan(text: 'A fresh value is generated on every send: '),
+                            for (final name in DynamicValues.names.indexed)
+                              TextSpan(
+                                text: '{{\$${name.$2}}}${name.$1 == DynamicValues.names.length - 1 ? '.' : ', '}',
+                                style: AppTypography.codeSm.copyWith(color: AppColors.secondary),
+                              ),
                           ],
                         ),
                       ),

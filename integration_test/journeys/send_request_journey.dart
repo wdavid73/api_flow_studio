@@ -82,5 +82,21 @@ void defineSendRequestJourney(JourneyHarness Function() harness) {
       await app.goTo('History');
       expect(find.byKey(const Key('history-screen-empty')), findsOneWidget);
     });
+
+    journeyTest('a {{\$token}} in the url is generated anew on every send', (tester) async {
+      final app = await harness().launchApp(tester);
+
+      await app.setUrl(r'{{base_url}}/items?id={{$uuid}}&email={{$randomEmail}}');
+      await app.send();
+      await app.send();
+
+      expect(app.backend.calls, hasLength(2));
+      final first = app.backend.calls[0].uri.queryParameters;
+      final second = app.backend.calls[1].uri.queryParameters;
+      expect(first['id'], matches(RegExp(r'^[0-9a-f-]{36}$')));
+      expect(first['email'], matches(RegExp(r'^test\.[a-z0-9]{8}@example\.com$')));
+      expect(second['id'], isNot(first['id']));
+      expect(second['email'], isNot(first['email']));
+    });
   });
 }

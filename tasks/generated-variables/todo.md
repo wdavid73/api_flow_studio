@@ -29,9 +29,9 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-generated-variables.md](../../SPEC-gener
   - Verify: `fvm flutter test test/ui/flows`
   - Files: `lib/ui/flows/flow_run_view_screen.dart`, `lib/ui/flows/run_step_inspector.dart` (si hace falta), `test/ui/flows/`
 
-- [ ] **G6: ayuda, journey y docs**
+- [x] **G6: ayuda, journey y docs**
   - Acceptance: la nota de sintaxis del gestor de ambientes lista los tokens; journey "dos envíos, dos correos distintos" verde; README documenta los tokens
   - Verify: `fvm flutter test test/integration`
   - Files: `lib/ui/environments/environment_manager_screen.dart`, `test/integration/`, `integration_test/`, `README.md`
 
-- [ ] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana
+- [x] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana

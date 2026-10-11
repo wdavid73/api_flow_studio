@@ -133,4 +133,18 @@ void main() {
       expect(await store.readEnvironments(), isEmpty);
     });
   });
+
+  testWidgets('the syntax tip lists the generated {{\$tokens}}', (tester) async {
+    await tester.runAsync(() async {
+      await pumpScreen(tester);
+      await tester.tap(find.byKey(const Key('new-environment-button')));
+      await settle(tester);
+
+      expect(find.byKey(const Key('generated-tokens-tip')), findsOneWidget);
+      final text = tester.widget<Text>(find.byKey(const Key('generated-tokens-tip'))).textSpan!.toPlainText();
+      for (final name in ['uuid', 'timestamp', 'isoTimestamp', 'randomInt', 'randomString', 'randomEmail']) {
+        expect(text, contains('{{\$$name}}'));
+      }
+    });
+  });
 }

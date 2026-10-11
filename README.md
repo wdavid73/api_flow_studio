@@ -7,6 +7,13 @@ Beyond a basic request/response cycle, it supports:
 
 - **Multiple environments** (dev/qa/prod) with `{{variable}}` interpolation
   in the URL, headers, and body.
+- **Generated values**: `{{$uuid}}`, `{{$timestamp}}` (epoch seconds),
+  `{{$isoTimestamp}}`, `{{$randomInt}}`, `{{$randomString}}` and
+  `{{$randomEmail}}` in the URL, query, headers, body and authentication. Each
+  occurrence gets a fresh value every time the request is sent, so a flow can
+  run again without clashing with data it created before. The "Request Sent"
+  tab of a flow step shows the URL that was really sent; copied curl commands
+  keep the token as written.
 - **Collections** of saved requests, grouped into nested folders.
 - **Flows** — ordered sequences of saved requests where each step can
   extract a value from its response (dot-notation, e.g.

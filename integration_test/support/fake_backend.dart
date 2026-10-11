@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:api_flow_studio/engine/http/executed_response.dart';
 import 'package:api_flow_studio/engine/http/request_executor.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
+import 'package:api_flow_studio/engine/variables/dynamic_values.dart';
 import 'package:api_flow_studio/engine/variables/interpolator.dart';
 
 import 'fixtures.dart';
@@ -53,6 +54,9 @@ class FakeBackend implements RequestExecutor {
   /// replaces the demo one with the same key.
   final Map<String, FakeRoute> routes;
 
+  /// Fills `{{$uuid}}`-style tokens, like the real executor does.
+  final DynamicValues _dynamicValues = DynamicValues();
+
   /// Every call received, oldest first.
   final List<RecordedCall> calls = [];
 
@@ -64,10 +68,10 @@ class FakeBackend implements RequestExecutor {
     required Map<String, String> variables,
   }) async {
     final headers = {
-      for (final h in interpolateEntries(endpoint.headers, variables))
+      for (final h in interpolateEntries(endpoint.headers, variables, dynamicValues: _dynamicValues))
         if (h.enabled) h.key: h.value,
     };
-    final body = interpolateBody(endpoint.body, variables).when(
+    final body = interpolateBody(endpoint.body, variables, dynamicValues: _dynamicValues).when(
       none: () => null,
       json: (raw) => raw,
       formUrlEncoded: (fields) => [for (final f in fields) if (f.enabled) '${f.key}=${f.value}'].join('&'),
@@ -75,7 +79,7 @@ class FakeBackend implements RequestExecutor {
 
     final call = RecordedCall(
       method: endpoint.method,
-      url: interpolate(endpoint.url, variables),
+      url: interpolate(endpoint.url, variables, dynamicValues: _dynamicValues),
       headers: headers,
       body: body,
       variables: variables,
