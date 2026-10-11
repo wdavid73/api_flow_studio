@@ -264,7 +264,28 @@ void main() {
 
       expect(result.environments.single.variables.keys, ['base_url', 'id', 'A_token']);
     });
+    group('a name two things want', () {
+    test('a credential stays secret when a parameter of the same name defined the variable first', () {
+      final result = parse(
+        schemes: {'api_key': {'type': 'apiKey', 'name': 'X-Key', 'in': 'header'}},
+        paths: {
+          '/a': {
+            'get': {
+              ...operation(security: [{'api_key': <String>[]}]),
+              'parameters': [
+                {'name': 'api_key', 'in': 'query', 'required': true, 'schema': {'type': 'string'}},
+              ],
+            },
+          },
+        },
+      );
+
+      final variable = result.environments.single.variables['api_key']!;
+      expect(variable.secret, isTrue);
+      expect(variable.value, isEmpty);
+    });
   });
+});
 }
 
 const Object _unset = Object();

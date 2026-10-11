@@ -25,8 +25,15 @@ class OpenApiContext {
   final Map<String, EnvironmentVariable> variables = {};
 
   /// Makes sure the environment has [name]. The first value given wins: two operations
-  /// can use the same parameter name for different things, and only one value fits.
+  /// can use the same parameter name for different things, and only one value fits. The
+  /// exception is a secret: if anything needs [name] to be one (a credential named like a
+  /// parameter), it is secret and empty, whoever defined it first.
   void defineVariable(String name, String value, {bool secret = false}) {
-    variables.putIfAbsent(name, () => EnvironmentVariable(value: value, secret: secret));
+    final existing = variables[name];
+    if (existing == null) {
+      variables[name] = EnvironmentVariable(value: value, secret: secret);
+    } else if (secret && !existing.secret) {
+      variables[name] = EnvironmentVariable(value: '', secret: true);
+    }
   }
 }
