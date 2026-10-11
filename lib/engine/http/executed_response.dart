@@ -16,8 +16,8 @@ class ExecutedResponse with _$ExecutedResponse {
     @Default(0) int sizeBytes,
     String? error,
 
-    /// The URL actually sent, with every `{{variable}}` and `{{\$token}}`
-    /// resolved. In memory only -- it is never persisted.
+    /// The URL actually sent -- every `{{variable}}` and `{{\$token}}` resolved
+    /// and the enabled query params appended. In memory only, never persisted.
     String? requestUrl,
   }) = _ExecutedResponse;
 }

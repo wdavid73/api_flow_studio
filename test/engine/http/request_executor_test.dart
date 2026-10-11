@@ -359,7 +359,58 @@ void main() {
             queryParameters: any(named: 'queryParameters'),
             options: any(named: 'options'),
           )).captured.cast<String>();
-      expect(urls, [first.requestUrl, second.requestUrl]);
+      // dio gets the url and the params separately; requestUrl is the two together.
+      expect(first.requestUrl, startsWith('${urls[0]}?n='));
+      expect(second.requestUrl, startsWith('${urls[1]}?n='));
+    });
+
+    test('requestUrl includes the query params that were sent', () async {
+      final response = await executor.execute(
+        const Endpoint(
+          id: 'e-q',
+          groupId: 'g-1',
+          name: 'Search',
+          method: 'GET',
+          url: 'https://api.test/items',
+          queryParams: [
+            KeyValueEntry(key: 'q', value: 'apple'),
+            KeyValueEntry(key: 'page', value: '{{\$randomInt}}'),
+            KeyValueEntry(key: 'off', value: 'x', enabled: false),
+          ],
+        ),
+        variables: const {},
+      );
+
+      final uri = Uri.parse(response.requestUrl!);
+      expect(uri.path, '/items');
+      expect(uri.queryParameters.keys, ['q', 'page']);
+      expect(uri.queryParameters['q'], 'apple');
+      expect(uri.queryParameters['page'], matches(RegExp(r'^\d+$')));
+    });
+
+    test('requestUrl adds the params to a url that already has a query', () async {
+      final response = await executor.execute(
+        const Endpoint(
+          id: 'e-q',
+          groupId: 'g-1',
+          name: 'Search',
+          method: 'GET',
+          url: 'https://api.test/items?sort=asc',
+          queryParams: [KeyValueEntry(key: 'q', value: 'apple')],
+        ),
+        variables: const {},
+      );
+
+      expect(response.requestUrl, 'https://api.test/items?sort=asc&q=apple');
+    });
+
+    test('requestUrl is the url untouched when there are no query params', () async {
+      final response = await executor.execute(
+        const Endpoint(id: 'e-q', groupId: 'g-1', name: 'Plain', method: 'GET', url: '{{base}}/items'),
+        variables: const {'base': 'https://api.test'},
+      );
+
+      expect(response.requestUrl, 'https://api.test/items');
     });
 
     test('requestUrl is also reported when the transport fails', () async {

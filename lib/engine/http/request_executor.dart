@@ -53,6 +53,8 @@ class RequestExecutor {
     }
     _applyAuth(endpoint.authConfig, variables, headers);
 
+    final sentUrl = _withQuery(url, queryParams);
+
     final stopwatch = Stopwatch()..start();
     try {
       final response = await _dio.request<dynamic>(
@@ -75,16 +77,25 @@ class RequestExecutor {
         body: response.data,
         elapsedMs: stopwatch.elapsedMilliseconds,
         sizeBytes: _sizeOf(response.data),
-        requestUrl: url,
+        requestUrl: sentUrl,
       );
     } on DioException catch (e) {
       stopwatch.stop();
       return ExecutedResponse(
         elapsedMs: stopwatch.elapsedMilliseconds,
         error: e.message ?? e.toString(),
-        requestUrl: url,
+        requestUrl: sentUrl,
       );
     }
+  }
+
+  /// [url] with [params] appended the way dio does it, so what the UI shows as
+  /// "sent" includes the Params tab. [url] is not parsed: it may still hold an
+  /// unresolved `{{variable}}`, which is not a valid URI.
+  String _withQuery(String url, Map<String, String> params) {
+    if (params.isEmpty) return url;
+    final query = Uri(queryParameters: params).query;
+    return '$url${url.contains('?') ? '&' : '?'}$query';
   }
 
   Map<String, String> _resolveEnabled(List<KeyValueEntry> entries) => {
