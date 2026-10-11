@@ -5,6 +5,9 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
+/// The most warnings the dialog lays out: a file can have thousands, and each is a widget.
+const int maxListedImportWarnings = 200;
+
 /// What an import did, and everything it had to leave out or change, listed.
 Future<void> showImportSummaryDialog(BuildContext context, ImportSummary summary) {
   return showDialog<void>(
@@ -29,7 +32,7 @@ Future<void> showImportSummaryDialog(BuildContext context, ImportSummary summary
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                  for (final (i, warning) in summary.warnings.indexed)
+                  for (final (i, warning) in summary.warnings.take(maxListedImportWarnings).indexed)
                     Padding(
                       key: ValueKey('import-warning-$i'),
                       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
@@ -39,6 +42,15 @@ Future<void> showImportSummaryDialog(BuildContext context, ImportSummary summary
                           if (warning.where.isNotEmpty) SelectableText(warning.where, style: AppTypography.codeSm),
                           SelectableText(warning.message, style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant)),
                         ],
+                      ),
+                    ),
+                  if (summary.warnings.length > maxListedImportWarnings)
+                    Padding(
+                      key: const Key('import-warnings-hidden'),
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                      child: Text(
+                        '…and ${summary.warnings.length - maxListedImportWarnings} more not shown',
+                        style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant),
                       ),
                     ),
                 ],
