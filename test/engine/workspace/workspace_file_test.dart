@@ -77,7 +77,7 @@ void main() {
 
       final json = file.toJson();
       expect(json['format'], 'api-flow-studio-workspace');
-      expect(json['version'], 1);
+      expect(json['version'], 2);
       expect(json['exportedAt'], exportedAt.toIso8601String());
       expect(json['project'], {'name': 'commodo', 'colorIndex': 3});
     });
@@ -188,11 +188,52 @@ void main() {
       rejects(jsonEncode({'format': 'something-else', 'version': 1}), WorkspaceFileProblem.notAWorkspace);
     });
 
+    test('a version 1 file with the old assertion pair reads it as an assertion', () {
+      final read = WorkspaceFile.parse(jsonEncode({
+        'format': 'api-flow-studio-workspace',
+        'version': 1,
+        'project': {'name': 'old'},
+        'flows': [
+          {
+            'id': 'f-1',
+            'name': 'Old flow',
+            'steps': [
+              {'endpointId': 'e-1', 'assertField': 'response.status', 'assertExpected': '200'},
+            ],
+          },
+        ],
+      }));
+
+      expect(read.flows.single.steps.single.assertions, [const Assertion(field: 'response.status', expected: '200')]);
+    });
+
+    test('a version 2 file keeps its assertions through export and parse', () {
+      const flow = Flow(id: 'f-1', name: 'F', steps: [
+        FlowStep(endpointId: 'e-1', assertions: [
+          Assertion(field: 'response.elapsedMs', operator: AssertionOperator.lessThan, expected: '800'),
+        ]),
+      ]);
+      final file = WorkspaceFile(
+        name: 'new',
+        colorIndex: 0,
+        environments: const [],
+        groups: const [],
+        endpoints: const [],
+        flows: const [flow],
+        hostNotes: const {},
+        exportedAt: DateTime.utc(2026, 10, 11),
+      );
+
+      final read = WorkspaceFile.parse(file.encode());
+
+      expect(read.flows, [flow]);
+    });
+
     test('a newer version of the format is rejected, saying so', () {
       expect(
         () => WorkspaceFile.parse(jsonEncode({
           'format': 'api-flow-studio-workspace',
-          'version': 2,
+          'version': 3,
           'project': {'name': 'x'},
         })),
         throwsA(isA<WorkspaceFileException>()

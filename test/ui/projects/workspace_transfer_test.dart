@@ -234,7 +234,7 @@ void main() {
 
     transferTest('a file from a newer version says to update', (tester) async {
       await pump(tester);
-      dialogs.textToOpen = validFile.replaceFirst('"version": 1', '"version": 2');
+      dialogs.textToOpen = validFile.replaceFirst('"version": 1', '"version": 3');
 
       await choose(tester, 'import-workspace-button');
 

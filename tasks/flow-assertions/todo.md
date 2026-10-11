@@ -14,7 +14,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-assertions.md](../../SPEC-flow-asse
 
 - [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
-- [ ] **A3: workspace format v2**
+- [x] **A3: workspace format v2**
   - Acceptance: export `version: 2`; lee 1 y 2 (v1 con assertion legada se migra); ≥3 → `newerVersion`; el test de "versión futura" pasa de 2 a 3
   - Verify: `fvm flutter test test/engine/workspace`
   - Files: `lib/engine/workspace/workspace_file.dart`, `test/engine/workspace/workspace_file_test.dart`, `test/engine/workspace/*`

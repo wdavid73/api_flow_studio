@@ -6,7 +6,12 @@ import '../models/models.dart';
 const String workspaceFormat = 'api-flow-studio-workspace';
 
 /// The version of the format this app writes and the newest one it reads.
-const int workspaceFormatVersion = 1;
+///
+/// 1: steps carried a single `assertField`/`assertExpected` pair.
+/// 2: steps carry a list of `assertions`. Version 1 files are still read (the
+/// old pair is migrated by `FlowStep.fromJson`); bumping it keeps an older app
+/// from opening a version 2 file and silently dropping its assertions.
+const int workspaceFormatVersion = 2;
 
 /// Largest workspace text read (characters). A bigger file is refused before it
 /// is parsed.
