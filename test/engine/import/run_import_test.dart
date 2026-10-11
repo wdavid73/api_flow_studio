@@ -137,6 +137,20 @@ void main() {
     });
   });
 
+  group('checkImportFileSize', () {
+    test('lets a file at the limit through and refuses one byte more', () {
+      expect(() => checkImportFileSize(maxImportFileBytes), returnsNormally);
+      expect(
+        () => checkImportFileSize(maxImportFileBytes + 1),
+        throwsA(isA<ImportException>().having((e) => e.message, 'message', 'That file is too large to import (the limit is 32 MB).')),
+      );
+    });
+
+    test('the limit is 32 MB', () {
+      expect(maxImportFileBytes, 32 * 1024 * 1024);
+    });
+  });
+
   group('supportedExtensions', () {
     test('is every extension the importers declare, once', () {
       final a = FakeImporter('A', 'a');

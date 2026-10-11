@@ -19,7 +19,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-import-core.md](../../SPEC-import-core.m
 
 - [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
-- [ ] **I4: la UI del botón Import**
+- [x] **I4: la UI del botón Import**
   - Acceptance: diálogo inyectable con tamaño antes del texto; toast con cifras; `import-summary-dialog` con avisos; cancelar no hace nada; workspace → pista; formato desconocido → mensaje; >32 MB sin leer; error no cambia nada
   - Verify: `fvm flutter test test/ui/import test/ui/collections`
   - Files: `lib/ui/import/import_file_dialogs.dart`, `import_actions.dart`, `import_summary_dialog.dart`, `lib/ui/collections/sidebar_tree.dart`, tests

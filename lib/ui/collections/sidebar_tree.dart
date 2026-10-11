@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../engine/models/models.dart';
+import '../import/import_actions.dart';
 import '../request_builder/request_draft_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -113,10 +114,10 @@ class _Loaded extends ConsumerWidget {
               ),
               IconButton(
                 key: const Key('import-collections-button'),
-                tooltip: 'Import endpoints (JSON)',
+                tooltip: 'Import…',
                 style: _headerIconButtonStyle,
                 icon: const Icon(Icons.file_upload_outlined, size: 16),
-                onPressed: () => _importCollections(context, ref),
+                onPressed: () => importFile(context, ref),
               ),
               IconButton(
                 key: const Key('export-collections-button'),
@@ -187,54 +188,10 @@ class _Loaded extends ConsumerWidget {
   }
 }
 
-/// Opens a native "Open file" dialog, parses the picked file as a
-/// `{groups, endpoints}` collections JSON (same shape [JsonStore] persists
-/// to `collections.json`), and merges it into the current workspace via
-/// [CollectionsNotifier.importCollections]. Cancelling the dialog is a
-/// silent no-op; a file that isn't valid JSON in the expected shape shows
-/// an error instead of touching existing data.
-Future<void> _importCollections(BuildContext context, WidgetRef ref) async {
-  final result = await FilePicker.platform.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: ['json'],
-    dialogTitle: 'Import endpoints',
-  );
-  final path = result?.files.single.path;
-  if (path == null) return;
-
-  try {
-    final decoded = jsonDecode(await File(path).readAsString()) as Map<String, dynamic>;
-    final groups = ((decoded['groups'] as List?) ?? const [])
-        .map((e) => Group.fromJson(e as Map<String, dynamic>))
-        .toList();
-    final endpoints = ((decoded['endpoints'] as List?) ?? const [])
-        .map((e) => Endpoint.fromJson(e as Map<String, dynamic>))
-        .toList();
-
-    final counts = await ref
-        .read(collectionsProvider.notifier)
-        .importCollections(groups: groups, endpoints: endpoints);
-
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-          'Imported ${counts.groupCount} folder(s) and ${counts.endpointCount} endpoint(s).',
-        ),
-      ));
-    }
-  } catch (_) {
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Could not import file: not a valid endpoints JSON.'),
-      ));
-    }
-  }
-}
-
 /// Opens a native "Save file" dialog and writes the current workspace's
 /// groups/endpoints to it in the same shape [JsonStore] uses for
 /// `collections.json`, so the result can later be picked back up by
-/// [_importCollections] (on this machine or another one).
+/// the Import button (on this machine or another one).
 Future<void> _exportCollections(
   BuildContext context,
   WidgetRef ref,

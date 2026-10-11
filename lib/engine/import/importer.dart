@@ -30,6 +30,18 @@ abstract interface class Importer {
   ImportResult parse(ImportSource source);
 }
 
+/// The biggest file the Import button will read (bytes). A large OpenAPI spec is
+/// 5-10 MB; this leaves room, and stops a file that would only fill the memory.
+const int maxImportFileBytes = 32 * 1024 * 1024;
+
+/// Throws [ImportException] when a file of [sizeBytes] is over the limit. Call it
+/// with the size the file system reports, *before* reading the file.
+void checkImportFileSize(int sizeBytes) {
+  if (sizeBytes > maxImportFileBytes) {
+    throw const ImportException('That file is too large to import (the limit is 32 MB).');
+  }
+}
+
 const String _workspaceHint = 'This is a workspace file. Use Project ▸ Import workspace… to open it as a new project.';
 
 /// Picks the importer that owns [text] and runs it. Throws [ImportException] when
