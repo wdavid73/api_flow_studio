@@ -180,6 +180,42 @@ void main() {
     });
   });
 
+  group('long actual values', () {
+    final big = 'x' * 5000;
+    final bigResponse = <String, dynamic>{'status': 200, 'body': big};
+
+    AssertionResult runBig(AssertionOperator op, [String expected = 'y']) => evaluateAssertion(
+          Assertion(field: 'response.body', operator: op, expected: expected),
+          bigResponse,
+          const {},
+        );
+
+    test('are cut in the message but kept whole in the result', () {
+      final r = runBig(AssertionOperator.equals);
+
+      expect(r.actual, big);
+      expect(r.message!.length, lessThan(400));
+      expect(r.message, contains('…'));
+      expect(r.message, startsWith('Assertion failed: expected response.body == "y", got "${'x' * 200}'));
+    });
+
+    test('are cut in every message that quotes them', () {
+      expect(runBig(AssertionOperator.notExists).message!.length, lessThan(400));
+      expect(runBig(AssertionOperator.greaterThan, '1').message!.length, lessThan(400));
+    });
+
+    test('a value of exactly the limit is not cut', () {
+      final exact = 'x' * 200;
+      final r = evaluateAssertion(
+        const Assertion(field: 'response.body', expected: 'y'),
+        {'body': exact},
+        const {},
+      );
+      expect(r.message, contains('got "$exact"'));
+      expect(r.message, isNot(contains('…')));
+    });
+  });
+
   group('Assertion', () {
     test('isConfigured is false for an empty or blank field', () {
       expect(const Assertion(field: '').isConfigured, isFalse);

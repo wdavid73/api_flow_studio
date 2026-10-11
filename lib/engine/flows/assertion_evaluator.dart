@@ -41,7 +41,7 @@ AssertionResult evaluateAssertion(
     case AssertionOperator.notExists:
       return actual == null
           ? AssertionResult(assertion: assertion, passed: true, actual: actual)
-          : _fail(assertion, actual, 'expected $path not to exist, got "$actual"');
+          : _fail(assertion, actual, 'expected $path not to exist, got "${_shown(actual)}"');
     case AssertionOperator.matches:
       final RegExp regex;
       try {
@@ -54,7 +54,7 @@ AssertionResult evaluateAssertion(
     case AssertionOperator.lessThan:
       if (actual == null) return pass(false);
       final left = num.tryParse(actual);
-      if (left == null) return _fail(assertion, actual, '"$actual" is not a number');
+      if (left == null) return _fail(assertion, actual, '"${_shown(actual)}" is not a number');
       final right = num.tryParse(expected);
       if (right == null) return _fail(assertion, actual, '"$expected" is not a number');
       return pass(op == AssertionOperator.greaterThan ? left > right : left < right);
@@ -62,7 +62,15 @@ AssertionResult evaluateAssertion(
 }
 
 String _mismatch(String path, String op, String expected, String? actual) =>
-    'expected $path $op "$expected", got "${actual ?? 'null'}"';
+    'expected $path $op "$expected", got "${_shown(actual) ?? 'null'}"';
+
+/// How many characters of the value an assertion saw are quoted in a message.
+/// [AssertionResult.actual] keeps the whole value; the message only has to say
+/// enough to recognise it (a body can be megabytes).
+const int _maxQuotedChars = 200;
+
+String? _shown(String? value) =>
+    value != null && value.length > _maxQuotedChars ? '${value.substring(0, _maxQuotedChars)}…' : value;
 
 AssertionResult _fail(Assertion assertion, String? actual, String message) =>
     AssertionResult(assertion: assertion, passed: false, actual: actual, message: 'Assertion failed: $message');
