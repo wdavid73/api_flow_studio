@@ -50,6 +50,11 @@ void main() {
       expect(FlowStep.fromJson(legacy({'assertExpected': '200'})).assertions, isEmpty);
     });
 
+    test('a field with an empty expected value creates nothing (it was never evaluated)', () {
+      expect(FlowStep.fromJson(legacy({'assertField': 'response.status', 'assertExpected': ''})).assertions, isEmpty);
+      expect(FlowStep.fromJson(legacy({'assertField': '', 'assertExpected': '200'})).assertions, isEmpty);
+    });
+
     test('empty legacy values create nothing', () {
       expect(FlowStep.fromJson(legacy({'assertField': '', 'assertExpected': ''})).assertions, isEmpty);
     });
