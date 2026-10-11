@@ -2,6 +2,7 @@ import 'package:api_flow_studio/app.dart';
 import 'package:api_flow_studio/engine/projects/projects_repository.dart';
 import 'package:api_flow_studio/engine/storage/json_store.dart';
 import 'package:api_flow_studio/ui/projects/projects_provider.dart';
+import 'package:api_flow_studio/ui/request_builder/file_picker_service.dart';
 import 'package:api_flow_studio/ui/request_builder/request_executor_provider.dart';
 import 'package:api_flow_studio/ui/session/session_button.dart';
 import 'package:api_flow_studio/ui/shell/app_header.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'failure_screenshot.dart';
 import 'fake_backend.dart';
+import 'fake_file_picker.dart';
 import 'fake_workspace_files.dart';
 import 'fixtures.dart';
 import 'seed_data.dart';
@@ -122,6 +124,9 @@ class AppDriver {
   /// The save and open dialogs of the workspace export and import.
   final FakeWorkspaceFiles files = FakeWorkspaceFiles();
 
+  /// The "choose a file" dialog of a Form Data field.
+  final FakeFilePickerService filePicker = FakeFilePickerService();
+
   String? _clipboard;
 
   /// The last text the app put on the clipboard (empty if none). The system
@@ -146,6 +151,7 @@ class AppDriver {
         overrides: [
           projectsRepositoryProvider.overrideWithValue(projects),
           workspaceFileDialogsProvider.overrideWithValue(files),
+          filePickerServiceProvider.overrideWithValue(filePicker),
           initialProjectsStateProvider.overrideWithValue(await ProjectsController.load(projects)),
           requestExecutorProvider.overrideWithValue(backend),
           sessionClockProvider.overrideWithValue(() => clock),

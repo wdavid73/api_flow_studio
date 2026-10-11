@@ -32,8 +32,15 @@ Beyond a basic request/response cycle, it supports:
   Workspace files are now version 2; version 1 files still import, but an older
   copy of the app will refuse (or, for `flows.json`, silently ignore) assertions
   written by this one.
+- **Form Data bodies** (`multipart/form-data`): text fields and files, each row
+  with its own on/off switch. Choose a file with the system dialog or type its
+  path (`{{fixtures}}/avatar.png` works); its type is worked out from the
+  extension unless you set one. The file is read when the request is sent, never
+  stored. A missing or unchosen file fails the request with a clear message
+  instead of sending anything.
 - **Paste-a-curl-command** to prefill a new request's method, URL, headers,
-  and body.
+  and body (`-d`, and `-F`/`--form`/`--form-string` for Form Data); the copied
+  curl writes Form Data back as `-F`.
 - Per-request **history** of past responses (bodies kept to 100 KB, 500 entries
   per project, with a "Clear history" action).
 - **Projects**: several isolated sets of environments, collections, flows,
@@ -183,14 +190,25 @@ collections, flows and host notes. It is meant to be handed to someone else, so
 it **leaves out**: the values of secret variables (the name and the secret flag
 stay, the value is empty), literal credentials typed in a request's
 authentication (a bearer token or a basic password; a `{{variable}}` reference is
-kept), the history, session tokens and which environment is active. Headers are
+kept), **the path of every file in a Form Data body** (the field stays, as "no file
+chosen"), the history, session tokens and which environment is active. Headers are
 not inspected, so keep secrets in secret variables.
 
 **Import** always creates a **new** project (`commodo`, then `commodo (2)`…); it
 never overwrites or merges into an existing one. Every id is regenerated, no
-environment is made active, and the app says how many secret values are left to
-fill in. A file that is not a workspace, is damaged or comes from a newer version
-is refused with a reason and creates nothing.
+environment is made active, and the app says how many values are left to fill in
+(secrets, and files to choose again). File paths are **never imported**, even if
+the file carries them: a Form Data body sends a local file to its URL, and a path
+inside a file somebody gave you is not a file you chose to send. The same goes
+for the sidebar's collections JSON import. A file that is not a workspace, is
+damaged or comes from a newer version is refused with a reason and creates
+nothing.
+
+Workspace files are version 3 (Form Data bodies). Versions 1 and 2 still import.
+**Older copies of the app cannot read a request with a Form Data body:** they set
+the damaged `collections.json` aside as `collections.json.corrupt-<date>` and show
+empty collections until you go back to this version, so don't share one data
+folder between versions.
 
 Design and acceptance criteria: [SPEC-workspaces.md](SPEC-workspaces.md).
 
@@ -235,6 +253,12 @@ the verbose lines and both reports. The one exception: a value given for a varia
 the environment declares as *not* secret (say `base_url`) stays readable, unless its
 name looks like a credential. That is a plain text match, not a vault:
 a secret the server returns in another format may still show.
+
+**Files in Form Data bodies.** A file path is resolved from the directory the runner
+is started in, so use absolute paths or a `{{variable}}` given with `--var`
+(`{{fixtures}}/avatar.png` with `--var fixtures=$PWD/fixtures`). A workspace exported
+from the app has no paths: a file field with no file chosen, or a file that does not
+exist, fails its step (exit code 1) without sending the request.
 
 **Limits.** There is no saved login session as in the app: a flow that needs a token
 logs in itself in its first step. Flows run one at a time. TLS certificates are always

@@ -41,6 +41,9 @@ void main() {
               {'name': 'Apple'},
             ],
           }));
+        case '/upload':
+          response.statusCode = 201;
+          response.write(jsonEncode({'ok': true}));
         case '/users':
           response.statusCode = 201;
           response.write(jsonEncode({'id': 'u-1'}));
@@ -215,5 +218,82 @@ void main() {
     expect(out.toString(), contains('Unresolved variable in the URL: {{base_ulr}}'));
     expect(out.toString(), isNot(contains('DioException')));
     expect(received, isEmpty);
+  });
+
+  group('a multipart body', () {
+    Endpoint upload(List<MultipartField> fields) => Endpoint(
+          id: 'upload',
+          groupId: 'g',
+          name: 'Upload',
+          method: 'POST',
+          url: '{{base_url}}/upload',
+          body: RequestBody.multipart(fields),
+        );
+
+    const flow = Flow(id: 'f-up', name: 'Upload', steps: [
+      FlowStep(endpointId: 'upload', assertions: [Assertion(field: 'response.status', expected: '201')]),
+    ]);
+
+    test('reaches the server as multipart/form-data with the field, the file name, its type and its contents', () async {
+      final notes = File('${tmp.path}/notes.txt')..writeAsStringSync('first line\nsecond line');
+      final path = await workspace([flow], endpoints: [
+        upload([
+          const MultipartField(name: 'title', value: 'Hello'),
+          MultipartField(name: 'notes', kind: MultipartFieldKind.file, value: notes.path),
+        ]),
+      ]);
+
+      final code = await run(['-w', path]);
+
+      expect(code, 0, reason: 'out: $out\nerr: $err');
+      final request = received.single;
+      expect(request.method, 'POST');
+      expect(request.headers['content-type'], startsWith('multipart/form-data; boundary='));
+      final boundary = request.headers['content-type']!.split('boundary=').last;
+      expect(request.body, contains('--$boundary'));
+      expect(request.body, contains('name="title"'));
+      expect(request.body, contains('Hello'));
+      expect(request.body, contains('name="notes"; filename="notes.txt"'));
+      expect(request.body.toLowerCase(), contains('content-type: text/plain'));
+      expect(request.body, contains('first line\nsecond line'));
+    });
+
+    test('a path built from a variable given on the command line is found', () async {
+      File('${tmp.path}/notes.txt').writeAsStringSync('from a variable');
+      final path = await workspace([flow], endpoints: [
+        upload([const MultipartField(name: 'notes', kind: MultipartFieldKind.file, value: '{{fixtures}}/notes.txt')]),
+      ]);
+
+      final code = await run(['-w', path, '--var', 'fixtures=${tmp.path}']);
+
+      expect(code, 0, reason: 'out: $out\nerr: $err');
+      expect(received.single.body, contains('from a variable'));
+    });
+
+    test('a file that does not exist fails the step with a clear message and sends nothing', () async {
+      final path = await workspace([flow], endpoints: [
+        upload([MultipartField(name: 'notes', kind: MultipartFieldKind.file, value: '${tmp.path}/missing.txt')]),
+      ]);
+
+      final code = await run(['-w', path]);
+
+      expect(code, 1);
+      expect(out.toString(), contains('[FAIL] 1. Upload'));
+      expect(out.toString(), contains('Cannot read the file for field "notes"'));
+      expect(out.toString(), contains('missing.txt'));
+      expect(received, isEmpty);
+    });
+
+    test('a file field with no file chosen (as an imported workspace has) fails the same way', () async {
+      final path = await workspace([flow], endpoints: [
+        upload([const MultipartField(name: 'notes', kind: MultipartFieldKind.file)]),
+      ]);
+
+      final code = await run(['-w', path]);
+
+      expect(code, 1);
+      expect(out.toString(), contains('Field "notes" has no file chosen'));
+      expect(received, isEmpty);
+    });
   });
 }

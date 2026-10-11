@@ -295,3 +295,25 @@ Convenciones del repo: comentarios `///` con el porqué, `engine/` sin `package:
    falla con el error de red de siempre.
 6. **¿Tabla MIME propia o el paquete `mime`?** Propongo la tabla (12 extensiones) para no añadir una
    dependencia; el paquete cubre cientos de tipos.
+
+## Estado
+
+Implementado de M1 a M5 (`tasks/multipart-body/`). Criterios de éxito y dónde se comprueban:
+
+| # | Criterio | Pruebas |
+|---|---|---|
+| 1 | Llega como `multipart/form-data` con campos, `filename`, tipo y contenido | `request_executor_test.dart`, `test/cli/end_to_end_test.dart` (servidor real) |
+| 2 | Nombres repetidos, deshabilitados y sin nombre | `request_executor_test.dart` |
+| 3 | `{{variables}}` y `{{$tokens}}` | `interpolator_test.dart`, `request_executor_test.dart`, `end_to_end_test.dart` |
+| 4 | Archivo inexistente / carpeta / sin elegir / tipo inválido fallan sin enviar | `request_executor_test.dart`, `end_to_end_test.dart` |
+| 5 | `-F`, `--form`, `--form-string` con round-trip | `curl_builder_test.dart`, `curl_parser_test.dart` |
+| 6 | Editor: añadir, quitar, cambiar tipo, ruta o selector, sin texto viejo | `multipart_table_test.dart`, `body_tab_test.dart`, `multipart_journey.dart` |
+| 7 | Exportar e importar vacían las rutas; el resumen cuenta los archivos | `file_paths_test.dart`, `workspace_file_test.dart`, `import_workspace_test.dart`, `collections_provider_test.dart`, `multipart_journey.dart` |
+| 8 | Versión 3; se leen 1–3; 4 rechazada | `workspace_file_test.dart`, `workspace_transfer_test.dart` |
+| 9 | El runner CLI envía un multipart real y falla un archivo ausente | `test/cli/end_to_end_test.dart` |
+| 10 | `analyze` y `test` en verde | CI |
+
+Decisiones al implementar: la comprobación explícita de "es una carpeta" no hace falta (el SO
+ya lo informa al abrir el archivo y el mensaje conserva el motivo); el conteo de "valores por
+rellenar" suma solo los campos de archivo habilitados y con nombre; cambiar el tipo de una fila
+(Text↔File) conserva el nombre y el estado habilitado, y vacía valor y tipo de contenido.

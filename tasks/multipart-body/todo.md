@@ -24,9 +24,9 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-multipart-body.md](../../SPEC-multipart-
   - Verify: `fvm flutter test test/ui/request_builder`
   - Files: `lib/ui/request_builder/file_picker_service.dart`, `multipart_table.dart`, `tabs/body_tab.dart`, tests
 
-- [ ] **M5: journeys, CLI de punta a punta y README**
+- [x] **M5: journeys, CLI de punta a punta y README**
   - Acceptance: journey (texto + archivo, importar con rutas); CLI contra `HttpServer` que lee el multipart y con archivo inexistente (código 1); README completo; criterios de la spec marcados
   - Verify: `fvm flutter test && fvm flutter analyze`
   - Files: `integration_test/journeys/`, `test/integration/`, `test/cli/end_to_end_test.dart`, `README.md`, `SPEC-multipart-body.md`
 
-- [ ] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana
+- [x] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana
