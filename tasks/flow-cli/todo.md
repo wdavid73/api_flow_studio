@@ -17,7 +17,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-cli.md](../../SPEC-flow-cli.md)
   - Verify: `fvm flutter test test/cli/selection_test.dart`
   - Files: `lib/cli/selection.dart`, `test/cli/selection_test.dart`
 
-- [ ] **C4: redactor y datos del reporte**
+- [x] **C4: redactor y datos del reporte**
   - Acceptance: redacta secretas, overrides y extraídos por nombre (≥ 4 caracteres, incremental); tipo de fallo derivado de la estructura
   - Verify: `fvm flutter test test/cli/redactor_test.dart test/cli/run_report_test.dart`
   - Files: `lib/cli/redactor.dart`, `lib/cli/run_report.dart`, tests correspondientes
