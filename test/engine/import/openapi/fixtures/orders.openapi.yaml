@@ -1,0 +1,147 @@
+openapi: 3.1.0
+info:
+  title: Orders API
+  version: 2.0.0
+  description: |
+    Orders and customers.
+    Written in YAML, with anchors, references and numeric response codes.
+tags:
+  - name: orders
+  - name: customers
+x-common-params:
+  - &limit
+    name: limit
+    in: query
+    schema:
+      type: integer
+      default: 25
+paths:
+  /orders:
+    get:
+      tags: [orders]
+      operationId: listOrders
+      parameters:
+        - *limit
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: [string, "null"]
+            enum: [open, closed]
+      responses:
+        200:
+          description: ok
+    post:
+      tags: [orders]
+      summary: Create an order
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewOrder'
+      responses:
+        201:
+          description: created
+  /orders/{orderId}:
+    parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [orders]
+      summary: Get an order
+      responses:
+        200:
+          description: ok
+    delete:
+      summary: Cancel an order
+      security: []
+      responses:
+        204:
+          description: gone
+  /customers:
+    get:
+      tags: [customers]
+      summary: List customers
+      parameters:
+        - *limit
+      responses:
+        200:
+          description: ok
+  /customers/{id}/avatar:
+    put:
+      tags: [customers]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [avatar]
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                note:
+                  type: string
+      responses:
+        200:
+          description: ok
+webhooks:
+  orderShipped:
+    post:
+      summary: An order was shipped
+      responses:
+        200:
+          description: ok
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+    Customer:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        referredBy:
+          $ref: '#/components/schemas/Customer'
+    NewOrder:
+      allOf:
+        - type: object
+          required: [customer]
+          properties:
+            customer:
+              $ref: '#/components/schemas/Customer'
+        - type: object
+          properties:
+            note:
+              type: string
+              example: leave at the door
+            items:
+              type: array
+              items:
+                oneOf:
+                  - type: object
+                    properties:
+                      sku:
+                        type: string
+                      qty:
+                        type: integer
+                        minimum: 1
+                  - type: string

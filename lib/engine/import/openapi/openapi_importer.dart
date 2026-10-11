@@ -85,6 +85,12 @@ class OpenApiImporter implements Importer {
       ));
     }
 
+    // They are described in the file but are not requests you send: nothing to import.
+    final hasCallbacks = operations.any((operation) => (asMap(operation.operation['callbacks']) ?? const {}).isNotEmpty);
+    if ((asMap(document['webhooks']) ?? const {}).isNotEmpty || hasCallbacks) {
+      warnings.add(const ImportWarning(message: 'webhooks and callbacks were not imported'));
+    }
+
     final renamed = context.names.renamedWarning();
     if (renamed != null) warnings.add(renamed);
 

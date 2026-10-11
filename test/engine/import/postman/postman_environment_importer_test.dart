@@ -184,8 +184,8 @@ void main() {
       expect(runImport(text, importers).source, isNot('API Flow Studio collections'));
     });
 
-    test('the open dialog still offers json only', () {
-      expect(supportedExtensions(importers), ['json']);
+    test('the open dialog offers json and yaml', () {
+      expect(supportedExtensions(importers), ['json', 'yaml', 'yml']);
     });
 
     test('a ready-to-import message lists the Postman environment among the supported formats', () {

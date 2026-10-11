@@ -68,7 +68,7 @@ void main() {
 
     await importFile(tester, null);
 
-    expect(dialogs.askedFor, ['json']);
+    expect(dialogs.askedFor, ['json', 'yaml', 'yml']);
     expect(find.byTooltip('Import…'), findsOneWidget);
   });
 

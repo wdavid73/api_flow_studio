@@ -182,8 +182,8 @@ void main() {
       );
     });
 
-    test('offers the json extension to the open dialog', () {
-      expect(supportedExtensions(importers), ['json']);
+    test('offers json and yaml to the open dialog', () {
+      expect(supportedExtensions(importers), ['json', 'yaml', 'yml']);
     });
   });
 }

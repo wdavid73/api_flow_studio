@@ -1,5 +1,6 @@
 import 'app_collections_importer.dart';
 import 'importer.dart';
+import 'openapi/openapi_importer.dart';
 import 'postman/postman_collection_importer.dart';
 import 'postman/postman_environment_importer.dart';
 
@@ -9,4 +10,5 @@ const List<Importer> importers = [
   AppCollectionsImporter(),
   PostmanCollectionImporter(),
   PostmanEnvironmentImporter(),
+  OpenApiImporter(),
 ];

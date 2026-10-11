@@ -39,7 +39,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-openapi-import.md](../../SPEC-openapi-im
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_security.dart`, `test/engine/import/openapi/openapi_security_test.dart`
 
-- [ ] **O8: el importador completo y el registro**
+- [x] **O8: el importador completo y el registro**
   - Acceptance: fixtures JSON 3.0 y YAML 3.1 con las cifras esperadas; registro real elige entre los cuatro formatos; `applyImport` sin activar y `valuesToFill` suma; externas sin leer; hostil acotado
   - Verify: `fvm flutter test test/engine/import test/ui/import`
   - Files: `lib/engine/import/openapi/openapi_importer.dart`, `lib/engine/import/import_registry.dart`, `test/engine/import/openapi/`, `test/ui/import/`
