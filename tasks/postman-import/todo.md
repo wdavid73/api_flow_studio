@@ -29,7 +29,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-postman-import.md](../../SPEC-postman-im
 
 - [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
-- [ ] **P6: el importador de colecciones y el registro**
+- [x] **P6: el importador de colecciones y el registro**
   - Acceptance: fixture realista con las cifras esperadas; v1 con su mensaje; scripts y ejemplos avisados; ambiente `<nombre> (imported)`; el registro real elige bien; `applyImport` no deja rutas ni activa nada
   - Verify: `fvm flutter test test/engine/import test/ui/import`
   - Files: `lib/engine/import/postman/postman_collection_importer.dart`, `lib/engine/import/import_registry.dart`, `test/engine/import/postman/`

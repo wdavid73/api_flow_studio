@@ -1,0 +1,341 @@
+{
+  "info": {
+    "_postman_id": "11111111-2222-3333-4444-555555555555",
+    "name": "Petstore API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access-token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.environment.set('x', 1);"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base-url",
+      "value": "https://petstore.test",
+      "type": "string"
+    },
+    {
+      "key": "api_version",
+      "value": "v2"
+    },
+    {
+      "key": "client_secret",
+      "value": "",
+      "type": "secret"
+    },
+    {
+      "key": "old",
+      "value": "x",
+      "disabled": true
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "auth": {
+        "type": "noauth"
+      },
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"user\": \"{{user-name}}\", \"id\": \"{{$guid}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base-url}}/{{api_version}}/login",
+              "host": [
+                "{{base-url}}"
+              ],
+              "path": [
+                "{{api_version}}",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"{{refresh_token}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base-url}}/{{api_version}}/refresh"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pets",
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          {
+            "key": "key",
+            "value": "X-Api-Key"
+          },
+          {
+            "key": "value",
+            "value": "{{client_secret}}"
+          },
+          {
+            "key": "in",
+            "value": "header"
+          }
+        ]
+      },
+      "variable": [
+        {
+          "key": "pet_id",
+          "value": "7"
+        }
+      ],
+      "item": [
+        {
+          "name": "List pets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base-url}}/pets?limit=10&sort=name",
+              "host": [
+                "{{base-url}}"
+              ],
+              "path": [
+                "pets"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "name"
+                },
+                {
+                  "key": "debug",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('ok', () => {});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base-url}}/pets/:petId",
+              "host": [
+                "{{base-url}}"
+              ],
+              "path": [
+                "pets",
+                ":petId"
+              ],
+              "variable": [
+                {
+                  "key": "petId",
+                  "value": "7"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Photos",
+          "item": [
+            {
+              "name": "Upload photo",
+              "request": {
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "caption",
+                      "value": "A pet",
+                      "type": "text"
+                    },
+                    {
+                      "key": "photo",
+                      "type": "file",
+                      "src": "/Users/someone/photo.png"
+                    },
+                    {
+                      "key": "thumb",
+                      "type": "file",
+                      "src": "/Users/someone/thumb.png",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "url": "{{base-url}}/pets/7/photo"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "auth": {
+        "type": "oauth2",
+        "oauth2": [
+          {
+            "key": "accessToken",
+            "value": "abc"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Export XML",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "<report/>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": "{{base-url}}/reports"
+          }
+        },
+        {
+          "name": "Search",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query { pets { name } }",
+                "variables": "{\"limit\": 5}"
+              }
+            },
+            "url": "{{base-url}}/graphql"
+          }
+        },
+        {
+          "name": "Dump",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "file",
+              "file": {
+                "src": "/Users/someone/dump.bin"
+              }
+            },
+            "url": "{{base-url}}/dump"
+          }
+        },
+        {
+          "name": "Basic report",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "ana"
+                },
+                {
+                  "key": "password",
+                  "value": "{{report_password}}"
+                }
+              ]
+            },
+            "url": "{{base-url}}/reports/basic"
+          }
+        },
+        {
+          "name": "With examples",
+          "request": {
+            "method": "GET",
+            "url": "{{base-url}}/reports/examples"
+          },
+          "response": [
+            {
+              "name": "ok",
+              "code": 200,
+              "body": "{}"
+            },
+            {
+              "name": "missing",
+              "code": 404,
+              "body": "{}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{base-url}}/health"
+      }
+    },
+    {
+      "name": "Empty"
+    }
+  ]
+}
