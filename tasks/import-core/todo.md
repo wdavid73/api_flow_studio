@@ -12,12 +12,12 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-import-core.md](../../SPEC-import-core.m
   - Verify: `fvm flutter test test/engine/import test/sample_endpoints_test.dart`
   - Files: `lib/engine/import/app_collections_importer.dart`, `importer.dart`, `test/engine/import/app_collections_importer_test.dart`
 
-- [ ] **I3: aplicar un resultado**
+- [x] **I3: aplicar un resultado**
   - Acceptance: raíces únicas; `addImported` sin activar; `restore` y rollback si falla la escritura de ambientes; `ImportSummary` con cifras reales y `valuesToFill`
   - Verify: `fvm flutter test test/ui/collections test/ui/environments test/ui/import`
   - Files: `lib/ui/collections/collections_provider.dart`, `lib/ui/environments/environments_provider.dart`, `lib/ui/import/import_actions.dart`, tests
 
-- [ ] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
+- [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
 - [ ] **I4: la UI del botón Import**
   - Acceptance: diálogo inyectable con tamaño antes del texto; toast con cifras; `import-summary-dialog` con avisos; cancelar no hace nada; workspace → pista; formato desconocido → mensaje; >32 MB sin leer; error no cambia nada

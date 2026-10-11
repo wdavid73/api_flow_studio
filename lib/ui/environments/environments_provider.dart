@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../engine/import/import_naming.dart';
 import '../../engine/models/models.dart';
 import '../../engine/storage/json_store.dart';
 import '../projects/projects_provider.dart';
@@ -59,6 +60,24 @@ class EnvironmentsNotifier extends AsyncNotifier<EnvironmentsState> {
         final next = [...current.environments, Environment(id: const Uuid().v4(), name: name)];
         state = AsyncData(current.copyWith(environments: next));
         await ref.read(jsonStoreProvider).writeEnvironments(next);
+      });
+
+  /// Adds environments that came from a file: new ids, and a name nobody has
+  /// (`Dev`, `Dev (2)`…). None is made active, and the active one stays. Returns
+  /// what was added, with the names and ids it ended up with.
+  Future<List<Environment>> addImported(List<Environment> imported) => _mutate((current) async {
+        final names = [for (final e in current.environments) e.name];
+        final added = <Environment>[];
+        for (final environment in imported) {
+          final name = uniqueName(environment.name, names);
+          names.add(name);
+          added.add(environment.copyWith(id: const Uuid().v4(), name: name));
+        }
+        final next = [...current.environments, ...added];
+        // Written first: if it fails, nothing shows as imported that is not on disk.
+        await ref.read(jsonStoreProvider).writeEnvironments(next);
+        state = AsyncData(current.copyWith(environments: next));
+        return added;
       });
 
   Future<void> updateEnvironment(Environment environment) => _mutate((current) async {

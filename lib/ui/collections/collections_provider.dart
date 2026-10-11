@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../engine/import/import_naming.dart';
 import '../../engine/models/file_paths.dart';
 import '../../engine/models/models.dart';
 import '../../engine/storage/json_store.dart';
@@ -62,10 +63,21 @@ CollectionsState mergeImportedCollections(
   final idMap = {for (final g in importedGroups) g.id: uuid.v4()};
   final existingRootCount = current.groups.where((g) => g.parentGroupId == null).length;
 
+  // A folder at the top level takes a number when another one has its name (an
+  // existing one, or one imported with it), so importing a file twice does not
+  // leave two folders that look the same. Subfolders keep their names.
+  final takenRootNames = [for (final g in current.groups) if (g.parentGroupId == null) g.name];
+  String rootName(Group g) {
+    final name = uniqueName(g.name, takenRootNames);
+    takenRootNames.add(name);
+    return name;
+  }
+
   final newGroups = [
     for (final g in importedGroups)
       g.copyWith(
         id: idMap[g.id]!,
+        name: g.parentGroupId == null ? rootName(g) : g.name,
         parentGroupId: g.parentGroupId == null ? null : idMap[g.parentGroupId],
         order: g.parentGroupId == null ? existingRootCount + g.order : g.order,
       ),
@@ -181,6 +193,10 @@ class CollectionsNotifier extends AsyncNotifier<CollectionsState> {
         ];
         await _persist(current.copyWith(endpoints: next));
       });
+
+  /// Puts the collections back as they were (after a half-finished import). Goes
+  /// through the same queue as every other change.
+  Future<void> restore(CollectionsState previous) => _mutate((_) => _persist(previous));
 
   /// Imports groups/endpoints from another JSON file (see
   /// [mergeImportedCollections]) and returns how many of each were added,
