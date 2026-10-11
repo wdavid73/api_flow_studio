@@ -155,7 +155,9 @@ Se deriva de la estructura de `FlowStepResult`, no del texto del mensaje: alguna
 
 ### Datos sensibles
 - **Se redactan como `***`** en consola, `--verbose`, JUnit y JSON: el valor de toda
-  variable secreta del ambiente, todo valor dado por `--var`/`AFS_VAR_*`, y los valores
+  variable secreta del ambiente, los valores dados por `--var`/`AFS_VAR_*` (salvo los de una
+  variable que el ambiente declara **no secreta** y cuyo nombre no parece una credencial: así
+  `--var base_url=…` no ennegrece todas las URLs), y los valores
   extraídos en variables cuyo nombre contenga `token`, `secret`, `password`, `key` o `auth`
   (sin distinguir mayúsculas). Solo valores de 4 caracteres o más, para no enmascarar `1`.
 - La redacción es por coincidencia de texto, no es un vault: un secreto que el servidor
@@ -321,4 +323,6 @@ Implementado de C1 a C8 (`tasks/flow-cli/`). Criterios de éxito y dónde se com
 
 Decisiones tomadas al implementar: `--timeout` acepta decimales (`0.5`); `--list` no aplica
 la guarda de producción ni exige `--env`; si falla la escritura de un reporte, el otro se
-escribe igualmente y el código de salida es 2.
+escribe igualmente y el código de salida es 2. Tras la revisión: una ruta de reporte que
+coincide con el workspace (o con la del otro reporte) se rechaza con código 2 antes de correr
+nada, y un `--var` sobre una variable declarada como no secreta no se enmascara.

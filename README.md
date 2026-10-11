@@ -228,10 +228,12 @@ arguments, unreadable or newer-version file, unknown environment or flow, missin
 outside: `--var api_key=...`, or an environment variable `AFS_VAR_api_key=...`
 (the name after the prefix is the variable's exact name; `--var` wins). Prefer the
 environment variable in CI, since command-line arguments show up in process lists.
-A secret variable left empty produces a warning on stderr. Secret values, every
-value given with `--var`/`AFS_VAR_*` and values extracted into variables whose name
-contains `token`, `secret`, `password`, `key` or `auth` are replaced by `***` in the
-console, the verbose lines and both reports. That is a plain text match, not a vault:
+A secret variable left empty produces a warning on stderr. Secret values, the values
+given with `--var`/`AFS_VAR_*` and values extracted into variables whose name contains
+`token`, `secret`, `password`, `key` or `auth` are replaced by `***` in the console,
+the verbose lines and both reports. The one exception: a value given for a variable
+the environment declares as *not* secret (say `base_url`) stays readable, unless its
+name looks like a credential. That is a plain text match, not a vault:
 a secret the server returns in another format may still show.
 
 **Limits.** There is no saved login session as in the app: a flow that needs a token

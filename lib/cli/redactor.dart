@@ -11,11 +11,22 @@ class Redactor {
   }
 
   /// The values to mask: secret environment variables as they stand after the
-  /// command line was applied, and every value given from outside the file.
-  factory Redactor.forSelection(RunSelection selection) => Redactor([
-        for (final name in selection.secretNames) selection.variables[name] ?? '',
-        ...selection.overrides.values,
-      ]);
+  /// command line was applied, and the values given from outside the file -- except
+  /// those given for a variable the environment declares as plain (`base_url`), which
+  /// the file itself says is not a secret and whose masking would blank every URL in
+  /// the output. A plain variable with a credential-like name (`service_token`) is
+  /// still masked, and so is anything the environment does not declare.
+  factory Redactor.forSelection(RunSelection selection) {
+    final declared = selection.environment?.variables ?? const {};
+    // A declared secret is masked by the first loop below, whatever its override.
+    bool declaredPlain(String name) => declared.containsKey(name) && !_sensitiveName.hasMatch(name);
+
+    return Redactor([
+      for (final name in selection.secretNames) selection.variables[name] ?? '',
+      for (final entry in selection.overrides.entries)
+        if (!declaredPlain(entry.key)) entry.value,
+    ]);
+  }
 
   static const int minLength = 4;
   static const String mask = '***';

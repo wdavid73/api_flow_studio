@@ -99,6 +99,45 @@ void main() {
       expect(r.redact('https://qa.test public text'), 'https://qa.test public text');
     });
 
+    test('overriding a variable the environment declares as plain does not make it a secret', () {
+      final r = Redactor.forSelection(select({'base_url': 'http://localhost:8080'}));
+
+      expect(r.redact('GET http://localhost:8080/items'), 'GET http://localhost:8080/items');
+    });
+
+    test('a plain variable with a credential-like name is still masked when overridden', () {
+      final withNote = WorkspaceFile(
+        name: 'ws',
+        environments: const [
+          Environment(id: 'e', name: 'qa', variables: {
+            'service_token': EnvironmentVariable(value: 'placeholder'),
+            'note': EnvironmentVariable(value: 'public text'),
+          }),
+        ],
+        flows: const [Flow(id: 'f', name: 'F', steps: [FlowStep(endpointId: 'x')])],
+        exportedAt: DateTime.utc(2026),
+      );
+      final selection = selectRun(withNote, const CliOptions(workspace: 'w', vars: {'service_token': 'real-token-1234', 'note': 'changed note'}), const {})
+          as RunSelection;
+
+      final r = Redactor.forSelection(selection);
+
+      expect(r.redact('real-token-1234'), '***');
+      expect(r.redact('changed note'), 'changed note');
+    });
+
+    test('a variable the environment does not declare is masked: nothing says it is plain', () {
+      final r = Redactor.forSelection(select({'brand_new': 'undeclared-value'}));
+
+      expect(r.redact('undeclared-value'), '***');
+    });
+
+    test('a value given for a declared secret is masked even if it is short enough to look plain', () {
+      final r = Redactor.forSelection(select({'api_key': 'abcd'}));
+
+      expect(r.redact('abcd'), '***');
+    });
+
     test('a secret replaced from outside masks the new value, not the file one', () {
       final r = Redactor.forSelection(select({'api_key': 'given-secret'}));
 

@@ -185,6 +185,14 @@ void main() {
       expect(out.toString(), contains('GET https://qa.test/login'));
     });
 
+    test('a --var on a plain variable leaves the request lines readable', () async {
+      final executor = FakeExecutor({'login': (_) => const ExecutedResponse(status: 200, requestUrl: 'http://localhost:8080/login')});
+
+      await run(['-w', await write(_workspace()), '-e', 'qa', '--flow', 'Alpha', '-v', '--var', 'base_url=http://localhost:8080'], executor: executor);
+
+      expect(out.toString(), contains('GET http://localhost:8080/login'));
+    });
+
     test('warns on stderr about a secret variable with no value, and keeps going', () async {
       final code = await run(['-w', await write(_workspace()), '-e', 'qa']);
 
