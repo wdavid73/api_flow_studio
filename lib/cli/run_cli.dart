@@ -32,13 +32,15 @@ Future<int> runCli(
   RequestExecutor? executor,
   DateTime Function()? now,
 }) async {
-  final parsed = parseCliArgs(args);
-  if (parsed is CliUsageError) {
-    err.writeln('error: ${parsed.message}');
-    err.writeln('Run with --help for usage.');
-    return 2;
+  final CliOptions options;
+  switch (parseCliArgs(args)) {
+    case CliUsageError(:final message):
+      err.writeln('error: $message');
+      err.writeln('Run with --help for usage.');
+      return 2;
+    case final CliOptions parsed:
+      options = parsed;
   }
-  final options = parsed as CliOptions;
   if (options.help) {
     out.writeln(usageText);
     return 0;
@@ -74,12 +76,14 @@ Future<int> runCli(
     return 0;
   }
 
-  final selected = selectRun(file, options, environment);
-  if (selected is SelectionError) {
-    err.writeln('error: ${selected.message}');
-    return 2;
+  final RunSelection selection;
+  switch (selectRun(file, options, environment)) {
+    case SelectionError(:final message):
+      err.writeln('error: $message');
+      return 2;
+    case final RunSelection selected:
+      selection = selected;
   }
-  final selection = selected as RunSelection;
 
   for (final name in selection.emptySecrets) {
     err.writeln('warning: secret variable "$name" has no value');

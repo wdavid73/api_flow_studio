@@ -1,7 +1,12 @@
 import 'package:args/args.dart';
 
+/// The outcome of reading the command line: [CliOptions] or a [CliUsageError].
+sealed class CliParseResult {
+  const CliParseResult();
+}
+
 /// What the person asked the runner to do.
-class CliOptions {
+class CliOptions extends CliParseResult {
   const CliOptions({
     required this.workspace,
     this.env,
@@ -33,14 +38,11 @@ class CliOptions {
 }
 
 /// The arguments cannot be used; [message] says why, in plain words.
-class CliUsageError {
+class CliUsageError extends CliParseResult {
   const CliUsageError(this.message);
 
   final String message;
 }
-
-/// Either [CliOptions] or a [CliUsageError].
-typedef CliParseResult = Object;
 
 final ArgParser _parser = ArgParser()
   ..addOption('workspace', abbr: 'w', valueHelp: 'file', help: 'Workspace file exported by the app (required).')
