@@ -216,6 +216,45 @@ void main() {
       expect(find.byKey(const Key('assertion-field-0-1')), findsNothing);
     });
 
+    testWidgets('a different step in the same place shows its own assertions (reorder, switch flow)', (tester) async {
+      Widget cardFor(FlowStep s) => wrap(SingleChildScrollView(
+            child: StepCard(
+              index: 0,
+              step: s,
+              endpoint: endpoint,
+              isFirst: true,
+              isLast: true,
+              onMoveUp: () {},
+              onMoveDown: () {},
+              onRemove: () {},
+              onUpdateStep: (_) {},
+            ),
+          ));
+
+      await tester.pumpWidget(cardFor(const FlowStep(endpointId: 'a', assertions: [
+        Assertion(field: 'response.status', expected: '200'),
+      ])));
+      expect(fieldText(tester, 'assertion-field-0-0'), 'response.status');
+
+      // Same position, same number of assertions, different step.
+      await tester.pumpWidget(cardFor(const FlowStep(endpointId: 'b', assertions: [
+        Assertion(field: 'response.body.name', operator: AssertionOperator.contains, expected: 'Ana'),
+      ])));
+
+      expect(fieldText(tester, 'assertion-field-0-0'), 'response.body.name');
+      expect(fieldText(tester, 'assertion-expected-0-0'), 'Ana');
+    });
+
+    testWidgets('typing in a field does not rebuild it (focus and cursor survive)', (tester) async {
+      await pumpEditor(tester, const FlowStep(endpointId: 'e-1', assertions: [Assertion(field: 'response.status')]));
+      final before = tester.state(find.byKey(const Key('assertion-field-0-0')));
+
+      await tester.enterText(find.byKey(const Key('assertion-field-0-0')), 'response.body.id');
+      await tester.pump();
+
+      expect(tester.state(find.byKey(const Key('assertion-field-0-0'))), same(before));
+    });
+
     testWidgets('every operator is offered', (tester) async {
       await pumpEditor(tester, const FlowStep(endpointId: 'e-1', assertions: [Assertion(field: 'response.status')]));
 

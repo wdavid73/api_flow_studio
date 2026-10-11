@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 
 import '../../engine/models/models.dart';
@@ -30,24 +31,38 @@ class _AssertionsEditorState extends State<AssertionsEditor> {
   var _nextId = 0;
   late List<int> _ids = _freshIds(widget.assertions.length);
 
+  /// The list this editor last handed to [AssertionsEditor.onChanged], to tell
+  /// its own edits apart from a different step arriving in the same place.
+  List<Assertion>? _emitted;
+
   List<int> _freshIds(int count) => [for (var i = 0; i < count; i++) _nextId++];
 
   @override
   void didUpdateWidget(AssertionsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // A change this editor did not make (a different step, a reload): start over.
-    if (widget.assertions.length != _ids.length) _ids = _freshIds(widget.assertions.length);
+    // A change this editor did not make (steps reordered, another flow opened,
+    // a reload): the rows now show someone else's assertions, so rebuild them.
+    final mine = listEquals(widget.assertions, _emitted);
+    if (widget.assertions.length != _ids.length ||
+        (!mine && !listEquals(widget.assertions, oldWidget.assertions))) {
+      _ids = _freshIds(widget.assertions.length);
+    }
+  }
+
+  void _emit(List<Assertion> next) {
+    _emitted = next;
+    widget.onChanged(next);
   }
 
   void _replace(int row, Assertion assertion) {
     final next = [...widget.assertions];
     next[row] = assertion;
-    widget.onChanged(next);
+    _emit(next);
   }
 
   void _remove(int row) {
     setState(() => _ids = [..._ids]..removeAt(row));
-    widget.onChanged([...widget.assertions]..removeAt(row));
+    _emit([...widget.assertions]..removeAt(row));
   }
 
   void _add() {
@@ -56,7 +71,7 @@ class _AssertionsEditorState extends State<AssertionsEditor> {
     final created = widget.assertions.isEmpty
         ? const Assertion(field: 'response.status', expected: '200')
         : const Assertion(field: '');
-    widget.onChanged([...widget.assertions, created]);
+    _emit([...widget.assertions, created]);
   }
 
   @override
