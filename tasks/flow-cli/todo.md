@@ -27,12 +27,12 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-cli.md](../../SPEC-flow-cli.md)
   - Verify: `fvm flutter test test/cli/reporters`
   - Files: `lib/cli/reporters/console_reporter.dart`, `junit_reporter.dart`, `json_reporter.dart`, `test/cli/reporters/`
 
-- [ ] **C6: `runCli` y `bin/`**
+- [x] **C6: `runCli` y `bin/`**
   - Acceptance: 0/1/2 según la spec con un ejecutor falso; `--list`, `--help`, `--fail-fast`, `--verbose`; reporte no escribible → 2; sin secretos en ninguna salida
   - Verify: `fvm flutter test test/cli && fvm dart run bin/api_flow_runner.dart --help`
   - Files: `lib/cli/run_cli.dart`, `bin/api_flow_runner.dart`, `test/cli/run_cli_test.dart`
 
-- [ ] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
+- [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
 - [ ] **C7: de punta a punta contra un servidor local**
   - Acceptance: dos pasos con extracción y assertions → 0 y JUnit correcto; assertion fallida → 1; timeout corta un paso lento; `{{$token}}` se genera en el request real
