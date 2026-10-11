@@ -257,10 +257,11 @@ void main() {
       expect(variablesOf(result)['base_url']!.value, 'https://staging.pets.test:8443/v2');
     });
 
-    test('a variable with no default is left as written', () {
+    test('a variable with no default is a {{variable}} of the environment, so it can be filled in', () {
       final result = parse(spec(servers: [{'url': 'https://{tenant}.pets.test'}], paths: {'/a': {'get': op()}}));
 
-      expect(variablesOf(result)['base_url']!.value, 'https://{tenant}.pets.test');
+      expect(variablesOf(result)['base_url']!.value, 'https://{{tenant}}.pets.test');
+      expect(variablesOf(result).containsKey('tenant'), isTrue);
     });
 
     test('a relative url is kept, with a warning', () {
@@ -528,6 +529,66 @@ void main() {
       final endpoint = one(op(parameters: ['junk', 7, {'in': 'query'}, {'name': 'x'}, param('ok', 'query', extra: {'example': 'v'})]));
 
       expect(endpoint.queryParams.map((p) => p.key), ['ok']);
+    });
+  });
+
+  group('what the file puts in a value', () {
+    test('a {{variable}} nobody defines is warned about, once, where it first appears', () {
+      final result = parse(spec(paths: {
+        '/a': {
+          'get': op(summary: 'A', parameters: [
+            {'name': 'q', 'in': 'query', 'required': true, 'example': '{{token}}', 'schema': {'type': 'string'}},
+          ]),
+        },
+        '/b': {
+          'get': op(summary: 'B', parameters: [
+            {'name': 'q', 'in': 'query', 'required': true, 'example': '{{token}} and {{base_url}}', 'schema': {'type': 'string'}},
+          ]),
+        },
+      }));
+
+      final foreign = result.warnings.where((w) => w.message.contains('is not defined by this file')).toList();
+      expect(foreign, hasLength(1));
+      expect(foreign.single.where, 'A');
+      expect(foreign.single.message, startsWith('{{token}} is not defined by this file'));
+    });
+
+    test('the variables the import itself makes are not warned about', () {
+      final result = parse(spec(paths: {
+        '/pets/{id}': {'get': op(summary: 'Get')},
+      }));
+
+      expect(result.warnings.where((w) => w.message.contains('is not defined')), isEmpty);
+    });
+  });
+
+  group('servers', () {
+    test('only the first three other servers are listed, and the rest counted', () {
+      final result = parse(spec(
+        servers: [for (var i = 1; i <= 6; i++) {'url': 'https://s$i.test'}],
+        paths: {'/a': {'get': op()}},
+      ));
+
+      expect(
+        result.warnings.map((w) => w.message),
+        contains('other servers were not imported: https://s2.test, https://s3.test, https://s4.test and 2 more'),
+      );
+    });
+
+    test('a server variable with no default becomes a variable of the environment, and is said', () {
+      final result = parse(spec(
+        servers: [
+          {'url': 'https://{host}/{basePath}', 'variables': {'basePath': {'default': 'v1'}}},
+        ],
+        paths: {'/a': {'get': op()}},
+      ));
+
+      final variables = result.environments.single.variables;
+      expect(variables['base_url']!.value, 'https://{{host}}/v1');
+      expect(variables.containsKey('host'), isTrue);
+      expect(variables['host']!.value, isEmpty);
+      expect(result.warnings.map((w) => w.message), contains('server variable "host" has no default; set host in the imported environment'));
+      expect(result.warnings.where((w) => w.message.contains('is not defined')), isEmpty);
     });
   });
 }

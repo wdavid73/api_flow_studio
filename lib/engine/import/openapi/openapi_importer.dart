@@ -1,6 +1,7 @@
 import 'package:yaml/yaml.dart';
 
 import '../../models/models.dart';
+import '../foreign_variables.dart';
 import '../import_json.dart';
 import '../import_result.dart';
 import '../import_source.dart';
@@ -93,6 +94,7 @@ class OpenApiImporter implements Importer {
 
     final renamed = context.names.renamedWarning();
     if (renamed != null) warnings.add(renamed);
+    warnings.addAll(undefinedVariableWarnings(endpoints, context.variables.keys.toSet()));
 
     return ImportResult(
       source: 'OpenAPI $version spec',
@@ -124,15 +126,23 @@ class OpenApiImporter implements Importer {
       return;
     }
 
-    String urlOf(Map<String, dynamic> server) {
+    // The server's variables take their defaults. One with none is left as `{{name}}`: a
+    // variable of the environment to fill in, when [define] says this is the server in use.
+    String urlOf(Map<String, dynamic> server, {bool define = false}) {
       final variables = asMap(server['variables']) ?? const <String, dynamic>{};
       return (asString(server['url']) ?? '').replaceAllMapped(RegExp(r'\{([^{}]+)\}'), (match) {
         final fallback = asMap(variables[match[1]])?['default'];
-        return fallback == null ? match[0]! : '$fallback';
+        if (fallback != null) return '$fallback';
+        if (!define) return match[0]!;
+
+        final name = context.names.sanitize(match[1]!);
+        context.defineVariable(name, '');
+        context.warnings.add(ImportWarning(message: 'server variable "${match[1]}" has no default; set $name in the imported environment'));
+        return '{{$name}}';
       });
     }
 
-    var url = urlOf(servers.first);
+    var url = urlOf(servers.first, define: true);
     if (!url.contains('://')) {
       context.warnings.add(const ImportWarning(message: 'server URL is relative; set base_url to the host'));
     }
@@ -140,7 +150,11 @@ class OpenApiImporter implements Importer {
     context.defineVariable('base_url', url);
 
     if (servers.length > 1) {
-      context.warnings.add(ImportWarning(message: 'other servers were not imported: ${servers.skip(1).map(urlOf).join(', ')}'));
+      const listed = 3;
+      final others = servers.skip(1).toList();
+      final names = others.take(listed).map(urlOf).join(', ');
+      final more = others.length > listed ? ' and ${others.length - listed} more' : '';
+      context.warnings.add(ImportWarning(message: 'other servers were not imported: $names$more'));
     }
   }
 

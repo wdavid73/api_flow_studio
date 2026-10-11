@@ -479,9 +479,11 @@ void main() {
         'Reports / Dump|binary (file) body is not supported; the body was left empty',
         'Empty|it has neither a request nor items; skipped',
         '|2 saved example responses were not imported',
+        'Login|{{user_name}} is not defined by this file; when the request is sent it takes the value of a variable of yours with that name, if there is one',
       ]));
       expect(result.warnings.where((w) => w.message.startsWith('variable names changed')), hasLength(1));
-      expect(result.warnings, hasLength(11));
+      // 11 left out or changed, and 4 variables the file uses but does not define.
+      expect(result.warnings, hasLength(15));
     });
   });
 }

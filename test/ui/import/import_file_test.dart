@@ -273,7 +273,7 @@ void main() {
 
       expect(find.byKey(const Key('import-summary-dialog')), findsOneWidget);
       expect(find.text('Imported Postman collection: 11 requests in 5 folders, 1 environment — 2 values to fill in'), findsOneWidget);
-      expect(find.text('11 things were left out or changed:'), findsOneWidget);
+      expect(find.text('15 things were left out or changed:'), findsOneWidget);
       expect(find.byKey(const Key('import-warning-0')), findsOneWidget);
       expect(find.text('Collection'), findsWidgets);
       expect(find.text('pre-request script ignored'), findsOneWidget);

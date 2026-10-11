@@ -1,4 +1,5 @@
 import '../../models/models.dart';
+import '../foreign_variables.dart';
 import '../import_result.dart';
 import '../import_source.dart';
 import '../importer.dart';
@@ -91,6 +92,7 @@ class _Walk {
     }
     final renamed = translator.renamedWarning();
     if (renamed != null) warnings.add(renamed);
+    warnings.addAll(undefinedVariableWarnings(endpoints, variables.keys.toSet()));
 
     return ImportResult(
       source: 'Postman collection',
