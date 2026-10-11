@@ -42,6 +42,7 @@ Endpoint parseCurl(String curlCommand) {
   String? method;
   final headers = <KeyValueEntry>[];
   final dataParts = <String>[];
+  final formFields = <MultipartField>[];
   String? authUser;
   String? authPass;
 
@@ -76,6 +77,8 @@ Endpoint parseCurl(String curlCommand) {
         token == '--data-ascii' ||
         token == '--data-urlencode') {
       dataParts.add(nextValue(token));
+    } else if (token == '-F' || token == '--form' || token == '--form-string') {
+      formFields.add(_parseFormField(nextValue(token), literal: token == '--form-string'));
     } else if (token == '-u' || token == '--user') {
       final credentials = nextValue(token);
       final sep = credentials.indexOf(':');
@@ -101,7 +104,13 @@ Endpoint parseCurl(String curlCommand) {
   }
 
   var body = const RequestBody.none();
-  if (dataParts.isNotEmpty) {
+  if (formFields.isNotEmpty && dataParts.isNotEmpty) {
+    throw const CurlParseException('Cannot mix --form with --data');
+  }
+  if (formFields.isNotEmpty) {
+    body = RequestBody.multipart(formFields);
+    method ??= 'POST';
+  } else if (dataParts.isNotEmpty) {
     final combined = dataParts.join('&');
     final contentType = headers
         .cast<KeyValueEntry?>()
@@ -129,6 +138,44 @@ Endpoint parseCurl(String curlCommand) {
     body: body,
     authConfig: authConfig,
   );
+}
+
+/// One `-F`/`--form-string` argument, `name=value`. Unless [literal], a value
+/// starting with `@` is a file (`@path`, the path optionally double-quoted, then
+/// `;type=...` and ignored modifiers like `;filename=...`); anything else is text.
+/// `name=<path` (the file's contents as text) is not supported and stays text.
+MultipartField _parseFormField(String argument, {required bool literal}) {
+  final sep = argument.indexOf('=');
+  if (sep <= 0) throw CurlParseException('Malformed form field "$argument"');
+  final name = argument.substring(0, sep);
+  final value = argument.substring(sep + 1);
+
+  if (literal || !value.startsWith('@')) return MultipartField(name: name, value: value);
+
+  final spec = value.substring(1);
+  final String path;
+  String modifiers;
+  if (spec.startsWith('"')) {
+    final buffer = StringBuffer();
+    var i = 1;
+    while (i < spec.length && spec[i] != '"') {
+      if (spec[i] == r'\' && i + 1 < spec.length) i++;
+      buffer.write(spec[i]);
+      i++;
+    }
+    path = buffer.toString();
+    modifiers = i < spec.length ? spec.substring(i + 1) : '';
+  } else {
+    final semicolon = spec.indexOf(';');
+    path = semicolon == -1 ? spec : spec.substring(0, semicolon);
+    modifiers = semicolon == -1 ? '' : spec.substring(semicolon);
+  }
+
+  String? contentType;
+  for (final part in modifiers.split(';')) {
+    if (part.startsWith('type=') && part.length > 5) contentType = part.substring(5);
+  }
+  return MultipartField(name: name, kind: MultipartFieldKind.file, value: path, contentType: contentType);
 }
 
 List<KeyValueEntry> _parseFormFields(String data) {

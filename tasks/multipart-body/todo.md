@@ -9,7 +9,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-multipart-body.md](../../SPEC-multipart-
 
 - [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
-- [ ] **M2: pegar un curl con `-F`**
+- [x] **M2: pegar un curl con `-F`**
   - Acceptance: `-F`/`--form`/`--form-string` repetibles; `@ruta;type=`; `<ruta` como texto; implica POST; mezcla con `--data` → error; round-trip con `buildCurl`
   - Verify: `fvm flutter test test/engine/curl test/ui/collections/paste_curl_dialog_test.dart`
   - Files: `lib/engine/curl/curl_parser.dart`, `test/engine/curl/curl_parser_test.dart`, `curl_builder_test.dart`

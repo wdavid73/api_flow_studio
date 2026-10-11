@@ -1,3 +1,4 @@
+import 'package:api_flow_studio/engine/curl/curl_builder.dart';
 import 'package:api_flow_studio/engine/curl/curl_parser.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -118,5 +119,116 @@ curl 'https://api.dev.example.com/api/v1/auth/login' \
   test('a malformed header (no colon) throws CurlParseException', () {
     expect(() => parseCurl("curl -H 'not-a-header' https://x.com"),
         throwsA(isA<CurlParseException>()));
+  });
+
+  group('multipart (-F / --form / --form-string)', () {
+    List<MultipartField> fieldsOf(Endpoint e) =>
+        e.body.maybeMap(multipart: (b) => b.fields, orElse: () => throw StateError('body is ${e.body}'));
+
+    test('-F name=value is a text field, and a form implies POST', () {
+      final endpoint = parseCurl("curl -F 'title=Hello' https://api.example.com/upload");
+
+      expect(endpoint.method, 'POST');
+      expect(fieldsOf(endpoint), [const MultipartField(name: 'title', value: 'Hello')]);
+    });
+
+    test('an explicit -X wins over the implied POST', () {
+      expect(parseCurl("curl -X PUT -F a=b https://x.test").method, 'PUT');
+    });
+
+    test('-F name=@path is a file field', () {
+      final endpoint = parseCurl("curl -F 'avatar=@/tmp/a.png' https://x.test");
+
+      expect(fieldsOf(endpoint), [
+        const MultipartField(name: 'avatar', kind: MultipartFieldKind.file, value: '/tmp/a.png'),
+      ]);
+    });
+
+    test('--form is the long form and several fields keep their order', () {
+      final endpoint = parseCurl("curl --form a=1 --form 'f=@/tmp/x.txt' --form b=2 https://x.test");
+
+      expect(fieldsOf(endpoint).map((f) => f.name), ['a', 'f', 'b']);
+      expect(fieldsOf(endpoint)[1].kind, MultipartFieldKind.file);
+    });
+
+    test(';type= becomes the content type and ;filename= is ignored', () {
+      final endpoint = parseCurl("curl -F 'doc=@/tmp/a.bin;type=application/x-custom;filename=other.bin' https://x.test");
+
+      expect(fieldsOf(endpoint).single, const MultipartField(
+        name: 'doc',
+        kind: MultipartFieldKind.file,
+        value: '/tmp/a.bin',
+        contentType: 'application/x-custom',
+      ));
+    });
+
+    test('a double-quoted path keeps its semicolons, commas, spaces and escaped quotes', () {
+      final endpoint = parseCurl(r"""curl -F 'a=@"/tmp/semi;colon, and space.png";type=image/png' -F 'b=@"/tmp/say \"hi\".png"' https://x.test""");
+
+      expect(fieldsOf(endpoint)[0].value, '/tmp/semi;colon, and space.png');
+      expect(fieldsOf(endpoint)[0].contentType, 'image/png');
+      expect(fieldsOf(endpoint)[1].value, '/tmp/say "hi".png');
+    });
+
+    test('--form-string never reads @ or < specially', () {
+      final endpoint = parseCurl("curl --form-string 'note=@not-a-file' --form-string 'x=<nor-this' https://x.test");
+
+      expect(fieldsOf(endpoint), [
+        const MultipartField(name: 'note', value: '@not-a-file'),
+        const MultipartField(name: 'x', value: '<nor-this'),
+      ]);
+    });
+
+    test('name=<path (file contents as text) is not supported and stays literal text', () {
+      expect(fieldsOf(parseCurl("curl -F 'bio=<bio.txt' https://x.test")).single, const MultipartField(name: 'bio', value: '<bio.txt'));
+    });
+
+    test('a value may contain = and an empty value is allowed', () {
+      final fields = fieldsOf(parseCurl("curl -F 'q=a=b' -F 'empty=' https://x.test"));
+
+      expect(fields[0].value, 'a=b');
+      expect(fields[1].value, '');
+    });
+
+    test('a field without = is rejected', () {
+      expect(() => parseCurl("curl -F novalue https://x.test"), throwsA(isA<CurlParseException>().having((e) => e.message, 'message', contains('novalue'))));
+    });
+
+    test('-F without a value is rejected', () {
+      expect(() => parseCurl('curl https://x.test -F'), throwsA(isA<CurlParseException>().having((e) => e.message, 'message', contains('-F'))));
+    });
+
+    test('mixing --form with --data is rejected, as curl does', () {
+      expect(
+        () => parseCurl("curl -F a=b -d 'c=d' https://x.test"),
+        throwsA(isA<CurlParseException>().having((e) => e.message, 'message', 'Cannot mix --form with --data')),
+      );
+    });
+
+    test('headers, auth and the url still parse next to a form', () {
+      final endpoint = parseCurl("curl -u me:pw -H 'X-Trace: 1' -F a=b https://x.test/up");
+
+      expect(endpoint.url, 'https://x.test/up');
+      expect(endpoint.headers, [const KeyValueEntry(key: 'X-Trace', value: '1')]);
+      expect(endpoint.authConfig, const AuthConfig.basic(username: 'me', password: 'pw'));
+    });
+
+    test('what buildCurl writes, parseCurl reads back', () {
+      const original = [
+        MultipartField(name: 'title', value: "it's; fine"),
+        MultipartField(name: 'plain', kind: MultipartFieldKind.file, value: '/tmp/a.png'),
+        MultipartField(name: 'odd', kind: MultipartFieldKind.file, value: '/tmp/with space;and "quotes".txt', contentType: 'text/plain'),
+      ];
+      final curl = buildCurl(const Endpoint(
+        id: 'e',
+        groupId: 'g',
+        name: 'n',
+        method: 'POST',
+        url: 'https://x.test/up',
+        body: RequestBody.multipart(original),
+      ));
+
+      expect(fieldsOf(parseCurl(curl)), original);
+    });
   });
 }
