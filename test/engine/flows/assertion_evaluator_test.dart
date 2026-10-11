@@ -236,6 +236,25 @@ void main() {
       }
     });
 
+    test('describe puts the check in words', () {
+      expect(const Assertion(field: 'response.status', expected: '200').describe(), 'response.status == "200"');
+      expect(
+        const Assertion(field: ' response.body.id ', operator: AssertionOperator.exists, expected: 'ignored').describe(),
+        'response.body.id exists',
+      );
+      expect(
+        const Assertion(field: 'response.elapsedMs', operator: AssertionOperator.lessThan, expected: '800').describe(),
+        'response.elapsedMs < "800"',
+      );
+    });
+
+    test('describe can show the expected value after variables were resolved', () {
+      const a = Assertion(field: 'response.body.id', expected: '{{id}}');
+
+      expect(a.describe(), 'response.body.id == "{{id}}"');
+      expect(a.describe(expected: 'u-1'), 'response.body.id == "u-1"');
+    });
+
     test('every operator has a label', () {
       expect(AssertionOperator.values.map((o) => o.label).toSet(), hasLength(AssertionOperator.values.length));
     });

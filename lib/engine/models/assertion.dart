@@ -42,4 +42,11 @@ class Assertion with _$Assertion {
 
   /// A blank field means the row was never filled in: it is skipped, never failed.
   bool get isConfigured => field.trim().isNotEmpty;
+
+  /// The check in words: `response.status == "200"`, `response.body.id exists`.
+  /// Pass [expected] to show it with its `{{variables}}` already resolved.
+  String describe({String? expected}) {
+    final path = field.trim();
+    return operator.takesExpected ? '$path ${operator.label} "${expected ?? this.expected}"' : '$path ${operator.label}';
+  }
 }

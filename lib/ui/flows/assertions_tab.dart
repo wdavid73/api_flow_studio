@@ -35,7 +35,7 @@ class AssertionsTab extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SelectableText(describe(results[i]), style: AppTypography.codeMd),
+                      SelectableText(results[i].assertion.describe(), style: AppTypography.codeMd),
                       if (!results[i].passed && results[i].message != null)
                         SelectableText(
                           results[i].message!,
@@ -55,11 +55,4 @@ class AssertionsTab extends StatelessWidget {
       ],
     );
   }
-}
-
-/// The check in words: `response.status == "200"`, `response.body.id exists`.
-String describe(AssertionResult result) {
-  final a = result.assertion;
-  final field = a.field.trim();
-  return a.operator.takesExpected ? '$field ${a.operator.label} "${a.expected}"' : '$field ${a.operator.label}';
 }

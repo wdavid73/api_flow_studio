@@ -23,7 +23,7 @@ AssertionResult evaluateAssertion(
 
   AssertionResult pass(bool condition) => condition
       ? AssertionResult(assertion: assertion, passed: true, actual: actual)
-      : _fail(assertion, actual, _mismatch(path, op.label, expected, actual));
+      : _fail(assertion, actual, _mismatch(assertion, expected, actual));
 
   switch (op) {
     case AssertionOperator.equals:
@@ -61,8 +61,8 @@ AssertionResult evaluateAssertion(
   }
 }
 
-String _mismatch(String path, String op, String expected, String? actual) =>
-    'expected $path $op "$expected", got "${_shown(actual) ?? 'null'}"';
+String _mismatch(Assertion assertion, String expected, String? actual) =>
+    'expected ${assertion.describe(expected: expected)}, got "${_shown(actual) ?? 'null'}"';
 
 /// How many characters of the value an assertion saw are quoted in a message.
 /// [AssertionResult.actual] keeps the whole value; the message only has to say
