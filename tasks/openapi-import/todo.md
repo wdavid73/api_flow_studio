@@ -22,7 +22,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-openapi-import.md](../../SPEC-openapi-im
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_schema.dart`, `test/engine/import/openapi/openapi_schema_test.dart`
 
-- [ ] **O5: operaciones — estructura, URL, servidor y parámetros**
+- [x] **O5: operaciones — estructura, URL, servidor y parámetros**
   - Acceptance: carpeta raíz y tags en orden; primer tag; `{{base_url}}`/`{{param}}`; servidor con variables, relativo, ausente, otros; parámetros path/query/header, cookie y objeto avisados; herencia ruta→operación
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_operation.dart`, `openapi_importer.dart`, `test/engine/import/openapi/openapi_operation_test.dart`

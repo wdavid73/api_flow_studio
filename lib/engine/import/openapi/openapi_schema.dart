@@ -35,6 +35,30 @@ class SchemaSampler {
     return identical(value, _omit) ? null : value;
   }
 
+  /// What the file itself gives for [schema] (`example`, `default`, `const`, or the first
+  /// `enum` value), or `found: false` when it says nothing: a parameter that is required
+  /// but has none of these becomes a variable to fill in rather than an invented value.
+  ({bool found, Object? value}) given(Object? schema, {String where = ''}) {
+    final map = _refs.resolve(schema, where: where);
+    if (map == null) return (found: false, value: null);
+    for (final key in const ['example', 'default', 'const']) {
+      if (map.containsKey(key)) return (found: true, value: plainExample(map[key], where: where));
+    }
+    final choices = asList(map['enum']);
+    if (choices.isNotEmpty) return (found: true, value: plainExample(choices.first, where: where));
+    return (found: false, value: null);
+  }
+
+  /// [value] (an example the file gives) as plain JSON data, within the allowance.
+  Object? plainExample(Object? value, {String where = ''}) {
+    final run = _Run();
+    final plain = _plain(value, run, 0);
+    if (run.cut) {
+      _warnings.add(ImportWarning(where: where, message: 'the example was cut short (it is too deep or too large)'));
+    }
+    return plain;
+  }
+
   /// Stands for "leave this out of the object or array that holds it" (a recursive part).
   static final Object _omit = Object();
 
