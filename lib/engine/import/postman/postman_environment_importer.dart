@@ -2,7 +2,7 @@ import '../../models/models.dart';
 import '../import_result.dart';
 import '../import_source.dart';
 import '../importer.dart';
-import 'postman_json.dart';
+import '../import_json.dart';
 import 'postman_variables.dart';
 
 /// A Postman environment file, or its globals: `{name, values: [{key, value, type,

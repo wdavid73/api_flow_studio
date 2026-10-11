@@ -1,6 +1,6 @@
 import '../../models/models.dart';
 import '../import_result.dart';
-import 'postman_json.dart';
+import '../import_json.dart';
 import 'postman_variables.dart';
 
 /// The authentication a Postman node ends up with. This app has bearer and basic as

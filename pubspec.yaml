@@ -46,6 +46,8 @@ dependencies:
   uuid: ^4.5.1
   # Argument parsing for the terminal runner (bin/api_flow_runner.dart).
   args: ^2.7.0
+  # Reads OpenAPI specs written in YAML (import).
+  yaml: ^3.1.4
   # Native open/save file dialogs, used by collections import/export.
   file_picker: ^8.1.6
 

@@ -1,5 +1,6 @@
 import '../../variables/dynamic_values.dart';
 import '../import_result.dart';
+import '../variable_names.dart';
 
 /// Rewrites the `{{variables}}` of a Postman file into ones this app resolves, and
 /// remembers what it renamed so that can be reported once for the whole file.
@@ -8,12 +9,12 @@ import '../import_result.dart';
 /// would never be filled in: it becomes `{{base_url}}`, here and in the environment
 /// keys alike. Postman's dynamic variables are mapped onto [DynamicValues].
 class VariableTranslator {
+  final VariableNames _names = VariableNames();
+
   /// Names that had to change, original → new.
-  final Map<String, String> renamed = {};
+  Map<String, String> get renamed => _names.renamed;
 
   static final RegExp _token = RegExp(r'\{\{([^{}]+)\}\}');
-  static final RegExp _plainName = RegExp(r'^\w+$');
-  static final RegExp _notWord = RegExp(r'\W');
 
   /// Postman dynamic variable → this app's.
   static const Map<String, String> _dynamicNames = {
@@ -44,19 +45,10 @@ class VariableTranslator {
   }
 
   /// [name] as a variable name the engine can resolve (the same rewrite every time).
-  String sanitizeName(String name) {
-    if (_plainName.hasMatch(name)) return name;
-    final fixed = name.replaceAll(_notWord, '_');
-    renamed[name] = fixed;
-    return fixed;
-  }
+  String sanitizeName(String name) => _names.sanitize(name);
 
   /// One warning for the whole file listing every rename, or null if there were none.
-  ImportWarning? renamedWarning() {
-    if (renamed.isEmpty) return null;
-    final changes = renamed.entries.map((e) => '${e.key} → ${e.value}').join(', ');
-    return ImportWarning(message: 'variable names changed (only letters, digits and _ are supported): $changes');
-  }
+  ImportWarning? renamedWarning() => _names.renamedWarning();
 }
 
 /// The warning for [names] (dynamic variables this app cannot generate) found at [where].

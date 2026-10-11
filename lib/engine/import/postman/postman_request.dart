@@ -3,7 +3,7 @@ import 'dart:convert';
 import '../../models/models.dart';
 import '../import_result.dart';
 import 'postman_auth.dart';
-import 'postman_json.dart';
+import '../import_json.dart';
 import 'postman_variables.dart';
 
 /// One Postman item that has a `request`, as an [Endpoint] with the given ids.

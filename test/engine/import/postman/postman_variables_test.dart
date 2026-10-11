@@ -1,4 +1,4 @@
-import 'package:api_flow_studio/engine/import/postman/postman_json.dart';
+import 'package:api_flow_studio/engine/import/import_json.dart';
 import 'package:api_flow_studio/engine/import/postman/postman_variables.dart';
 import 'package:api_flow_studio/engine/variables/dynamic_values.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -119,6 +119,11 @@ void main() {
       expect(asString('x'), 'x');
       expect(asString(3), isNull);
       expect(asString(null), isNull);
+    });
+
+    test('asMap copes with keys that are not text (YAML writes 200: as a number)', () {
+      expect(asMap({200: 'ok', 'name': 'x', true: 'yes'}), {'200': 'ok', 'name': 'x', 'true': 'yes'});
+      expect(asMap(<Object?, Object?>{}), <String, dynamic>{});
     });
 
     test('textOf reads a description given as text or as an object', () {

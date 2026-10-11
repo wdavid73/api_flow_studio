@@ -2,7 +2,7 @@
 
 Plan: [plan.md](plan.md) · Spec: [SPEC-openapi-import.md](../../SPEC-openapi-import.md)
 
-- [ ] **O1: preparación — lectores y saneado compartidos, `yaml` declarada**
+- [x] **O1: preparación — lectores y saneado compartidos, `yaml` declarada**
   - Acceptance: `import_json.dart` movido (Postman sin cambios); `asMap` no lanza con claves enteras; `VariableNames` extraído con tests; `yaml` en `pubspec.yaml`
   - Verify: `fvm flutter pub get && fvm flutter test test/engine/import`
   - Files: `lib/engine/import/import_json.dart`, `lib/engine/import/variable_names.dart`, `lib/engine/import/postman/*`, `pubspec.yaml`, `pubspec.lock`, tests
