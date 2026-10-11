@@ -7,7 +7,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-import-core.md](../../SPEC-import-core.m
   - Verify: `fvm flutter test test/engine/import`
   - Files: `lib/engine/import/import_result.dart`, `import_source.dart`, `importer.dart`, `import_naming.dart`, `test/engine/import/`
 
-- [ ] **I2: `AppCollectionsImporter` y el registro**
+- [x] **I2: `AppCollectionsImporter` y el registro**
   - Acceptance: parsea `sample-endpoints.json`; formas válidas e inválidas; huérfanos omitidos con aviso; JSON a medias → `ImportException`; `runImport` real importa el sample y rechaza un workspace
   - Verify: `fvm flutter test test/engine/import test/sample_endpoints_test.dart`
   - Files: `lib/engine/import/app_collections_importer.dart`, `importer.dart`, `test/engine/import/app_collections_importer_test.dart`
