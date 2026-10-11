@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 
 import '../models/models.dart';
+import '../variables/dynamic_values.dart';
 import '../variables/interpolator.dart';
 import 'executed_response.dart';
 
@@ -17,23 +18,28 @@ import 'executed_response.dart';
 /// connection refused) populate [ExecutedResponse.error] and leave
 /// [ExecutedResponse.status] null.
 class RequestExecutor {
-  RequestExecutor({Dio? dio}) : _dio = dio ?? Dio();
+  RequestExecutor({Dio? dio, DynamicValues? dynamicValues})
+      : _dio = dio ?? Dio(),
+        _dynamicValues = dynamicValues ?? DynamicValues();
 
   final Dio _dio;
+
+  /// Fills the `{{$uuid}}`-style tokens; they exist only here, at send time.
+  final DynamicValues _dynamicValues;
 
   Future<ExecutedResponse> execute(
     Endpoint endpoint, {
     required Map<String, String> variables,
   }) async {
-    final url = interpolate(endpoint.url, variables);
+    final url = interpolate(endpoint.url, variables, dynamicValues: _dynamicValues);
     final headers = _resolveEnabled(
-      interpolateEntries(endpoint.headers, variables),
+      interpolateEntries(endpoint.headers, variables, dynamicValues: _dynamicValues),
     );
     final queryParams = _resolveEnabled(
-      interpolateEntries(endpoint.queryParams, variables),
+      interpolateEntries(endpoint.queryParams, variables, dynamicValues: _dynamicValues),
     );
 
-    final resolvedBody = interpolateBody(endpoint.body, variables);
+    final resolvedBody = interpolateBody(endpoint.body, variables, dynamicValues: _dynamicValues);
     final (Object? data, String? contentType) = resolvedBody.when(
       none: () => (null, null),
       json: (raw) => (raw, 'application/json'),
@@ -69,12 +75,14 @@ class RequestExecutor {
         body: response.data,
         elapsedMs: stopwatch.elapsedMilliseconds,
         sizeBytes: _sizeOf(response.data),
+        requestUrl: url,
       );
     } on DioException catch (e) {
       stopwatch.stop();
       return ExecutedResponse(
         elapsedMs: stopwatch.elapsedMilliseconds,
         error: e.message ?? e.toString(),
+        requestUrl: url,
       );
     }
   }
@@ -92,13 +100,13 @@ class RequestExecutor {
     auth.when(
       none: () {},
       basic: (username, password) {
-        final resolvedUser = interpolate(username, variables);
-        final resolvedPassword = interpolate(password, variables);
+        final resolvedUser = interpolate(username, variables, dynamicValues: _dynamicValues);
+        final resolvedPassword = interpolate(password, variables, dynamicValues: _dynamicValues);
         final token = base64Encode(utf8.encode('$resolvedUser:$resolvedPassword'));
         headers['Authorization'] = 'Basic $token';
       },
       bearer: (token) {
-        headers['Authorization'] = 'Bearer ${interpolate(token, variables)}';
+        headers['Authorization'] = 'Bearer ${interpolate(token, variables, dynamicValues: _dynamicValues)}';
       },
     );
   }

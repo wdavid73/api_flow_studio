@@ -160,4 +160,11 @@ void main() {
     );
     expect((parsed.body as RequestBodyJson).raw, '{"name":"Ana"}');
   });
+
+  test('a dynamic token stays literal in the exported curl', () {
+    expect(
+      buildCurl(endpoint(url: 'https://api.example.com/users/{{\$uuid}}')),
+      "curl -X GET 'https://api.example.com/users/{{\$uuid}}'",
+    );
+  });
 }

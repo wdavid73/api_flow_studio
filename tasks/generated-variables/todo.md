@@ -12,12 +12,12 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-generated-variables.md](../../SPEC-gener
   - Verify: `fvm flutter test test/engine/variables`
   - Files: `lib/engine/variables/interpolator.dart`, `test/engine/variables/interpolator_test.dart`
 
-- [ ] **G3: `RequestExecutor` + `ExecutedResponse.requestUrl`**
+- [x] **G3: `RequestExecutor` + `ExecutedResponse.requestUrl`**
   - Acceptance: valores reales en URL, query, headers, body json/form y auth; dos envíos difieren; `requestUrl` = URL enviada (éxito y error); `curl_builder` deja el token literal
   - Verify: `fvm dart run build_runner build --delete-conflicting-outputs && fvm flutter test test/engine`
   - Files: `lib/engine/http/request_executor.dart`, `lib/engine/http/executed_response.dart` (+ `.freezed.dart`), `test/engine/http/request_executor_test.dart`, `test/engine/curl/`
 
-- [ ] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
+- [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
 - [ ] **G4: UI — resaltado y validación JSON**
   - Acceptance: `{{$uuid}}` cian, `{{$nope}}` ámbar, `{{var}}` igual que antes; `{"n": {{$randomInt}}}` es JSON válido y no se reformatea

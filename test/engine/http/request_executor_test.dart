@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:api_flow_studio/engine/http/request_executor.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
+import 'package:api_flow_studio/engine/variables/dynamic_values.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -281,5 +282,105 @@ void main() {
           options: captureAny(named: 'options'),
         )).captured.single as Options;
     expect(options.headers?.containsKey('Authorization'), isFalse);
+  });
+
+  group('dynamic tokens', () {
+    setUp(() {
+      when(() => dio.request<dynamic>(
+            any(),
+            data: any(named: 'data'),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).thenAnswer((_) async => _response(statusCode: 200, data: {}));
+      executor = RequestExecutor(dio: dio, dynamicValues: DynamicValues());
+    });
+
+    const dynamicEndpoint = Endpoint(
+      id: 'e-2',
+      groupId: 'g-1',
+      name: 'Create user',
+      method: 'POST',
+      url: 'https://api.test/users/{{\$uuid}}',
+      headers: [KeyValueEntry(key: 'X-Request-Id', value: '{{\$uuid}}')],
+      queryParams: [KeyValueEntry(key: 'n', value: '{{\$randomInt}}')],
+      body: RequestBody.json('{"email":"{{\$randomEmail}}"}'),
+      authConfig: AuthConfig.bearer(token: '{{\$randomString}}'),
+    );
+
+    test('are resolved in url, headers, query, json body and auth', () async {
+      await executor.execute(dynamicEndpoint, variables: const {});
+
+      final captured = verify(() => dio.request<dynamic>(
+            captureAny(),
+            data: captureAny(named: 'data'),
+            queryParameters: captureAny(named: 'queryParameters'),
+            options: captureAny(named: 'options'),
+          )).captured;
+      final url = captured[0] as String;
+      final data = captured[1] as String;
+      final query = captured[2] as Map<String, String>;
+      final options = captured[3] as Options;
+
+      expect(url, matches(RegExp(r'^https://api\.test/users/[0-9a-f-]{36}$')));
+      expect(options.headers!['X-Request-Id'], matches(RegExp(r'^[0-9a-f-]{36}$')));
+      expect(query['n'], matches(RegExp(r'^\d+$')));
+      expect(data, matches(RegExp(r'^\{"email":"test\.[a-z0-9]{8}@example\.com"\}$')));
+      expect(options.headers!['Authorization'], matches(RegExp(r'^Bearer [a-z0-9]{12}$')));
+    });
+
+    test('are resolved in form-urlencoded fields and basic auth', () async {
+      await executor.execute(
+        dynamicEndpoint.copyWith(
+          body: const RequestBody.formUrlEncoded([KeyValueEntry(key: 'e', value: '{{\$randomEmail}}')]),
+          authConfig: const AuthConfig.basic(username: 'u-{{\$randomInt}}', password: 'p'),
+        ),
+        variables: const {},
+      );
+      final captured = verify(() => dio.request<dynamic>(
+            any(),
+            data: captureAny(named: 'data'),
+            queryParameters: any(named: 'queryParameters'),
+            options: captureAny(named: 'options'),
+          )).captured;
+      expect((captured[0] as Map)['e'], isNot(contains('{{')));
+      final auth = (captured[1] as Options).headers!['Authorization'] as String;
+      final decoded = utf8.decode(base64Decode(auth.substring('Basic '.length)));
+      expect(decoded, matches(RegExp(r'^u-\d+:p$')));
+    });
+
+    test('two sends produce different values and requestUrl is the url sent', () async {
+      final first = await executor.execute(dynamicEndpoint, variables: const {});
+      final second = await executor.execute(dynamicEndpoint, variables: const {});
+
+      expect(first.requestUrl, isNot(second.requestUrl));
+      final urls = verify(() => dio.request<dynamic>(
+            captureAny(),
+            data: any(named: 'data'),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).captured.cast<String>();
+      expect(urls, [first.requestUrl, second.requestUrl]);
+    });
+
+    test('requestUrl is also reported when the transport fails', () async {
+      when(() => dio.request<dynamic>(
+            any(),
+            data: any(named: 'data'),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).thenThrow(DioException(requestOptions: RequestOptions(path: '/'), message: 'boom'));
+
+      final response = await executor.execute(dynamicEndpoint, variables: const {});
+
+      expect(response.error, 'boom');
+      expect(response.requestUrl, startsWith('https://api.test/users/'));
+      expect(response.requestUrl, isNot(contains('{{')));
+    });
+
+    test('the default executor generates values so tokens never reach the server', () async {
+      executor = RequestExecutor(dio: dio);
+      final response = await executor.execute(dynamicEndpoint, variables: const {});
+      expect(response.requestUrl, isNot(contains('{{')));
+    });
   });
 }
