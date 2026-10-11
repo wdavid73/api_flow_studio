@@ -22,7 +22,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-cli.md](../../SPEC-flow-cli.md)
   - Verify: `fvm flutter test test/cli/redactor_test.dart test/cli/run_report_test.dart`
   - Files: `lib/cli/redactor.dart`, `lib/cli/run_report.dart`, tests correspondientes
 
-- [ ] **C5: reporters (consola, JUnit, JSON)**
+- [x] **C5: reporters (consola, JUnit, JSON)**
   - Acceptance: formatos de la spec; escape XML; `failure`/`error`/`skipped`; JSON con su esquema; redacción aplicada
   - Verify: `fvm flutter test test/cli/reporters`
   - Files: `lib/cli/reporters/console_reporter.dart`, `junit_reporter.dart`, `json_reporter.dart`, `test/cli/reporters/`
