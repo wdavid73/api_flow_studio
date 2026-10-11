@@ -26,14 +26,17 @@ class ErrorDetailPanel extends StatelessWidget {
             classifyFailure(result),
             style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
           ),
+          // One line per failed assertion (a step can fail several).
           if (result.failureReason != null)
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.xs),
-              child: Text(
-                result.failureReason!,
-                style: const TextStyle(color: AppColors.onSurface),
+            for (final (i, line) in result.failureReason!.split('\n').indexed)
+              Padding(
+                key: ValueKey('error-line-$i'),
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  line,
+                  style: const TextStyle(color: AppColors.onSurface),
+                ),
               ),
-            ),
         ],
       ),
     );

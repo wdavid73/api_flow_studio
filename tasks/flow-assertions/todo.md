@@ -24,7 +24,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-assertions.md](../../SPEC-flow-asse
   - Verify: `fvm flutter test test/ui/flows/step_card_editor_test.dart test/ui/flows/flow_builder_screen_test.dart`
   - Files: `lib/ui/flows/step_card.dart`, `test/ui/flows/step_card_editor_test.dart`
 
-- [ ] **A5: vista de ejecución**
+- [x] **A5: vista de ejecución**
   - Acceptance: panel de error con una línea por fallo; pestaña Assertions con ✓/✗; resumen `n/m` en la tarjeta; sin assertions todo igual que hoy
   - Verify: `fvm flutter test test/ui/flows`
   - Files: `lib/ui/flows/error_detail_panel.dart`, `lib/ui/flows/assertions_tab.dart`, `lib/ui/flows/run_step_inspector.dart`, `lib/ui/flows/run_step_card.dart`, `test/ui/flows/`

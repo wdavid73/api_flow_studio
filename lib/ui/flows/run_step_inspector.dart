@@ -11,6 +11,7 @@ import '../theme/widgets/json_view.dart';
 import '../theme/widgets/method_badge.dart';
 import '../theme/widgets/pill_tab_bar.dart';
 import '../theme/widgets/status_badge.dart';
+import 'assertions_tab.dart';
 import 'error_detail_panel.dart';
 
 /// The right-hand detail panel for whichever step is selected in the run
@@ -40,6 +41,7 @@ class RunStepInspector extends StatelessWidget {
     final failed = result.status == FlowStepStatus.failure;
     final tabs = [
       if (failed) 'Error Details',
+      if (result.assertionResults.isNotEmpty) 'Assertions',
       'Request Sent',
       'Response Body',
       'Headers',
@@ -94,6 +96,7 @@ class RunStepInspector extends StatelessWidget {
                       child: TabBarView(
                         children: [
                           if (failed) ErrorDetailPanel(result: result),
+                          if (result.assertionResults.isNotEmpty) AssertionsTab(results: result.assertionResults),
                           Padding(
                             padding: const EdgeInsets.only(top: AppSpacing.sm),
                             child: SelectableText(

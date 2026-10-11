@@ -28,6 +28,13 @@ class RunStepCard extends StatelessWidget {
   final bool isSelected;
   final VoidCallback? onSelect;
 
+  /// `2/3 assertions` once the step has run with assertions, else null.
+  String? get _assertionSummary {
+    final results = result?.assertionResults ?? const <AssertionResult>[];
+    if (results.isEmpty) return null;
+    return '${results.where((r) => r.passed).length}/${results.length} assertions';
+  }
+
   bool get _isSelectable => result != null && result!.status != FlowStepStatus.skipped;
 
   @override
@@ -82,6 +89,16 @@ class RunStepCard extends StatelessWidget {
                       ),
                       if (status == FlowStepStatus.skipped)
                         const Text('Skipped', style: TextStyle(color: AppColors.outline)),
+                      if (_assertionSummary != null)
+                        Text(
+                          _assertionSummary!,
+                          key: ValueKey('run-step-assertions-$index'),
+                          style: TextStyle(
+                            color: result!.assertionResults.every((r) => r.passed)
+                                ? AppColors.onSurfaceVariant
+                                : AppColors.error,
+                          ),
+                        ),
                     ],
                   ),
                 ),

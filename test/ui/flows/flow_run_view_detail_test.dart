@@ -183,6 +183,109 @@ void main() {
     });
   });
 
+  group('assertions in the run view', () {
+    testWidgets('a step with three assertions shows n/m, an Assertions tab with a mark each, and one error line per failure',
+        (tester) async {
+      await tester.runAsync(() async {
+        final flow = Flow(
+          id: 'f-1',
+          name: 'Flow',
+          steps: const [
+            FlowStep(endpointId: 'e-1', assertions: [
+              Assertion(field: 'response.status', expected: '200'),
+              Assertion(field: 'response.body.id', operator: AssertionOperator.exists),
+              Assertion(field: 'response.body.name', operator: AssertionOperator.exists),
+            ]),
+          ],
+        );
+        final executor = MockRequestExecutor();
+        when(() => executor.execute(checkUser, variables: any(named: 'variables'))).thenAnswer(
+          (_) async => const ExecutedResponse(status: 404, body: {'id': 'u-1'}, elapsedMs: 50),
+        );
+
+        await pumpRunView(tester, flow, executor: executor);
+
+        expect(find.text('1/3 assertions'), findsOneWidget);
+        // The failed step is auto-selected: its Error Details tab lists each failure on its own line.
+        expect(find.byKey(const Key('error-line-0')), findsOneWidget);
+        expect(find.byKey(const Key('error-line-1')), findsOneWidget);
+        expect(find.byKey(const Key('error-line-2')), findsNothing);
+
+        await tester.tap(find.text('Assertions'));
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('assertion-result-0')), findsOneWidget);
+        expect(find.byKey(const Key('assertion-passed-0')), findsNothing);
+        expect(find.byKey(const Key('assertion-failed-0')), findsOneWidget);
+        expect(find.byKey(const Key('assertion-passed-1')), findsOneWidget);
+        expect(find.byKey(const Key('assertion-failed-2')), findsOneWidget);
+        expect(find.textContaining('response.status == "200"'), findsWidgets);
+        expect(find.textContaining('got "404"'), findsWidgets);
+      });
+    });
+
+    testWidgets('a step that passes still lists what was checked', (tester) async {
+      await tester.runAsync(() async {
+        final flow = Flow(
+          id: 'f-1',
+          name: 'Flow',
+          steps: const [
+            FlowStep(endpointId: 'e-1', assertions: [
+              Assertion(field: 'response.elapsedMs', operator: AssertionOperator.lessThan, expected: '800'),
+            ]),
+          ],
+        );
+        final executor = MockRequestExecutor();
+        when(() => executor.execute(checkUser, variables: any(named: 'variables')))
+            .thenAnswer((_) async => const ExecutedResponse(status: 200, elapsedMs: 50));
+
+        await pumpRunView(tester, flow, executor: executor);
+
+        expect(find.text('1/1 assertions'), findsOneWidget);
+        expect(find.text('Error Details'), findsNothing);
+        await tester.tap(find.text('Assertions'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('assertion-passed-0')), findsOneWidget);
+      });
+    });
+
+    testWidgets('a step without assertions has no Assertions tab and no summary', (tester) async {
+      await tester.runAsync(() async {
+        final flow = Flow(id: 'f-1', name: 'Flow', steps: const [FlowStep(endpointId: 'e-1')]);
+        final executor = MockRequestExecutor();
+        when(() => executor.execute(checkUser, variables: any(named: 'variables')))
+            .thenAnswer((_) async => const ExecutedResponse(status: 200));
+
+        await pumpRunView(tester, flow, executor: executor);
+
+        expect(find.text('Assertions'), findsNothing);
+        expect(find.textContaining('assertions'), findsNothing);
+      });
+    });
+
+    testWidgets('an invalid path is a failed row with its message', (tester) async {
+      await tester.runAsync(() async {
+        final flow = Flow(
+          id: 'f-1',
+          name: 'Flow',
+          steps: const [
+            FlowStep(endpointId: 'e-1', assertions: [Assertion(field: 'body.id', operator: AssertionOperator.exists)]),
+          ],
+        );
+        final executor = MockRequestExecutor();
+        when(() => executor.execute(checkUser, variables: any(named: 'variables')))
+            .thenAnswer((_) async => const ExecutedResponse(status: 200));
+
+        await pumpRunView(tester, flow, executor: executor);
+        await tester.tap(find.text('Assertions'));
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('assertion-failed-0')), findsOneWidget);
+        expect(find.textContaining('Invalid field path "body.id"'), findsWidgets);
+      });
+    });
+  });
+
   testWidgets('a skipped step cannot be expanded', (tester) async {
     await tester.runAsync(() async {
       final flow = Flow(
