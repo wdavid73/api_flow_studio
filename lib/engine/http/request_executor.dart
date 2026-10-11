@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 
+import '../models/file_paths.dart';
 import '../models/models.dart';
 import '../variables/dynamic_values.dart';
 import '../variables/interpolator.dart';
 import 'executed_response.dart';
+import 'mime_types.dart';
 
 /// Sends an [Endpoint] over real HTTP using `dio`, after resolving its
 /// `{{variable}}` tokens. This is the single entrypoint used both by the
@@ -40,21 +43,35 @@ class RequestExecutor {
     final headers = _resolveEnabled(entries(endpoint.headers));
     final queryParams = _resolveEnabled(entries(endpoint.queryParams));
 
+    final sentUrl = _withQuery(url, queryParams);
+
     final resolvedBody = interpolateBody(endpoint.body, variables, dynamicValues: _dynamicValues);
-    final (Object? data, String? contentType) = resolvedBody.when(
-      none: () => (null, null),
-      json: (raw) => (raw, 'application/json'),
-      formUrlEncoded: (fields) => (
-        _resolveEnabled(fields),
-        'application/x-www-form-urlencoded',
-      ),
-    );
-    if (contentType != null) {
-      headers.putIfAbsent('Content-Type', () => contentType);
+    final multipartFields = resolvedBody.maybeMap(multipart: (b) => b.fields, orElse: () => null);
+    final Object? data;
+    final String? contentType;
+    if (multipartFields != null) {
+      final built = await _buildFormData(multipartFields);
+      if (built.error != null) return ExecutedResponse(error: built.error, requestUrl: sentUrl);
+      data = built.data;
+      contentType = null;
+      // dio writes the Content-Type itself, with the boundary of this body.
+      headers.removeWhere((name, _) => name.toLowerCase() == 'content-type');
+    } else {
+      (data, contentType) = resolvedBody.when(
+        none: () => (null, null),
+        json: (raw) => (raw, 'application/json'),
+        formUrlEncoded: (fields) => (
+          _resolveEnabled(fields),
+          'application/x-www-form-urlencoded',
+        ),
+        multipart: (_) => (null, null), // handled above
+      );
+    }
+    final defaultType = contentType;
+    if (defaultType != null) {
+      headers.putIfAbsent('Content-Type', () => defaultType);
     }
     _applyAuth(endpoint.authConfig, text, headers);
-
-    final sentUrl = _withQuery(url, queryParams);
 
     final stopwatch = Stopwatch()..start();
     try {
@@ -88,6 +105,42 @@ class RequestExecutor {
         requestUrl: sentUrl,
       );
     }
+  }
+
+  /// The `FormData` for [fields], or an error message when a file cannot be sent.
+  /// Never throws: a missing file is a failed request, like a refused connection.
+  /// Files are streamed by dio, not read into memory here.
+  Future<({FormData? data, String? error})> _buildFormData(List<MultipartField> fields) async {
+    final form = FormData();
+    for (final field in fields) {
+      if (!field.enabled || field.name.isEmpty) continue;
+      if (field.kind == MultipartFieldKind.text) {
+        form.fields.add(MapEntry(field.name, field.value));
+        continue;
+      }
+
+      final path = field.value;
+      if (path.isEmpty) return (data: null, error: 'Field "${field.name}" has no file chosen');
+
+      final typeText = (field.contentType ?? '').isEmpty ? contentTypeForPath(path) : field.contentType!;
+      final DioMediaType type;
+      try {
+        type = DioMediaType.parse(typeText);
+      } on FormatException {
+        return (data: null, error: 'Invalid content type "$typeText" for field "${field.name}"');
+      }
+
+      try {
+        form.files.add(MapEntry(
+          field.name,
+          await MultipartFile.fromFile(path, filename: fileBaseName(path), contentType: type),
+        ));
+      } on FileSystemException catch (e) {
+        // A missing file, a folder, no permission: the OS says which.
+        return (data: null, error: 'Cannot read the file for field "${field.name}": $path (${e.osError?.message ?? e.message})');
+      }
+    }
+    return (data: form, error: null);
   }
 
   /// [url] with [params] appended the way dio does it, so what the UI shows as

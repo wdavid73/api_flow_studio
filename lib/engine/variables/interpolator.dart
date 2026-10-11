@@ -53,7 +53,9 @@ List<KeyValueEntry> interpolateEntries(
 }
 
 /// Interpolates a [RequestBody]: the raw string of a json body, or the
-/// enabled fields of a formUrlEncoded body. `none` is returned unchanged.
+/// enabled fields of a formUrlEncoded body, and the name, value (text or file
+/// path) and content type of the enabled fields of a multipart one. `none` is
+/// returned unchanged.
 RequestBody interpolateBody(
   RequestBody body,
   Map<String, String> variables, {
@@ -65,5 +67,19 @@ RequestBody interpolateBody(
     formUrlEncoded: (b) => RequestBody.formUrlEncoded(
       interpolateEntries(b.fields, variables, dynamicValues: dynamicValues),
     ),
+    multipart: (b) => RequestBody.multipart([
+      for (final field in b.fields)
+        // A disabled field is not sent, so it is not resolved either.
+        if (!field.enabled)
+          field
+        else
+          field.copyWith(
+            name: interpolate(field.name, variables, dynamicValues: dynamicValues),
+            value: interpolate(field.value, variables, dynamicValues: dynamicValues),
+            contentType: field.contentType == null
+                ? null
+                : interpolate(field.contentType!, variables, dynamicValues: dynamicValues),
+          ),
+    ]),
   );
 }

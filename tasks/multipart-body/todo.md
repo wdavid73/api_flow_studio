@@ -2,12 +2,12 @@
 
 Plan: [plan.md](plan.md) · Spec: [SPEC-multipart-body.md](../../SPEC-multipart-body.md)
 
-- [ ] **M1: enviar un cuerpo multipart (engine)**
+- [x] **M1: enviar un cuerpo multipart (engine)**
   - Acceptance: modelo + JSON; `FormData` con texto/archivo en orden; MIME inferido o explícito; deshabilitados/sin nombre ignorados; `Content-Type` manual descartado; errores previos al envío sin llamar a dio; interpolación en nombre, texto, ruta y tipo; `buildCurl` con `--form-string`/`-F`; ramas mínimas en UI y FakeBackend
   - Verify: `fvm dart run build_runner build --delete-conflicting-outputs && fvm flutter test test/engine test/ui/request_builder test/ui/flows`
   - Files: `lib/engine/models/multipart_field.dart`, `request_body.dart`, `models.dart`, `lib/engine/http/mime_types.dart`, `request_executor.dart`, `lib/engine/variables/interpolator.dart`, `lib/engine/curl/curl_builder.dart`, `lib/ui/request_builder/tabs/body_tab.dart`, `lib/ui/flows/step_card.dart`, `integration_test/support/fake_backend.dart`, tests
 
-- [ ] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
+- [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
 - [ ] **M2: pegar un curl con `-F`**
   - Acceptance: `-F`/`--form`/`--form-string` repetibles; `@ruta;type=`; `<ruta` como texto; implica POST; mezcla con `--data` → error; round-trip con `buildCurl`

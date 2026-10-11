@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:api_flow_studio/engine/http/executed_response.dart';
 import 'package:api_flow_studio/engine/http/request_executor.dart';
+import 'package:api_flow_studio/engine/models/file_paths.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/engine/variables/dynamic_values.dart';
 import 'package:api_flow_studio/engine/variables/interpolator.dart';
@@ -75,6 +76,12 @@ class FakeBackend implements RequestExecutor {
       none: () => null,
       json: (raw) => raw,
       formUrlEncoded: (fields) => [for (final f in fields) if (f.enabled) '${f.key}=${f.value}'].join('&'),
+      // A readable summary of the parts: text as name=value, files as name=@file-name.
+      multipart: (fields) => [
+        for (final f in fields)
+          if (f.enabled && f.name.isNotEmpty)
+            f.kind == MultipartFieldKind.file ? '${f.name}=@${fileBaseName(f.value)}' : '${f.name}=${f.value}',
+      ].join('&'),
     );
 
     final call = RecordedCall(

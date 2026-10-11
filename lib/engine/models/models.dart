@@ -8,4 +8,5 @@ export 'flow_step.dart';
 export 'group.dart';
 export 'history_entry.dart';
 export 'key_value_entry.dart';
+export 'multipart_field.dart';
 export 'request_body.dart';

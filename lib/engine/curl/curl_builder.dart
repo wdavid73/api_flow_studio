@@ -19,6 +19,7 @@ String buildCurl(Endpoint endpoint, {Map<String, String> variables = const {}}) 
 
   final (String? data, String? contentType) = interpolateBody(endpoint.body, variables).when(
     none: () => (null, null),
+    multipart: (_) => (null, null), // written as --form lines below
     json: (raw) => (raw, 'application/json'),
     formUrlEncoded: (fields) => (
       [
@@ -46,6 +47,18 @@ String buildCurl(Endpoint endpoint, {Map<String, String> variables = const {}}) 
   final lines = ["curl -X ${endpoint.method} ${_quote(_urlWithQuery(endpoint, variables))}"];
   headers.forEach((key, value) => lines.add('  -H ${_quote('$key: $value')}'));
   if (data != null) lines.add('  --data ${_quote(data)}');
+  // curl adds the Content-Type and boundary of a form on its own.
+  interpolateBody(endpoint.body, variables).maybeMap(
+    multipart: (b) {
+      for (final field in b.fields.where((f) => f.enabled && f.name.isNotEmpty)) {
+        lines.add(switch (field.kind) {
+          MultipartFieldKind.text => '  --form-string ${_quote('${field.name}=${field.value}')}',
+          MultipartFieldKind.file => '  -F ${_quote('${field.name}=@${_formFile(field)}')}',
+        });
+      }
+    },
+    orElse: () {},
+  );
   return lines.join(' \\\n');
 }
 
@@ -57,6 +70,16 @@ String _urlWithQuery(Endpoint endpoint, Map<String, String> variables) {
   ].join('&');
   if (query.isEmpty) return url;
   return '$url${url.contains('?') ? '&' : '?'}$query';
+}
+
+/// The part of a `-F name=@...` value after the `@`: the path, double-quoted when
+/// curl would otherwise read a `;`, `,`, quote or space in it as syntax, then
+/// `;type=...` when the field has an explicit content type.
+String _formFile(MultipartField field) {
+  final needsQuotes = RegExp(r'[;,"\s]').hasMatch(field.value);
+  final path = needsQuotes ? '"${field.value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"' : field.value;
+  final type = field.contentType;
+  return type == null || type.isEmpty ? path : '$path;type=$type';
 }
 
 /// Wraps [value] in single quotes, escaping embedded single quotes as `'\''`.

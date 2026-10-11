@@ -167,4 +167,70 @@ void main() {
       "curl -X GET 'https://api.example.com/users/{{\$uuid}}'",
     );
   });
+
+  group('multipart body', () {
+    Endpoint form(List<MultipartField> fields) =>
+        endpoint(method: 'POST', url: 'https://api.example.com/upload', body: RequestBody.multipart(fields));
+
+    test('text fields use --form-string, files use -F with @, and no Content-Type is added', () {
+      final curl = buildCurl(form(const [
+        MultipartField(name: 'title', value: 'Hello; world'),
+        MultipartField(name: 'avatar', kind: MultipartFieldKind.file, value: '/tmp/a.png'),
+      ]));
+
+      expect(curl, contains("--form-string 'title=Hello; world'"));
+      expect(curl, contains("-F 'avatar=@/tmp/a.png'"));
+      expect(curl, isNot(contains('Content-Type')));
+      expect(curl, isNot(contains('--data')));
+    });
+
+    test('an explicit content type is added as ;type=', () {
+      final curl = buildCurl(form(const [
+        MultipartField(name: 'doc', kind: MultipartFieldKind.file, value: '/tmp/a.bin', contentType: 'application/x-custom'),
+      ]));
+
+      expect(curl, contains("-F 'doc=@/tmp/a.bin;type=application/x-custom'"));
+    });
+
+    test('a path with a semicolon, comma, quote or space is quoted inside the value', () {
+      final curl = buildCurl(form(const [
+        MultipartField(name: 'a', kind: MultipartFieldKind.file, value: '/tmp/with space.png'),
+        MultipartField(name: 'b', kind: MultipartFieldKind.file, value: '/tmp/semi;colon.png', contentType: 'image/png'),
+        MultipartField(name: 'c', kind: MultipartFieldKind.file, value: r'/tmp/say "hi".png'),
+      ]));
+
+      expect(curl, contains("-F 'a=@\"/tmp/with space.png\"'"));
+      expect(curl, contains("-F 'b=@\"/tmp/semi;colon.png\";type=image/png'"));
+      expect(curl, contains("-F 'c=@\"/tmp/say \\\"hi\\\".png\"'"));
+    });
+
+    test('a single quote in a value is escaped like everywhere else', () {
+      final curl = buildCurl(form(const [MultipartField(name: 'q', value: "it's")]));
+
+      expect(curl, contains(r"--form-string 'q=it'\''s'"));
+    });
+
+    test('disabled fields are left out and variables are resolved', () {
+      final curl = buildCurl(
+        form(const [
+          MultipartField(name: 'on', value: '{{v}}'),
+          MultipartField(name: 'off', value: 'x', enabled: false),
+        ]),
+        variables: {'v': 'resolved'},
+      );
+
+      expect(curl, contains("--form-string 'on=resolved'"));
+      expect(curl, isNot(contains('off=')));
+    });
+
+    test('a user-set Content-Type header stays as written (curl will add the boundary)', () {
+      final curl = buildCurl(endpoint(
+        method: 'POST',
+        headers: const [KeyValueEntry(key: 'X-Trace', value: '1')],
+        body: const RequestBody.multipart([MultipartField(name: 'a', value: 'b')]),
+      ));
+
+      expect(curl, contains("-H 'X-Trace: 1'"));
+    });
+  });
 }

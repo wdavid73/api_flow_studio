@@ -224,5 +224,6 @@ class StepCard extends StatelessWidget {
         none: () => null,
         json: (raw) => raw.trim().isEmpty ? null : raw,
         formUrlEncoded: (_) => null,
+        multipart: (_) => null,
       );
 }

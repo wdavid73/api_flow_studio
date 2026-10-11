@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:api_flow_studio/engine/http/executed_response.dart';
 import 'package:api_flow_studio/engine/http/request_executor.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/engine/variables/dynamic_values.dart';
@@ -432,6 +434,193 @@ void main() {
       executor = RequestExecutor(dio: dio);
       final response = await executor.execute(dynamicEndpoint, variables: const {});
       expect(response.requestUrl, isNot(contains('{{')));
+    });
+  });
+
+  group('multipart body', () {
+    late Directory tmp;
+    late File png;
+
+    setUp(() async {
+      tmp = await Directory.systemTemp.createTemp('executor_multipart_');
+      png = File('${tmp.path}/avatar.png')..writeAsBytesSync(List.generate(300, (i) => i % 256));
+      when(() => dio.request<dynamic>(
+            any(),
+            data: any(named: 'data'),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).thenAnswer((_) async => _response(statusCode: 201, data: {}));
+    });
+
+    tearDown(() async {
+      if (await tmp.exists()) await tmp.delete(recursive: true);
+    });
+
+    Endpoint upload(List<MultipartField> fields, {List<KeyValueEntry> headers = const []}) => Endpoint(
+          id: 'e-up',
+          groupId: 'g-1',
+          name: 'Upload',
+          method: 'POST',
+          url: 'https://api.test/upload',
+          headers: headers,
+          body: RequestBody.multipart(fields),
+        );
+
+    Future<(FormData, Options)> sent(Endpoint endpoint, {Map<String, String> variables = const {}}) async {
+      await executor.execute(endpoint, variables: variables);
+      final captured = verify(() => dio.request<dynamic>(
+            any(),
+            data: captureAny(named: 'data'),
+            queryParameters: any(named: 'queryParameters'),
+            options: captureAny(named: 'options'),
+          )).captured;
+      return (captured[0] as FormData, captured[1] as Options);
+    }
+
+    test('sends the text fields and the file as a FormData, keeping repeated names', () async {
+      final (form, _) = await sent(upload([
+        const MultipartField(name: 'title', value: 'Hello'),
+        const MultipartField(name: 'tag', value: 'a'),
+        const MultipartField(name: 'tag', value: 'b'),
+        MultipartField(name: 'avatar', kind: MultipartFieldKind.file, value: png.path),
+      ]));
+
+      expect(form.fields.map((e) => '${e.key}=${e.value}'), ['title=Hello', 'tag=a', 'tag=b']);
+      final file = form.files.single;
+      expect(file.key, 'avatar');
+      expect(file.value.filename, 'avatar.png');
+      expect(file.value.contentType.toString(), 'image/png');
+      expect(file.value.length, 300);
+    });
+
+    test('an explicit content type wins, an unknown extension is octet-stream', () async {
+      final bin = File('${tmp.path}/data.xyz')..writeAsBytesSync([1, 2, 3]);
+
+      final (form, _) = await sent(upload([
+        MultipartField(name: 'a', kind: MultipartFieldKind.file, value: png.path, contentType: 'application/x-custom'),
+        MultipartField(name: 'b', kind: MultipartFieldKind.file, value: bin.path),
+      ]));
+
+      expect(form.files[0].value.contentType.toString(), 'application/x-custom');
+      expect(form.files[1].value.contentType.toString(), 'application/octet-stream');
+    });
+
+    test('a content type cleared to empty is the same as none: inferred from the extension', () async {
+      final (form, _) = await sent(upload([
+        MultipartField(name: 'a', kind: MultipartFieldKind.file, value: png.path, contentType: ''),
+      ]));
+
+      expect(form.files.single.value.contentType.toString(), 'image/png');
+    });
+
+    test('disabled fields and fields without a name are left out', () async {
+      final (form, _) = await sent(upload([
+        const MultipartField(name: 'kept', value: '1'),
+        const MultipartField(name: 'off', value: '2', enabled: false),
+        const MultipartField(name: '', value: '3'),
+        MultipartField(name: 'gone', kind: MultipartFieldKind.file, value: png.path, enabled: false),
+      ]));
+
+      expect(form.fields.map((e) => e.key), ['kept']);
+      expect(form.files, isEmpty);
+    });
+
+    test('a Content-Type header set by hand is dropped so dio can add the boundary', () async {
+      final (_, options) = await sent(upload(
+        const [MultipartField(name: 'a', value: 'b')],
+        headers: const [
+          KeyValueEntry(key: 'content-type', value: 'multipart/form-data'),
+          KeyValueEntry(key: 'X-Trace', value: '1'),
+        ],
+      ));
+
+      expect(options.headers!.keys.map((k) => k.toLowerCase()), isNot(contains('content-type')));
+      expect(options.headers!['X-Trace'], '1');
+    });
+
+    test('names, values, paths and content types are interpolated', () async {
+      final (form, _) = await sent(
+        upload([
+          const MultipartField(name: '{{field}}', value: 'Hi {{who}}'),
+          MultipartField(name: 'file', kind: MultipartFieldKind.file, value: '{{dir}}/avatar.png', contentType: '{{type}}'),
+        ]),
+        variables: {'field': 'title', 'who': 'Ana', 'dir': tmp.path, 'type': 'image/x-test'},
+      );
+
+      expect(form.fields.single.key, 'title');
+      expect(form.fields.single.value, 'Hi Ana');
+      expect(form.files.single.value.contentType.toString(), 'image/x-test');
+    });
+
+    group('a file that cannot be sent fails the request before anything is sent', () {
+      Future<ExecutedResponse> fails(List<MultipartField> fields) async {
+        final response = await executor.execute(upload(fields), variables: const {});
+        verifyNever(() => dio.request<dynamic>(
+              any(),
+              data: any(named: 'data'),
+              queryParameters: any(named: 'queryParameters'),
+              options: any(named: 'options'),
+            ));
+        expect(response.status, isNull);
+        expect(response.requestUrl, 'https://api.test/upload');
+        return response;
+      }
+
+      test('no file chosen', () async {
+        final r = await fails([const MultipartField(name: 'avatar', kind: MultipartFieldKind.file)]);
+
+        expect(r.error, 'Field "avatar" has no file chosen');
+      });
+
+      test('a file that does not exist', () async {
+        final path = '${tmp.path}/missing.png';
+        final r = await fails([MultipartField(name: 'avatar', kind: MultipartFieldKind.file, value: path)]);
+
+        expect(r.error, startsWith('Cannot read the file for field "avatar": $path ('));
+      });
+
+      test('a folder', () async {
+        final r = await fails([MultipartField(name: 'avatar', kind: MultipartFieldKind.file, value: tmp.path)]);
+
+        expect(r.error, startsWith('Cannot read the file for field "avatar": ${tmp.path} ('));
+      });
+
+      test('a content type that is not one', () async {
+        final r = await fails([
+          MultipartField(name: 'avatar', kind: MultipartFieldKind.file, value: png.path, contentType: 'not a type'),
+        ]);
+
+        expect(r.error, 'Invalid content type "not a type" for field "avatar"');
+      });
+
+      test('a disabled file field is not checked', () async {
+        await executor.execute(
+          upload([const MultipartField(name: 'avatar', kind: MultipartFieldKind.file, enabled: false)]),
+          variables: const {},
+        );
+
+        verify(() => dio.request<dynamic>(
+              any(),
+              data: any(named: 'data'),
+              queryParameters: any(named: 'queryParameters'),
+              options: any(named: 'options'),
+            )).called(1);
+      });
+    });
+
+    test('each send builds its own FormData (a FormData can only be read once)', () async {
+      final endpoint = upload([MultipartField(name: 'avatar', kind: MultipartFieldKind.file, value: png.path)]);
+
+      await executor.execute(endpoint, variables: const {});
+      await executor.execute(endpoint, variables: const {});
+
+      final forms = verify(() => dio.request<dynamic>(
+            any(),
+            data: captureAny(named: 'data'),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).captured;
+      expect(identical(forms[0], forms[1]), isFalse);
     });
   });
 }

@@ -185,4 +185,54 @@ void main() {
       expect(value, isNot(contains('{{')));
     });
   });
+
+  group('interpolateBody multipart', () {
+    final dyn = DynamicValues(random: Random(1));
+
+    List<MultipartField> fieldsOf(RequestBody body) =>
+        body.maybeMap(multipart: (b) => b.fields, orElse: () => throw StateError('not multipart'));
+
+    test('resolves name, text, path and content type of enabled fields', () {
+      final result = interpolateBody(
+        const RequestBody.multipart([
+          MultipartField(name: '{{field}}', value: 'Hi {{who}}'),
+          MultipartField(name: 'file', kind: MultipartFieldKind.file, value: '{{dir}}/a.png', contentType: '{{type}}'),
+        ]),
+        {'field': 'title', 'who': 'Ana', 'dir': '/tmp', 'type': 'image/png'},
+      );
+
+      expect(fieldsOf(result), [
+        const MultipartField(name: 'title', value: 'Hi Ana'),
+        const MultipartField(name: 'file', kind: MultipartFieldKind.file, value: '/tmp/a.png', contentType: 'image/png'),
+      ]);
+    });
+
+    test('leaves a disabled field untouched', () {
+      final result = interpolateBody(
+        const RequestBody.multipart([MultipartField(name: 'a', value: '{{x}}', enabled: false)]),
+        {'x': '1'},
+      );
+
+      expect(fieldsOf(result).single.value, '{{x}}');
+    });
+
+    test('keeps kind, enabled and a null content type', () {
+      final result = interpolateBody(
+        const RequestBody.multipart([MultipartField(name: 'a', kind: MultipartFieldKind.file, value: 'p')]),
+        const {},
+      );
+
+      final field = fieldsOf(result).single;
+      expect(field.kind, MultipartFieldKind.file);
+      expect(field.contentType, isNull);
+      expect(field.enabled, isTrue);
+    });
+
+    test('resolves {{\$tokens}} with a generator and leaves them without one', () {
+      const body = RequestBody.multipart([MultipartField(name: 'id', value: '{{\$uuid}}')]);
+
+      expect(fieldsOf(interpolateBody(body, const {}, dynamicValues: dyn)).single.value, matches(RegExp(r'^[0-9a-f-]{36}$')));
+      expect(fieldsOf(interpolateBody(body, const {})).single.value, '{{\$uuid}}');
+    });
+  });
 }
