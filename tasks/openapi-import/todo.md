@@ -12,7 +12,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-openapi-import.md](../../SPEC-openapi-im
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_importer.dart`, `test/engine/import/openapi/openapi_recognition_test.dart`
 
-- [ ] **O3: referencias `$ref`**
+- [x] **O3: referencias `$ref`**
   - Acceptance: locales, anidadas, `~0/~1/%`, ciclos, inexistentes y externas avisadas sin leer nada
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_refs.dart`, `test/engine/import/openapi/openapi_refs_test.dart`
