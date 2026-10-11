@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:api_flow_studio/engine/import/import_registry.dart';
 import 'package:api_flow_studio/engine/import/importer.dart' show maxImportFileBytes;
 import 'package:api_flow_studio/engine/storage/json_store.dart';
 import 'package:api_flow_studio/ui/collections/collections_provider.dart';
@@ -150,7 +151,7 @@ void main() {
       await expectRefused(
         tester,
         PickedImportFile.fromText('thing.json', '{"hello": 1}'),
-        'That file is not a format I can import. Supported: API Flow Studio collections.',
+        'That file is not a format I can import. Supported: ${importers.map((i) => i.formatName).join(', ')}.',
       );
     });
 
