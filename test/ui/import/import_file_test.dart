@@ -291,4 +291,59 @@ void main() {
       expect((await collections()).groups, isEmpty);
     });
   });
+
+  group('OpenAPI files', () {
+    String fixture(String name) => File('test/engine/import/openapi/fixtures/$name').readAsStringSync();
+
+    testWidgets('a spec in YAML with things left out opens the summary and lists them', (tester) async {
+      await pumpSidebar(tester);
+
+      await importFile(tester, PickedImportFile.fromText('orders.openapi.yaml', fixture('orders.openapi.yaml')));
+
+      expect(find.byKey(const Key('import-summary-dialog')), findsOneWidget);
+      expect(find.text('Imported OpenAPI 3.1 spec: 6 requests in 3 folders, 1 environment — 2 values to fill in'), findsOneWidget);
+      expect(find.text('4 things were left out or changed:'), findsOneWidget);
+      expect(find.text('webhooks and callbacks were not imported'), findsOneWidget);
+      expect(find.text('the file declares no servers; set base_url in the imported environment'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('import-summary-close')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Orders API'), findsOneWidget);
+      expect((await collections()).endpoints, hasLength(6));
+      expect((await store.readEnvironments()).single.name, 'Orders API (imported)');
+      expect(await store.readActiveEnvironmentId(), isNull);
+    });
+
+    testWidgets('a JSON spec that needs nothing left out only needs a toast', (tester) async {
+      await pumpSidebar(tester);
+      final text = jsonEncode({
+        'openapi': '3.0.3',
+        'info': {'title': 'Tiny', 'version': '1'},
+        'servers': [{'url': 'https://tiny.test'}],
+        'paths': {
+          '/ping': {'get': {'summary': 'Ping', 'responses': {'200': {'description': 'ok'}}}},
+        },
+      });
+
+      await importFile(tester, PickedImportFile.fromText('tiny.json', text));
+
+      expect(container.read(toastProvider), 'Imported OpenAPI 3.0 spec: 1 request in 1 folder, 1 environment');
+      expect(find.byKey(const Key('import-summary-dialog')), findsNothing);
+    });
+
+    testWidgets('a YAML file that is not valid says so, and a Swagger 2.0 file is explained', (tester) async {
+      await pumpSidebar(tester);
+
+      await importFile(tester, PickedImportFile.fromText('broken.yaml', 'openapi: 3.0.0\ninfo: [unclosed\n'));
+      expect(find.byKey(const Key('import-error-dialog')), findsOneWidget);
+      expect(find.textContaining('That file is not valid YAML'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('import-error-close')));
+      await tester.pumpAndSettle();
+
+      await importFile(tester, PickedImportFile.fromText('old.yaml', "swagger: '2.0'\ninfo: {title: Old}\n"));
+      expect(find.text('That is a Swagger 2.0 file, which is not supported. Convert it to OpenAPI 3 first.'), findsOneWidget);
+      expect((await collections()).groups, isEmpty);
+    });
+  });
 }

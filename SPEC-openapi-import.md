@@ -244,3 +244,29 @@ Convenciones: comentarios `///` con el porqué, mensajes en inglés, lectores to
 5. **Nombres de las variables de credenciales** (`{{BearerAuth_token}}`, `{{ApiKeyAuth}}`): derivadas del nombre del esquema para que
    sean únicas. ¿Prefieres nombres fijos y cortos (`{{token}}`, `{{api_key}}`) aunque dos esquemas puedan chocar?
 6. **Swagger 2.0:** hoy se rechaza con un mensaje. Convertirlo sería un módulo aparte; ¿lo anoto como idea?
+
+## Estado
+
+Implementado de O1 a O9 (`tasks/openapi-import/`). Criterios de éxito y dónde se comprueban:
+
+| # | Criterio | Pruebas |
+|---|---|---|
+| 1 | Carpeta raíz, una subcarpeta por tag y un request por operación, en orden | `openapi_operation_test.dart`, `openapi_importer_test.dart` (Petstore JSON, Orders YAML) |
+| 2 | Método, URL, parámetros (requeridos activados), headers, descripción | `openapi_operation_test.dart` |
+| 3 | Cuerpos JSON, urlencoded, multipart, texto; binario avisado | `openapi_body_test.dart`, `openapi_schema_test.dart` |
+| 4 | Autenticación con variables secretas vacías; no soportados avisados una vez por esquema | `openapi_security_test.dart` |
+| 5 | `servers[0]` como `base_url`; relativo, ausente y varios avisados | `openapi_operation_test.dart` |
+| 6 | `$ref` locales (anidadas, circulares); externas y rotas avisadas y nunca leídas | `openapi_refs_test.dart`, `openapi_importer_test.dart` |
+| 7 | YAML/JSON inválido y Swagger 2.0: mensaje claro, nada cambia | `openapi_recognition_test.dart`, `openapi_apply_test.dart`, `import_file_test.dart` |
+| 8 | Ambiente `<título> (imported)` sin activar; archivos y credenciales por rellenar | `openapi_apply_test.dart` |
+| 9 | Documento hostil acotado en tiempo y tamaño | `openapi_recognition_test.dart`, `openapi_schema_test.dart`, `openapi_importer_test.dart` |
+| 10 | `analyze` y `test` en verde | CI |
+
+Decisiones al implementar: la muestra de un esquema que se refiere a sí mismo deja fuera la parte
+recursiva y avisa **una vez por esquema** (`schema "#/…" refers to itself; the recursive part was left out of the
+examples`), no una vez por operación; el aviso de recorte por tamaño o profundidad es `the example was cut short (it is
+too deep or too large)`, ubicado en la operación; un esquema de seguridad que no existe se avisa
+(`security scheme "x" is not defined; ignored`); las variables del ambiente salen en este orden: `base_url`, las de
+rutas y parámetros y, al final, las credenciales (secretas); un parámetro opcional sin valor lleva `''` y va
+desactivado; un `$ref` entre vecinos (3.1) se resuelve sin los vecinos; las respuestas no se leen; la selección del
+tipo de contenido sin aviso entre alternativas equivalentes (JSON, `+json`, formulario, multipart, texto).

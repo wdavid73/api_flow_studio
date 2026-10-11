@@ -44,9 +44,9 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-openapi-import.md](../../SPEC-openapi-im
   - Verify: `fvm flutter test test/engine/import test/ui/import`
   - Files: `lib/engine/import/openapi/openapi_importer.dart`, `lib/engine/import/import_registry.dart`, `test/engine/import/openapi/`, `test/ui/import/`
 
-- [ ] **O9: UI, journey y README**
+- [x] **O9: UI, journey y README**
   - Acceptance: widget test con avisos; journey con YAML embebido; README con formatos y límites; criterios marcados
   - Verify: `fvm flutter test && fvm flutter analyze`
   - Files: `test/ui/import/import_file_test.dart`, `integration_test/journeys/import_journey.dart`, `README.md`, `SPEC-openapi-import.md`
 
-- [ ] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana
+- [x] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana

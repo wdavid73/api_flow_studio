@@ -41,8 +41,9 @@ Beyond a basic request/response cycle, it supports:
 - **Import** (sidebar): bring a file of requests into the active project as a **new
   folder**, with a summary of what came in and what had to be left out. Today it
   reads the collections JSON that the sidebar's own Export writes (and the bundled
-  `sample-endpoints.json`), **Postman** collections (v2.0 and v2.1) and Postman
-  environment files; see [Importing](#importing).
+  `sample-endpoints.json`), **Postman** collections (v2.0 and v2.1), Postman
+  environment files and **OpenAPI** 3.0/3.1 specs in JSON or YAML; see
+  [Importing](#importing).
 - **Paste-a-curl-command** to prefill a new request's method, URL, headers,
   and body (`-d`, and `-F`/`--form`/`--form-string` for Form Data); the copied
   curl writes Form Data back as `-F`.
@@ -208,6 +209,7 @@ its extension) and brings it in:
 | Collections JSON (the sidebar's Export, `sample-endpoints.json`) | its folders and requests |
 | **Postman collection** v2.0 / v2.1 | a root folder named after the collection with the same tree, in the same order; method, URL, params, headers, description, bodies (raw, urlencoded, Form Data, GraphQL) and authentication (bearer, basic, API key) inherited from folders and the collection; the collection's variables as an environment `<name> (imported)` |
 | **Postman environment** or globals | one environment (secret variables stay secret) |
+| **OpenAPI** 3.0 / 3.1 spec (`.json`, `.yaml`, `.yml`) | a root folder named after the API with a subfolder per tag and a request per operation, in the order of the file; the URL is `{{base_url}}/pets/{{petId}}`; query and header parameters (required ones on, optional ones off), a body example (JSON, form, Form Data, XML/text), and authentication (bearer, basic, API key) as variables; an environment `<title> (imported)` with `base_url` filled in from the first server |
 
 Not imported, and listed in the summary when a file has them: **scripts** (pre-request
 and test — nothing is ever executed), saved example responses, OAuth and the other
@@ -218,6 +220,17 @@ matching `Content-Type`. Postman's dynamic variables are mapped onto this app's
 digits and `_` are renamed (`base-url` becomes `base_url`) everywhere in the file so they
 still resolve, and the summary lists the renames. A Postman **v1** collection is refused
 with a note to export it again as v2.1.
+
+For **OpenAPI**, the examples come from the file (`example`, `examples`, `default`,
+`enum`) or, failing that, from a plain sample built from the schema (read-only
+properties left out, a limit on depth and size, and the recursive part of a schema that
+refers to itself omitted). Credentials become **secret, empty** variables named after the
+security scheme (`{{BearerAuth_token}}`), so there is something to fill in and nothing is
+made up. OAuth2, OpenID Connect and mutual TLS have no equivalent here and are listed in
+the summary; so are cookie parameters, webhooks and callbacks, servers beyond the first
+(only `servers[0]` becomes `base_url`), and binary request bodies. Only `$ref`s inside the
+file are followed: a reference to another file or a URL is never read or fetched, only
+reported. A **Swagger 2.0** file is refused with a note to convert it first.
 
 ## Projects and workspaces
 

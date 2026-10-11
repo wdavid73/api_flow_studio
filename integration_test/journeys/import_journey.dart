@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/ui/import/import_file_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -152,6 +153,102 @@ void defineImportJourney(JourneyHarness Function() harness) {
         expect(environments, hasLength(before + 1));
         expect(environments.last.name, 'Staging');
         expect(environments.last.variables.keys, ['base_url']);
+      });
+    });
+
+    group('from OpenAPI', () {
+      /// A small spec in YAML: a tag, a path parameter, a body, bearer security, a cookie.
+      const spec = '''
+openapi: 3.0.3
+info:
+  title: Library API
+  version: 1.0.0
+servers:
+  - url: https://library.test/v1
+tags:
+  - name: books
+security:
+  - BearerAuth: []
+paths:
+  /books/{bookId}:
+    get:
+      tags: [books]
+      summary: Get a book
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 12
+        - name: session
+          in: cookie
+          schema:
+            type: string
+      responses:
+        200:
+          description: ok
+  /books:
+    post:
+      tags: [books]
+      summary: Add a book
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  example: Dune
+      responses:
+        201:
+          description: created
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+''';
+
+      journeyTest('a YAML spec brings a folder per tag, an environment with the server, and what is left to fill in', (tester) async {
+        final app = await harness().launchApp(tester);
+
+        await app.importIntoSidebar(PickedImportFile.fromText('library.openapi.yaml', spec));
+
+        expect(find.byKey(const Key('import-summary-dialog')), findsOneWidget);
+        expect(find.text('Imported OpenAPI 3.0 spec: 2 requests in 2 folders, 1 environment — 1 value to fill in'), findsOneWidget);
+        expect(find.text('cookie parameter "session" was not imported'), findsOneWidget);
+        await app.tapKey(const Key('import-summary-close'));
+
+        expect(find.text('Library API'), findsOneWidget);
+        final collections = await app.store.readCollections();
+        expect(collections.groups.map((g) => g.name), containsAll(['Library API', 'books']));
+        final get = collections.endpoints.firstWhere((e) => e.name == 'Get a book');
+        expect(get.url, '{{base_url}}/books/{{bookId}}');
+        expect(get.authConfig, const AuthConfig.bearer(token: '{{BearerAuth_token}}'));
+        final add = collections.endpoints.firstWhere((e) => e.name == 'Add a book');
+        expect(jsonDecode(add.body.maybeMap(json: (b) => b.raw, orElse: () => '{}')), {'title': 'Dune'});
+
+        final environment = (await app.store.readEnvironments()).firstWhere((e) => e.name == 'Library API (imported)');
+        expect(environment.variables['base_url']!.value, 'https://library.test/v1');
+        expect(environment.variables['bookId']!.value, '12');
+        expect(environment.variables['BearerAuth_token']!.secret, isTrue);
+      });
+
+      journeyTest('importing the same spec twice leaves two folders and two environments with their own names', (tester) async {
+        final app = await harness().launchApp(tester);
+
+        await app.importIntoSidebar(PickedImportFile.fromText('library.openapi.yaml', spec));
+        await app.tapKey(const Key('import-summary-close'));
+        await app.importIntoSidebar(PickedImportFile.fromText('library.openapi.yaml', spec));
+        await app.tapKey(const Key('import-summary-close'));
+
+        expect(find.text('Library API'), findsOneWidget);
+        expect(find.text('Library API (2)'), findsOneWidget);
+        final names = (await app.store.readEnvironments()).map((e) => e.name);
+        expect(names, containsAll(['Library API (imported)', 'Library API (imported) (2)']));
       });
     });
   });
