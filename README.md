@@ -194,6 +194,75 @@ is refused with a reason and creates nothing.
 
 Design and acceptance criteria: [SPEC-workspaces.md](SPEC-workspaces.md).
 
+## Running flows from the terminal
+
+The flows of a workspace file (see [Projects and workspaces](#projects-and-workspaces))
+can run without the app, which makes them usable as API smoke tests in CI. The
+runner uses the same engine as the app, so `{{variables}}`, `{{$tokens}}`,
+extractions and assertions behave the same.
+
+```bash
+fvm dart run bin/api_flow_runner.dart --workspace commodo.workspace.json --env qa \
+  --junit report.xml
+```
+
+| Option | Meaning |
+|---|---|
+| `-w, --workspace <file>` | the workspace file exported by the app (required) |
+| `-e, --env <name>` | environment to use; required if the file has more than one |
+| `-f, --flow <name\|id>` | flow to run; repeatable; default: all, in file order |
+| `--var <name=value>` | override a variable; repeatable |
+| `--timeout <seconds>` | time limit per request (default 30) |
+| `--fail-fast` | stop after the first flow that fails |
+| `--allow-production` | required when the environment is called `prod`, `production` or `prd` |
+| `--junit <file>`, `--json <file>` | write a JUnit XML or a JSON report |
+| `-v, --verbose` | print each request (method and URL actually sent) |
+| `--list` | list environments and flows and exit |
+
+**Exit code:** `0` every chosen flow passed, `1` a flow failed (assertion, network
+error, timeout or a missing endpoint), `2` the run could not be made (bad
+arguments, unreadable or newer-version file, unknown environment or flow, missing
+`--allow-production`, or a report that could not be written).
+
+**Secrets.** An exported workspace has its secret values blanked, so give them from
+outside: `--var api_key=...`, or an environment variable `AFS_VAR_api_key=...`
+(the name after the prefix is the variable's exact name; `--var` wins). Prefer the
+environment variable in CI, since command-line arguments show up in process lists.
+A secret variable left empty produces a warning on stderr. Secret values, every
+value given with `--var`/`AFS_VAR_*` and values extracted into variables whose name
+contains `token`, `secret`, `password`, `key` or `auth` are replaced by `***` in the
+console, the verbose lines and both reports. That is a plain text match, not a vault:
+a secret the server returns in another format may still show.
+
+**Limits.** There is no saved login session as in the app: a flow that needs a token
+logs in itself in its first step. Flows run one at a time. TLS certificates are always
+verified. The workspace file is trusted input — it sends the requests it describes —
+so only run files you trust.
+
+Example GitHub Actions job (runs the flows of a workspace committed next to the
+source):
+
+```yaml
+smoke-tests:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        cache: true
+    - run: flutter pub get
+    - run: dart run build_runner build --delete-conflicting-outputs
+    - run: dart run bin/api_flow_runner.dart -w commodo.workspace.json -e qa --junit report.xml
+      env:
+        AFS_VAR_api_key: ${{ secrets.API_KEY }}
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: smoke-report
+        path: report.xml
+```
+
 ## Documentation
 
 - [SPEC.md](SPEC.md) — objective, tech stack, commands, project structure,

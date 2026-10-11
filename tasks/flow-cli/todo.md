@@ -39,9 +39,9 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-cli.md](../../SPEC-flow-cli.md)
   - Verify: `fvm flutter test test/cli/end_to_end_test.dart`
   - Files: `test/cli/end_to_end_test.dart`
 
-- [ ] **C8: README y ejemplo de CI**
+- [x] **C8: README y ejemplo de CI**
   - Acceptance: sección con opciones, códigos de salida, secretos, límites y un workflow de ejemplo que solo usa opciones existentes
   - Verify: `fvm flutter analyze && fvm flutter test`
   - Files: `README.md`, `SPEC-flow-cli.md` (criterios)
 
-- [ ] **Checkpoint final:** `analyze` + suite completa en verde; revisión humana
+- [x] **Checkpoint final:** `analyze` + suite completa en verde; revisión humana

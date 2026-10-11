@@ -301,3 +301,24 @@ Convenciones: sin `print` (lint `avoid_print`): se escribe en los sinks; `exit()
 5. **¿`dart run` en otro repositorio?** Para usar el runner desde otro proyecto sin copiar
    este código haría falta el ejecutable compilado (pregunta 3) o `dart pub global activate
    --source git`. ¿Cuál es tu caso de uso principal?
+
+## Estado
+
+Implementado de C1 a C8 (`tasks/flow-cli/`). Criterios de éxito y dónde se comprueban:
+
+| # | Criterio | Pruebas |
+|---|---|---|
+| 1 | `--help` y `--list` no envían requests | `run_cli_test.dart` (`--help and --list`) |
+| 2 | 0 si pasa, 1 si falla, pasos siguientes `[SKIP]` | `run_cli_test.dart`, `end_to_end_test.dart` |
+| 3 | 2 ante errores de uso/archivo/selección/producción, sin requests | `run_cli_test.dart` (`runs that cannot start`) |
+| 4 | precedencia de variables | `selection_test.dart`, `run_cli_test.dart` |
+| 5 | JUnit | `junit_reporter_test.dart`, `end_to_end_test.dart` |
+| 6 | JSON | `json_reporter_test.dart`, `run_cli_test.dart` |
+| 7 | ningún secreto en la salida | `redactor_test.dart`, `run_cli_test.dart` (`secrets`), `end_to_end_test.dart` |
+| 8 | `--timeout` corta un request lento | `end_to_end_test.dart` |
+| 9 | `engine/` sin cambios de comportamiento | suite completa; solo se movió `isProductionEnvironment` |
+| 10 | `analyze` y `test` en verde | CI |
+
+Decisiones tomadas al implementar: `--timeout` acepta decimales (`0.5`); `--list` no aplica
+la guarda de producción ni exige `--env`; si falla la escritura de un reporte, el otro se
+escribe igualmente y el código de salida es 2.
