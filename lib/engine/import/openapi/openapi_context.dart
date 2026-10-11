@@ -18,6 +18,9 @@ class OpenApiContext {
   late final OpenApiRefs refs;
   late final SchemaSampler sampler;
 
+  /// Security schemes already warned about, so a scheme is reported once, not once per operation.
+  final Set<String> warnedSchemes = {};
+
   /// The variables of the imported environment, in the order they were first needed.
   final Map<String, EnvironmentVariable> variables = {};
 

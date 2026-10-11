@@ -92,10 +92,21 @@ class OpenApiImporter implements Importer {
       source: 'OpenAPI $version spec',
       groups: groups,
       endpoints: endpoints,
-      environments: [Environment(id: 'openapi-environment', name: '$apiName (imported)', variables: context.variables)],
+      environments: [Environment(id: 'openapi-environment', name: '$apiName (imported)', variables: _ordered(context.variables))],
       warnings: warnings,
     );
   }
+
+  /// `base_url` first, then the variables of paths and parameters, then the (secret)
+  /// credentials: what the person has to read, then what they have to fill in.
+  Map<String, EnvironmentVariable> _ordered(Map<String, EnvironmentVariable> variables) => {
+        for (final entry in variables.entries)
+          if (entry.key == 'base_url') entry.key: entry.value,
+        for (final entry in variables.entries)
+          if (entry.key != 'base_url' && !entry.value.secret) entry.key: entry.value,
+        for (final entry in variables.entries)
+          if (entry.key != 'base_url' && entry.value.secret) entry.key: entry.value,
+      };
 
   /// `servers[0]` as `base_url` (the first thing the environment has), with the server's
   /// variables filled in by their defaults. Anything odd about the servers is a warning.

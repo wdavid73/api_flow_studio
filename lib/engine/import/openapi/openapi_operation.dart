@@ -3,6 +3,7 @@ import '../import_json.dart';
 import '../import_result.dart';
 import 'openapi_body.dart';
 import 'openapi_context.dart';
+import 'openapi_security.dart';
 
 /// Headers OpenAPI says a header parameter must not set (the body and the
 /// authentication have their own place).
@@ -11,7 +12,7 @@ const Set<String> _reservedHeaders = {'accept', 'content-type', 'authorization'}
 final RegExp _pathToken = RegExp(r'\{([^{}]+)\}');
 
 /// One operation as an [Endpoint]: name, method, URL (`{{base_url}}` and `{{param}}`),
-/// query parameters, headers and body. What cannot be carried over is added to
+/// query parameters, headers, body and authentication. What cannot be carried over is added to
 /// `context.warnings`, located as `METHOD /path`.
 Endpoint operationToEndpoint({
   required String path,
@@ -49,6 +50,7 @@ Endpoint operationToEndpoint({
   })}';
 
   final body = readRequestBody(operation: operation, context: context, where: where, headers: headers);
+  final auth = readSecurity(operation: operation, context: context, where: where);
 
   final summary = (asString(operation['summary']) ?? '').trim();
   final operationId = (asString(operation['operationId']) ?? '').trim();
@@ -60,9 +62,10 @@ Endpoint operationToEndpoint({
     method: method.toUpperCase(),
     url: url,
     description: description.isNotEmpty ? description : summary,
-    headers: [...headers, ...body.extraHeaders],
-    queryParams: query,
+    headers: [...headers, ...body.extraHeaders, ?auth.header],
+    queryParams: [...query, ?auth.query],
     body: body.body,
+    authConfig: auth.config,
   );
 }
 

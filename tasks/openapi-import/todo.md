@@ -34,7 +34,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-openapi-import.md](../../SPEC-openapi-im
 
 - [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
-- [ ] **O7: seguridad**
+- [x] **O7: seguridad**
   - Acceptance: efectiva por operación; bearer/basic/apiKey; no soportados una vez por esquema; conflicto; variables secretas vacías
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_security.dart`, `test/engine/import/openapi/openapi_security_test.dart`
