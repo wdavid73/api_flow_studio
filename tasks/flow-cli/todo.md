@@ -7,7 +7,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-cli.md](../../SPEC-flow-cli.md)
   - Verify: `fvm flutter pub get && fvm flutter test test/engine test/ui/shell test/ui/environments`
   - Files: `lib/engine/models/environment_kind.dart`, `lib/ui/shell/environment_kind.dart`, `pubspec.yaml`, `pubspec.lock`, `test/engine/models/environment_kind_test.dart`
 
-- [ ] **C2: parseo de argumentos**
+- [x] **C2: parseo de argumentos**
   - Acceptance: todas las opciones; `--flow`/`--var` repetibles; `--timeout` > 0 (30 por defecto); errores de uso claros; `--help`/`--list`
   - Verify: `fvm flutter test test/cli/cli_options_test.dart`
   - Files: `lib/cli/cli_options.dart`, `test/cli/cli_options_test.dart`
