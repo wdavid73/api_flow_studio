@@ -17,7 +17,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-openapi-import.md](../../SPEC-openapi-im
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_refs.dart`, `test/engine/import/openapi/openapi_refs_test.dart`
 
-- [ ] **O4: muestras de esquemas**
+- [x] **O4: muestras de esquemas**
   - Acceptance: todas las ramas; `readOnly` omitido; 3.1 con `null`; ciclo y tamaño acotados con aviso
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_schema.dart`, `test/engine/import/openapi/openapi_schema_test.dart`
