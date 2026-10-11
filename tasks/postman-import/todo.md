@@ -12,7 +12,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-postman-import.md](../../SPEC-postman-im
   - Verify: `fvm flutter test test/engine/import`
   - Files: `lib/engine/import/postman/postman_variables.dart`, `postman_environment_importer.dart`, `lib/engine/import/import_registry.dart`, `test/engine/import/postman/`
 
-- [ ] **P3: un request — URL, parámetros, headers y descripción**
+- [x] **P3: un request — URL, parámetros, headers y descripción**
   - Acceptance: URL texto/objeto/sin raw, query con disabled, variables de ruta, `localhost:3000` intacto, headers, descripción, nombre por defecto, ningún tipo inesperado lanza
   - Verify: `fvm flutter test test/engine/import/postman`
   - Files: `lib/engine/import/postman/postman_request.dart`, `test/engine/import/postman/postman_request_test.dart`
