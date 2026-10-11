@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-final RegExp _variable = RegExp(r'\{\{\w+\}\}');
+final RegExp _variable = RegExp(r'\{\{\$?\w+\}\}');
 
 /// Whether [raw] is acceptable as a JSON request body. An empty body counts
 /// as valid (nothing typed yet). `{{variables}}` are tolerated both inside

@@ -52,6 +52,13 @@ void main() {
     expect(colorOf(spans, '{{user_email}}'), AppColors.variableResolvedText);
   });
 
+  test('colors a known {{\$token}} resolved and an unknown one unresolved in a JSON body', () {
+    final spans = tokenizeJsonLike('{"a":"{{\$uuid}}","b":"{{\$nope}}"}', baseStyle: base);
+
+    expect(colorOf(spans, '{{\$uuid}}'), AppColors.variableResolvedText);
+    expect(colorOf(spans, '{{\$nope}}'), AppColors.variableUnresolvedText);
+  });
+
   test('colors punctuation with on-surface-variant', () {
     final spans = tokenizeJsonLike('{}', baseStyle: base);
 
@@ -92,6 +99,26 @@ void main() {
       final spans = tokenizeVariablesOnly('{{anything}}', baseStyle: base);
 
       expect(colorOf(spans, '{{anything}}'), AppColors.variableResolvedText);
+    });
+
+    test('colors a known dynamic token resolved even if absent from the map', () {
+      final spans = tokenizeVariablesOnly(
+        '/users/{{\$uuid}}',
+        baseStyle: base,
+        resolvedVariables: {'base_url': 'x'},
+      );
+
+      expect(colorOf(spans, '{{\$uuid}}'), AppColors.variableResolvedText);
+    });
+
+    test('colors an unknown dynamic token unresolved', () {
+      final spans = tokenizeVariablesOnly(
+        '/users/{{\$nope}}',
+        baseStyle: base,
+        resolvedVariables: {'base_url': 'x'},
+      );
+
+      expect(colorOf(spans, '{{\$nope}}'), AppColors.variableUnresolvedText);
     });
 
     test('leaves plain text (no variables) untouched', () {

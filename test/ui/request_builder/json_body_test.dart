@@ -26,6 +26,15 @@ void main() {
     test('an unquoted {{variable}} as a value is tolerated', () {
       expect(isValidJsonBody('{"id":{{id}}}'), isTrue);
     });
+
+    test('accepts a {{\$token}} inside a string and as a bare value', () {
+      expect(isValidJsonBody('{"e":"{{\$randomEmail}}"}'), isTrue);
+      expect(isValidJsonBody('{"n":{{\$randomInt}}}'), isTrue);
+    });
+
+    test('refuses to reformat a body with a bare {{\$token}}', () {
+      expect(formatJsonBody('{"n":{{\$randomInt}}}'), isNull);
+    });
   });
 
   group('formatJsonBody', () {

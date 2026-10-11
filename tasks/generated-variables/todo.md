@@ -19,7 +19,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-generated-variables.md](../../SPEC-gener
 
 - [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
-- [ ] **G4: UI — resaltado y validación JSON**
+- [x] **G4: UI — resaltado y validación JSON**
   - Acceptance: `{{$uuid}}` cian, `{{$nope}}` ámbar, `{{var}}` igual que antes; `{"n": {{$randomInt}}}` es JSON válido y no se reformatea
   - Verify: `fvm flutter test test/ui/request_builder test/ui/theme`
   - Files: `lib/ui/theme/widgets/json_syntax.dart`, `lib/ui/request_builder/variable_highlighting_controller.dart`, `lib/ui/request_builder/json_body.dart`, tests correspondientes

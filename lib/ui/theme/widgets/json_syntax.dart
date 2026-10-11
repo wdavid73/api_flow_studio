@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../engine/variables/dynamic_values.dart';
 import '../app_colors.dart';
 import '../app_typography.dart';
 
@@ -11,7 +12,11 @@ final RegExp _outerPattern = RegExp(
   r'|(?<punct>[{}\[\]:,])',
 );
 
-final RegExp _variablePattern = RegExp(r'\{\{\w+\}\}');
+final RegExp _variablePattern = RegExp(r'\{\{\$?\w+\}\}');
+
+/// Whether a `{{$name}}` token names a generator (see [DynamicValues]).
+bool _isUnknownDynamic(String varName) =>
+    varName.startsWith(r'$') && !DynamicValues.isKnown(varName.substring(1));
 
 /// Colorizes JSON-ish text with the playground's token colors: keys ->
 /// accent, strings -> peach, numbers -> blue, booleans/null -> red,
@@ -35,9 +40,12 @@ List<InlineSpan> tokenizeJsonLike(String text, {required TextStyle baseStyle}) {
       if (varMatch.start > pos) {
         addPlain(segment.substring(pos, varMatch.start), color, weight: weight);
       }
+      final unknown = _isUnknownDynamic(varMatch[0]!.substring(2, varMatch[0]!.length - 2));
       spans.add(TextSpan(
         text: varMatch[0],
-        style: baseStyle.copyWith(color: AppColors.variableResolvedText),
+        style: baseStyle.copyWith(
+          color: unknown ? AppColors.variableUnresolvedText : AppColors.variableResolvedText,
+        ),
       ));
       pos = varMatch.end;
     }
@@ -96,7 +104,9 @@ List<InlineSpan> tokenizeVariablesOnly(
       spans.add(TextSpan(text: text.substring(lastEnd, match.start), style: baseStyle));
     }
     final varName = text.substring(match.start + 2, match.end - 2);
-    final resolved = resolvedVariables == null || resolvedVariables.containsKey(varName);
+    final resolved = varName.startsWith(r'$')
+        ? !_isUnknownDynamic(varName)
+        : resolvedVariables == null || resolvedVariables.containsKey(varName);
     spans.add(TextSpan(
       text: match[0],
       style: baseStyle.copyWith(
