@@ -29,6 +29,9 @@ class FlowStepResult with _$FlowStepResult {
     ExecutedResponse? response,
     @Default({}) Map<String, String> extractedVariables,
     String? failureReason,
+
+    /// One entry per configured assertion, in order (empty when none ran).
+    @Default([]) List<AssertionResult> assertionResults,
   }) = _FlowStepResult;
 }
 

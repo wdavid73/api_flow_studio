@@ -1,5 +1,6 @@
 import '../http/request_executor.dart';
 import '../models/models.dart';
+import 'assertion_evaluator.dart';
 import 'flow_step_result.dart';
 import 'value_extractor.dart';
 
@@ -11,9 +12,9 @@ import 'value_extractor.dart';
 /// Per step: resolve its [FlowStep.endpointId] to a real [Endpoint],
 /// execute it, extract [FlowStep.extract] variables into the pool
 /// (visible to every later step, not just the next one), and evaluate
-/// [FlowStep.assertField]/[FlowStep.assertExpected] if set -- with no
-/// assertion configured, "the transport call didn't error" is success on
-/// its own (Architecture Decision #7). A failing step with
+/// every configured [FlowStep.assertions] entry (all of them, so a failing step
+/// reports everything that was wrong) -- with no assertion configured, "the
+/// transport call didn't error" is success on its own (Architecture Decision #7). A failing step with
 /// [FlowStep.stopOnFailure] marks every remaining step
 /// [FlowStepStatus.skipped] without executing them.
 class FlowRunner {
@@ -92,6 +93,8 @@ class FlowRunner {
         'status': response.status,
         'headers': response.headers,
         'body': response.body,
+        'elapsedMs': response.elapsedMs,
+        'sizeBytes': response.sizeBytes,
       };
 
       final extracted = <String, String>{};
@@ -103,14 +106,13 @@ class FlowRunner {
         }
       }
 
-      String? failureReason;
-      if (step.assertField != null && step.assertExpected != null) {
-        final actual = extractValueAsString(responseMap, step.assertField!);
-        if (actual != step.assertExpected) {
-          failureReason = 'Assertion failed: expected "${step.assertExpected}" '
-              'for ${step.assertField}, got "${actual ?? 'null'}"';
-        }
-      }
+      // Every configured assertion runs, so one failing step reports all it got wrong.
+      final assertionResults = [
+        for (final assertion in step.assertions)
+          if (assertion.isConfigured) evaluateAssertion(assertion, responseMap, variables),
+      ];
+      final failed = assertionResults.where((r) => !r.passed).toList();
+      final failureReason = failed.isEmpty ? null : failed.map((r) => r.message).join('\n');
 
       if (failureReason != null) {
         record(FlowStepResult(
@@ -118,6 +120,7 @@ class FlowRunner {
           response: response,
           extractedVariables: extracted,
           failureReason: failureReason,
+          assertionResults: assertionResults,
         ));
         if (step.stopOnFailure) stopped = true;
       } else {
@@ -125,6 +128,7 @@ class FlowRunner {
           status: FlowStepStatus.success,
           response: response,
           extractedVariables: extracted,
+          assertionResults: assertionResults,
         ));
       }
     }

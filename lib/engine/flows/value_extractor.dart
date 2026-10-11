@@ -6,7 +6,7 @@ import 'dart:convert';
 /// shape, or an out-of-range array index. A numeric segment indexes into
 /// a `List`; anything else indexes into a `Map`. Not a real JSON path
 /// parser -- deliberately simple, matching what `FlowStep.extract`/
-/// `assertField` values actually look like.
+/// assertion `field` values actually look like.
 ///
 /// [dotPath] must start with `response` (either exactly, or with a `.`
 /// after it) -- anything else is a programmer error, not a runtime

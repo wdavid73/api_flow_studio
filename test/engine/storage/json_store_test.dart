@@ -115,6 +115,34 @@ void main() {
     });
   });
 
+  group('flows written before assertions existed', () {
+    test('a step with assertField/assertExpected is read as one equals assertion', () async {
+      await File('${tempDir.path}/flows.json').writeAsString(jsonEncode([
+        {
+          'id': 'f-1',
+          'name': 'Old flow',
+          'steps': [
+            {'endpointId': 'e-1', 'assertField': 'response.status', 'assertExpected': '200', 'stopOnFailure': true},
+          ],
+        },
+      ]));
+
+      final flows = await store.readFlows();
+
+      expect(flows.single.steps.single.assertions, [const Assertion(field: 'response.status', expected: '200')]);
+    });
+
+    test('reading does not rewrite the file', () async {
+      final file = File('${tempDir.path}/flows.json');
+      const raw = '[{"id":"f-1","name":"Old","steps":[{"endpointId":"e-1","assertField":"response.status","assertExpected":"200"}]}]';
+      await file.writeAsString(raw);
+
+      await store.readFlows();
+
+      expect(await file.readAsString(), raw);
+    });
+  });
+
   group('flows', () {
     test('round-trips a flow with steps through disk', () async {
       const flows = [

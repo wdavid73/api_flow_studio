@@ -166,7 +166,7 @@ void main() {
         id: 'f-1',
         name: 'Flow',
         steps: const [
-          FlowStep(endpointId: 'e-1', assertField: 'response.status', assertExpected: '200'),
+          FlowStep(endpointId: 'e-1', assertions: [Assertion(field: 'response.status', expected: '200')]),
         ],
       );
       final executor = MockRequestExecutor();
@@ -189,7 +189,7 @@ void main() {
         id: 'f-1',
         name: 'Flow',
         steps: const [
-          FlowStep(endpointId: 'e-1', assertField: 'response.status', assertExpected: '200'),
+          FlowStep(endpointId: 'e-1', assertions: [Assertion(field: 'response.status', expected: '200')]),
           FlowStep(endpointId: 'e-2'),
         ],
       );

@@ -127,7 +127,7 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('assert-field-0')), 'response.status');
     await tester.pump();
-    expect(updated!.assertField, 'response.status');
+    expect(updated!.assertions.single.field, 'response.status');
 
     await tester.pumpWidget(wrap(StepCard(
       index: 0,
@@ -143,6 +143,6 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('assert-expected-0')), '200');
     await tester.pump();
-    expect(updated!.assertExpected, '200');
+    expect(updated!.assertions.single.expected, '200');
   });
 }

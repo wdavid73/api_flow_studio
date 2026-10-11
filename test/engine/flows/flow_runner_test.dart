@@ -87,7 +87,7 @@ void main() {
       id: 'f-1',
       name: 'Flow',
       steps: [
-        const FlowStep(endpointId: 'e-check', assertField: 'response.status', assertExpected: '200'),
+        const FlowStep(endpointId: 'e-check', assertions: [Assertion(field: 'response.status', expected: '200')]),
       ],
     );
 
@@ -105,7 +105,7 @@ void main() {
       id: 'f-1',
       name: 'Flow',
       steps: [
-        const FlowStep(endpointId: 'e-check', assertField: 'response.status', assertExpected: '200'),
+        const FlowStep(endpointId: 'e-check', assertions: [Assertion(field: 'response.status', expected: '200')]),
       ],
     );
 
@@ -137,8 +137,7 @@ void main() {
       steps: [
         const FlowStep(
           endpointId: 'e-check',
-          assertField: 'response.status',
-          assertExpected: '200',
+          assertions: [Assertion(field: 'response.status', expected: '200')],
         ),
         const FlowStep(endpointId: 'e-otp'),
         const FlowStep(endpointId: 'e-create'),
@@ -166,8 +165,7 @@ void main() {
       steps: [
         const FlowStep(
           endpointId: 'e-check',
-          assertField: 'response.status',
-          assertExpected: '200',
+          assertions: [Assertion(field: 'response.status', expected: '200')],
           stopOnFailure: false,
         ),
         const FlowStep(endpointId: 'e-otp'),
@@ -242,8 +240,7 @@ void main() {
       steps: [
         const FlowStep(
           endpointId: 'e-check',
-          assertField: 'response.status',
-          assertExpected: '200',
+          assertions: [Assertion(field: 'response.status', expected: '200')],
         ),
         const FlowStep(endpointId: 'e-otp'),
       ],
@@ -315,5 +312,131 @@ void main() {
     );
 
     expect(reported, {1: FlowStepStatus.success});
+  });
+
+  group('assertions', () {
+    Flow flowWith(List<Assertion> assertions, {bool stopOnFailure = true}) => Flow(
+          id: 'f-1',
+          name: 'Flow',
+          steps: [
+            FlowStep(endpointId: 'e-check', assertions: assertions, stopOnFailure: stopOnFailure),
+            const FlowStep(endpointId: 'e-otp'),
+          ],
+        );
+
+    void respond(ExecutedResponse response) {
+      when(() => executor.execute(any(), variables: any(named: 'variables'))).thenAnswer((_) async => response);
+    }
+
+    test('every assertion is evaluated and each result is recorded', () async {
+      respond(const ExecutedResponse(status: 201, body: {'id': 'u-1'}, elapsedMs: 90, sizeBytes: 40));
+
+      final result = await runner.run(
+        flowWith(const [
+          Assertion(field: 'response.status', expected: '201'),
+          Assertion(field: 'response.body.id', operator: AssertionOperator.exists),
+          Assertion(field: 'response.elapsedMs', operator: AssertionOperator.lessThan, expected: '800'),
+          Assertion(field: 'response.sizeBytes', operator: AssertionOperator.greaterThan, expected: '10'),
+        ]),
+        endpoints: endpoints,
+        initialVariables: const {},
+      );
+
+      final step = result.stepResults.first;
+      expect(step.status, FlowStepStatus.success);
+      expect(step.assertionResults, hasLength(4));
+      expect(step.assertionResults.every((r) => r.passed), isTrue);
+    });
+
+    test('a failing step lists every failed assertion, one per line, and still evaluates the rest', () async {
+      respond(const ExecutedResponse(status: 404, body: {'id': 'u-1'}));
+
+      final result = await runner.run(
+        flowWith(const [
+          Assertion(field: 'response.status', expected: '200'),
+          Assertion(field: 'response.body.id', operator: AssertionOperator.exists),
+          Assertion(field: 'response.body.name', operator: AssertionOperator.exists),
+        ]),
+        endpoints: endpoints,
+        initialVariables: const {},
+      );
+
+      final step = result.stepResults.first;
+      expect(step.status, FlowStepStatus.failure);
+      expect(step.assertionResults.map((r) => r.passed), [false, true, false]);
+      final lines = step.failureReason!.split('\n');
+      expect(lines, hasLength(2));
+      expect(lines.every((l) => l.startsWith('Assertion failed')), isTrue);
+    });
+
+    test('an unconfigured (blank field) assertion is skipped', () async {
+      respond(const ExecutedResponse(status: 404));
+
+      final result = await runner.run(
+        flowWith(const [Assertion(field: '  ')]),
+        endpoints: endpoints,
+        initialVariables: const {},
+      );
+
+      expect(result.stepResults.first.status, FlowStepStatus.success);
+      expect(result.stepResults.first.assertionResults, isEmpty);
+    });
+
+    test('an invalid path does not throw; it fails the step', () async {
+      respond(const ExecutedResponse(status: 200));
+
+      final result = await runner.run(
+        flowWith(const [Assertion(field: 'body.id', operator: AssertionOperator.exists)]),
+        endpoints: endpoints,
+        initialVariables: const {},
+      );
+
+      expect(result.stepResults.first.status, FlowStepStatus.failure);
+      expect(result.stepResults.first.failureReason, contains('Invalid field path'));
+    });
+
+    test('the expected value can use a variable extracted by the same step', () async {
+      respond(const ExecutedResponse(status: 200, body: {'id': 'u-1', 'echo': 'u-1'}));
+
+      final result = await runner.run(
+        Flow(id: 'f', name: 'F', steps: [
+          FlowStep(
+            endpointId: 'e-check',
+            extract: const {'uid': 'response.body.id'},
+            assertions: const [Assertion(field: 'response.body.echo', expected: '{{uid}}')],
+          ),
+        ]),
+        endpoints: endpoints,
+        initialVariables: const {},
+      );
+
+      expect(result.stepResults.single.status, FlowStepStatus.success);
+    });
+
+    test('stopOnFailure false lets the flow continue after a failed assertion', () async {
+      respond(const ExecutedResponse(status: 404));
+
+      final result = await runner.run(
+        flowWith(const [Assertion(field: 'response.status', expected: '200')], stopOnFailure: false),
+        endpoints: endpoints,
+        initialVariables: const {},
+      );
+
+      expect(result.stepResults.map((r) => r.status), [FlowStepStatus.failure, FlowStepStatus.success]);
+    });
+
+    test('elapsedMs and sizeBytes can be extracted into variables', () async {
+      respond(const ExecutedResponse(status: 200, elapsedMs: 77, sizeBytes: 12));
+
+      final result = await runner.run(
+        Flow(id: 'f', name: 'F', steps: [
+          FlowStep(endpointId: 'e-check', extract: const {'ms': 'response.elapsedMs', 'size': 'response.sizeBytes'}),
+        ]),
+        endpoints: endpoints,
+        initialVariables: const {},
+      );
+
+      expect(result.stepResults.single.extractedVariables, {'ms': '77', 'size': '12'});
+    });
   });
 }

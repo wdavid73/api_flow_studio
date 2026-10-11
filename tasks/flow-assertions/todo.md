@@ -7,12 +7,12 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-assertions.md](../../SPEC-flow-asse
   - Verify: `fvm dart run build_runner build --delete-conflicting-outputs && fvm flutter test test/engine/flows/assertion_evaluator_test.dart`
   - Files: `lib/engine/models/assertion.dart`, `lib/engine/models/models.dart`, `lib/engine/flows/assertion_evaluator.dart`, `test/engine/flows/assertion_evaluator_test.dart`
 
-- [ ] **A2: swap del modelo y runner**
+- [x] **A2: swap del modelo y runner**
   - Acceptance: `FlowStep.assertions` con migración desde `assertField/assertExpected`; runner evalúa todas, añade `elapsedMs`/`sizeBytes`, guarda `assertionResults`; editor actual sigue funcionando con adaptador; `flows.json` legado se lee migrado
   - Verify: `fvm dart run build_runner build --delete-conflicting-outputs && fvm flutter test test/engine test/ui/flows`
   - Files: `lib/engine/models/flow_step.dart`, `lib/engine/flows/flow_runner.dart`, `lib/engine/flows/flow_step_result.dart`, `lib/ui/flows/step_card.dart`, tests de `flow_step`, `flow_runner`, `json_store`, `step_card_editor`, `flow_run_view*`
 
-- [ ] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
+- [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
 - [ ] **A3: workspace format v2**
   - Acceptance: export `version: 2`; lee 1 y 2 (v1 con assertion legada se migra); ≥3 → `newerVersion`; el test de "versión futura" pasa de 2 a 3

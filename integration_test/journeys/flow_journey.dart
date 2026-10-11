@@ -91,7 +91,7 @@ void defineFlowJourney(JourneyHarness Function() harness) {
         Flow(
           id: 'f-assert',
           name: 'Expects 201',
-          steps: [FlowStep(endpointId: 'e-items', assertField: 'response.status', assertExpected: '201')],
+          steps: [FlowStep(endpointId: 'e-items', assertions: [Assertion(field: 'response.status', expected: '201')])],
         ),
       ]);
       await app.openFlow('f-assert');

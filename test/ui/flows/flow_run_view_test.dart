@@ -127,8 +127,7 @@ void main() {
         steps: const [
           FlowStep(
             endpointId: 'e-1',
-            assertField: 'response.status',
-            assertExpected: '200',
+            assertions: [Assertion(field: 'response.status', expected: '200')],
           ),
           FlowStep(endpointId: 'e-2'),
           FlowStep(endpointId: 'e-3'),

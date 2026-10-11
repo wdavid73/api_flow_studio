@@ -203,30 +203,26 @@ class StepCard extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     key: ValueKey('assert-field-$index'),
-                    initialValue: step.assertField ?? '',
+                    initialValue: _firstAssertion.field,
                     decoration: const InputDecoration(
                       labelText: 'Assert field (optional)',
                       hintText: 'response.status',
                       isDense: true,
                     ),
-                    onChanged: (value) => onUpdateStep(
-                      step.copyWith(assertField: value.isEmpty ? null : value),
-                    ),
+                    onChanged: (value) => _setFirstAssertion(_firstAssertion.copyWith(field: value)),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: TextFormField(
                     key: ValueKey('assert-expected-$index'),
-                    initialValue: step.assertExpected ?? '',
+                    initialValue: _firstAssertion.expected,
                     decoration: const InputDecoration(
                       labelText: 'Expected value',
                       hintText: '200',
                       isDense: true,
                     ),
-                    onChanged: (value) => onUpdateStep(
-                      step.copyWith(assertExpected: value.isEmpty ? null : value),
-                    ),
+                    onChanged: (value) => _setFirstAssertion(_firstAssertion.copyWith(expected: value)),
                   ),
                 ),
               ],
@@ -242,6 +238,17 @@ class StepCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Stand-in editor: the two fields edit the first assertion until the
+  // assertion list editor replaces them.
+  Assertion get _firstAssertion =>
+      step.assertions.isEmpty ? const Assertion(field: '') : step.assertions.first;
+
+  void _setFirstAssertion(Assertion assertion) {
+    final rest = step.assertions.skip(1);
+    final blank = assertion.field.isEmpty && assertion.expected.isEmpty;
+    onUpdateStep(step.copyWith(assertions: [if (!blank) assertion, ...rest]));
   }
 
   /// The endpoint's raw JSON body text, or null if it has no body / a
