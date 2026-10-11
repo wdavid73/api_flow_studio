@@ -81,4 +81,44 @@ void main() {
     expect(find.byKey(const Key('format-json-button')), findsNothing);
     expect(find.byKey(const Key('invalid-json-warning')), findsNothing);
   });
+
+  group('Form Data', () {
+    testWidgets('the Form Data segment switches to an empty multipart body with its table', (tester) async {
+      await pumpBodyTab(tester, const RequestBody.none());
+
+      await tester.tap(find.text('Form Data'));
+      await tester.pumpAndSettle();
+
+      expect(container.read(requestDraftProvider).body, const RequestBody.multipart([]));
+      expect(find.byKey(const Key('add-multipart-field')), findsOneWidget);
+    });
+
+    testWidgets('a multipart body already in the draft opens on the Form Data table with its fields', (tester) async {
+      await pumpBodyTab(tester, const RequestBody.multipart([MultipartField(name: 'title', value: 'Hello')]));
+
+      expect(find.byKey(const Key('multipart-name-0')), findsOneWidget);
+      expect(tester.widget<SegmentedButton<BodyKind>>(find.byKey(const Key('body-kind-selector'))).selected, {BodyKind.multipart});
+    });
+
+    testWidgets('editing the table writes the body back to the draft', (tester) async {
+      await pumpBodyTab(tester, const RequestBody.multipart([]));
+
+      await tester.tap(find.byKey(const Key('add-multipart-field')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('multipart-name-0')), 'title');
+      await tester.enterText(find.byKey(const Key('multipart-value-0')), 'Hello');
+      await tester.pump();
+
+      expect(container.read(requestDraftProvider).body, const RequestBody.multipart([MultipartField(name: 'title', value: 'Hello')]));
+    });
+
+    testWidgets('switching to another kind resets the body, as it does between the other kinds', (tester) async {
+      await pumpBodyTab(tester, const RequestBody.multipart([MultipartField(name: 'title', value: 'Hello')]));
+
+      await tester.tap(find.text('JSON'));
+      await tester.pumpAndSettle();
+
+      expect(container.read(requestDraftProvider).body, const RequestBody.json(''));
+    });
+  });
 }

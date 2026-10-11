@@ -19,7 +19,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-multipart-body.md](../../SPEC-multipart-
   - Verify: `fvm flutter test test/engine/workspace test/engine/storage test/ui/projects test/ui/collections`
   - Files: `lib/engine/models/file_paths.dart`, `lib/engine/workspace/export_workspace.dart`, `import_workspace.dart`, `workspace_file.dart`, `lib/ui/collections/collections_provider.dart`, `lib/ui/workspace_transfer/workspace_transfer_actions.dart`, tests
 
-- [ ] **M4: editor Form Data y selector de archivos**
+- [x] **M4: editor Form Data y selector de archivos**
   - Acceptance: filas con id propio; Text↔File; `Choose…` con selector falso; `No file chosen`; sin texto viejo al quitar ni al cambiar de cuerpo; escribir no reconstruye; segmento Form Data en BodyTab
   - Verify: `fvm flutter test test/ui/request_builder`
   - Files: `lib/ui/request_builder/file_picker_service.dart`, `multipart_table.dart`, `tabs/body_tab.dart`, tests

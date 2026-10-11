@@ -9,6 +9,7 @@ import '../../theme/widgets/json_editor.dart';
 import '../../shell/header_ghost_button.dart';
 import '../json_body.dart';
 import '../key_value_table.dart';
+import '../multipart_table.dart';
 import '../request_draft_provider.dart';
 
 enum BodyKind { none, json, formUrlEncoded, multipart }
@@ -51,8 +52,7 @@ class BodyTab extends ConsumerWidget {
               ButtonSegment(value: BodyKind.none, label: Text('None')),
               ButtonSegment(value: BodyKind.json, label: Text('JSON')),
               ButtonSegment(value: BodyKind.formUrlEncoded, label: Text('Form URL-Encoded')),
-              // Enabled once the editor exists.
-              ButtonSegment(value: BodyKind.multipart, label: Text('Form Data'), enabled: false),
+              ButtonSegment(value: BodyKind.multipart, label: Text('Form Data')),
             ],
             selected: {kind},
             onSelectionChanged: (selection) => setKind(selection.first),
@@ -96,8 +96,11 @@ class BodyTab extends ConsumerWidget {
                   ),
                 ],
               ),
-              multipart: (b) => Center(
-                child: Text('Form Data body: ${b.fields.length} ${b.fields.length == 1 ? 'field' : 'fields'}'),
+              multipart: (b) => SingleChildScrollView(
+                child: MultipartTable(
+                  fields: b.fields,
+                  onChanged: (fields) => notifier.setBody(RequestBody.multipart(fields)),
+                ),
               ),
               formUrlEncoded: (b) => SingleChildScrollView(
                 child: KeyValueTable(
