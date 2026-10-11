@@ -123,6 +123,40 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
   });
 
+  group('a big file is translated off the main isolate', () {
+    // Over 256 KB of text: padded with a long description.
+    String bigSpec({bool valid = true}) => jsonEncode({
+          if (valid) 'openapi': '3.0.3' else 'swagger': '2.0',
+          'info': {'title': 'Big', 'version': '1', 'description': 'x' * 300000},
+          'servers': [{'url': 'https://x.test'}],
+          'paths': {'/a': {'get': {'summary': 'A'}}},
+        });
+
+    Future<void> importBig(WidgetTester tester, String text) async {
+      await pumpSidebar(tester);
+      dialogs.next = PickedImportFile.fromText('big.json', text);
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const Key('import-collections-button')));
+        await Future<void>.delayed(const Duration(seconds: 3));
+      });
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('it still imports', (tester) async {
+      await importBig(tester, bigSpec());
+
+      expect(find.text('Big'), findsOneWidget);
+      expect((await tester.runAsync(collections))!.endpoints, hasLength(1));
+    });
+
+    testWidgets('its refusal reaches the person with the same words', (tester) async {
+      await importBig(tester, bigSpec(valid: false));
+
+      expect(find.byKey(const Key('import-error-dialog')), findsOneWidget);
+      expect(find.textContaining('Swagger 2.0'), findsOneWidget);
+    });
+  });
+
   group('a file that cannot be imported says why and changes nothing', () {
     Future<void> expectRefused(WidgetTester tester, PickedImportFile file, String message) async {
       await pumpSidebar(tester);

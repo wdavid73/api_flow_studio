@@ -141,9 +141,13 @@ class SchemaSampler {
     final result = <String, Object?>{};
     final properties = asMap(schema['properties']) ?? const <String, dynamic>{};
     for (final entry in properties.entries) {
+      // Out of allowance: the rest of the properties would only be empty keys, and a wide
+      // schema shared by thousands of operations would make each body as big as the schema.
+      if (run.nodes > maxNodes) break;
       // What a server sends back (readOnly) is not something to put in a request.
       if (_refs.resolve(entry.value, where: where)?['readOnly'] == true) continue;
       final value = _sample(entry.value, run, depth + 1, path, where);
+      if (run.nodes > maxNodes && value == null) break;
       if (!identical(value, _omit)) result[entry.key] = value;
     }
     return result;

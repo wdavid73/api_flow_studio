@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -56,6 +58,17 @@ Future<ImportSummary> applyImport(T Function<T>(ProviderListenable<T> provider) 
   );
 }
 
+/// Files over this many characters are translated on another isolate: reading a big JSON or
+/// YAML spec and sampling its schemas takes seconds, and the window must not freeze meanwhile.
+/// Smaller ones are quick enough to do in place.
+const int _offThreadChars = 256 * 1024;
+
+Future<ImportResult> _translate(String text, String fileName) {
+  if (text.length <= _offThreadChars) return Future.value(runImport(text, importers, fileName: fileName));
+  // `importers` is a top-level value, so each isolate has its own: only the text is sent.
+  return Isolate.run(() => runImport(text, importers, fileName: fileName));
+}
+
 /// The Import button: asks for a file, works out what it is, adds it to the active
 /// project and reports. A file that cannot be imported is explained in a dialog and
 /// nothing changes; cancelling the file dialog does nothing.
@@ -73,7 +86,7 @@ Future<void> importFile(BuildContext context, WidgetRef ref) async {
     } catch (_) {
       throw const ImportException('Could not read that file.');
     }
-    summary = await applyImport(ref.read, runImport(text, importers, fileName: picked.name));
+    summary = await applyImport(ref.read, await _translate(text, picked.name));
   } on ImportException catch (error) {
     if (context.mounted) await showImportErrorDialog(context, error.message);
     return;

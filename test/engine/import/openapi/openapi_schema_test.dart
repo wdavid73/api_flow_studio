@@ -191,6 +191,16 @@ void main() {
   });
 
   group('limits', () {
+    test('an object with 20000 properties does not keep 20000 keys', () {
+      final properties = {for (var i = 0; i < 20000; i++) 'p$i': {'type': 'string'}};
+
+      final value = sample({'type': 'object', 'properties': properties}) as Map;
+
+      expect(value.length, lessThanOrEqualTo(SchemaSampler.maxNodes));
+      expect(value.values.every((v) => v != null), isTrue);
+      expect(warnings.single.message, 'the example was cut short (it is too deep or too large)');
+    });
+
     test('a very deep structure is cut at 8 levels, with a warning', () {
       Map<String, dynamic> level(int n) => n == 0
           ? {'type': 'string'}
