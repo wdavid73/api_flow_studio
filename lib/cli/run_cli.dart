@@ -44,6 +44,12 @@ Future<int> runCli(
     return 0;
   }
 
+  final clash = _reportPathClash(options);
+  if (clash != null) {
+    err.writeln('error: $clash');
+    return 2;
+  }
+
   final String text;
   try {
     text = await File(options.workspace).readAsString();
@@ -131,6 +137,33 @@ Future<int> runCli(
 
   if (!reportsWritten) return 2;
   return run.passed ? 0 : 1;
+}
+
+/// Why a report path cannot be used, or null. A report is written over whatever
+/// is at its path, so one pointing at the workspace (or at the other report)
+/// would destroy it; this is checked before anything runs.
+String? _reportPathClash(CliOptions options) {
+  final reports = {'--junit': options.junit, '--json': options.json};
+  for (final MapEntry(key: flag, value: path) in reports.entries) {
+    if (path != null && _sameFile(path, options.workspace)) {
+      return '$flag would overwrite the workspace file ($path); choose another path';
+    }
+  }
+  if (options.junit != null && options.json != null && _sameFile(options.junit!, options.json!)) {
+    return '--junit and --json are the same file (${options.junit}); choose different paths';
+  }
+  return null;
+}
+
+/// Whether [a] and [b] are one file. When both exist they are compared after
+/// following symbolic links (and by identity, which also catches hard links);
+/// otherwise by normalized absolute path.
+bool _sameFile(String a, String b) {
+  if (File(a).existsSync() && File(b).existsSync()) {
+    return FileSystemEntity.identicalSync(a, b) || File(a).resolveSymbolicLinksSync() == File(b).resolveSymbolicLinksSync();
+  }
+  String normalized(String path) => Uri.file(File(path).absolute.path).normalizePath().toFilePath();
+  return normalized(a) == normalized(b);
 }
 
 RequestExecutor _realExecutor(Duration timeout) => RequestExecutor(

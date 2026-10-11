@@ -347,6 +347,74 @@ void main() {
     });
   });
 
+  group('a report path that would overwrite something else', () {
+    test('--json on the workspace file itself is refused and the file is left alone', () async {
+      final path = await write(_workspace());
+      final before = File(path).readAsStringSync();
+      final executor = FakeExecutor({});
+
+      final code = await run(['-w', path, '-e', 'qa', '--json', path], executor: executor);
+
+      expect(code, 2);
+      expect(err.toString(), contains('error:'));
+      expect(err.toString(), contains('--json'));
+      expect(err.toString(), contains('workspace'));
+      expect(File(path).readAsStringSync(), before);
+      expect(executor.calls, isEmpty, reason: 'nothing runs when the paths clash');
+    });
+
+    test('--junit on the workspace file itself is refused too', () async {
+      final path = await write(_workspace());
+      final before = File(path).readAsStringSync();
+
+      final code = await run(['-w', path, '-e', 'qa', '--junit', path]);
+
+      expect(code, 2);
+      expect(err.toString(), contains('--junit'));
+      expect(File(path).readAsStringSync(), before);
+    });
+
+    test('the same file spelled differently is still the same file', () async {
+      final path = await write(_workspace());
+      final before = File(path).readAsStringSync();
+      await Directory('${tmp.path}/sub').create();
+
+      final code = await run(['-w', path, '-e', 'qa', '--json', '${tmp.path}/sub/../ws.workspace.json']);
+
+      expect(code, 2);
+      expect(File(path).readAsStringSync(), before);
+    });
+
+    test('a link to the workspace file is the workspace file', () async {
+      final path = await write(_workspace());
+      final before = File(path).readAsStringSync();
+      final link = Link('${tmp.path}/report-link.json')..createSync(path);
+
+      final code = await run(['-w', path, '-e', 'qa', '--json', link.path]);
+
+      expect(code, 2);
+      expect(File(path).readAsStringSync(), before);
+    }, skip: Platform.isWindows ? 'creating links needs privileges on Windows' : false);
+
+    test('--junit and --json to the same path would overwrite each other: refused', () async {
+      final report = '${tmp.path}/report';
+      final executor = FakeExecutor({});
+
+      final code = await run(['-w', await write(_workspace()), '-e', 'qa', '--junit', report, '--json', report], executor: executor);
+
+      expect(code, 2);
+      expect(err.toString(), contains('same file'));
+      expect(executor.calls, isEmpty);
+      expect(File(report).existsSync(), isFalse);
+    });
+
+    test('different paths are fine, even in the same folder', () async {
+      final code = await run(['-w', await write(_workspace()), '-e', 'qa', '--junit', '${tmp.path}/a.xml', '--json', '${tmp.path}/a.json']);
+
+      expect(code, 0);
+    });
+  });
+
   group('secrets', () {
     const secret = 'sup3r-s3cret-key';
     const token = 'tok-abcdef123456';
