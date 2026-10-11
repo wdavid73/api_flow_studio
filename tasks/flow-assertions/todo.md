@@ -29,9 +29,9 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-assertions.md](../../SPEC-flow-asse
   - Verify: `fvm flutter test test/ui/flows`
   - Files: `lib/ui/flows/error_detail_panel.dart`, `lib/ui/flows/assertions_tab.dart`, `lib/ui/flows/run_step_inspector.dart`, `lib/ui/flows/run_step_card.dart`, `test/ui/flows/`
 
-- [ ] **A6: journey, README y cierre**
+- [x] **A6: journey, README y cierre**
   - Acceptance: journey con tres assertions (✓✓✗); README documenta operadores, `elapsedMs`/`sizeBytes` y migración/limitación de versiones anteriores
   - Verify: `fvm flutter test test/integration && fvm flutter analyze`
   - Files: `integration_test/journeys/flow_journey.dart`, `README.md`, `SPEC-flow-assertions.md` (criterios)
 
-- [ ] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana
+- [x] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana

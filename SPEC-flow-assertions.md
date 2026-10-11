@@ -98,9 +98,9 @@ Casos límite definidos (ninguno lanza excepción):
 - Regex inválida → falla con `Invalid regex "<patrón>"`.
 - `>`/`<` con un lado no numérico → falla con
   `"<valor>" is not a number`.
-- `field` vacío o solo espacios → la assertion se ignora (se considera sin
-  configurar, igual que hoy un par vacío), tanto al correr como al guardar desde
-  la UI.
+- `field` vacío o solo espacios → la assertion se ignora al correr (se
+  considera sin configurar, igual que hoy un par vacío). La UI conserva la fila
+  mientras se edita, y por eso también se guarda en el flujo, pero nunca se evalúa.
 - `expected` vacío con `==` es válido (compara con cadena vacía); un valor
   ausente sigue fallando porque `null != ''`.
 

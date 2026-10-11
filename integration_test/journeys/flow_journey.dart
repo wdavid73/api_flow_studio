@@ -102,6 +102,50 @@ void defineFlowJourney(JourneyHarness Function() harness) {
       expect(find.text('Assertion Failure'), findsOneWidget);
     });
 
+    journeyTest('a step with three assertions shows which held and which did not', (tester) async {
+      final app = await launchWith(tester, flows: const [
+        Flow(
+          id: 'f-three',
+          name: 'Three checks',
+          steps: [
+            FlowStep(endpointId: 'e-items', assertions: [
+              Assertion(field: 'response.status', expected: '200'),
+              Assertion(field: 'response.body.items.0.name', expected: 'Apple'),
+              Assertion(field: 'response.body.items.1.name', expected: 'Banana'),
+            ]),
+          ],
+        ),
+      ]);
+      await app.openFlow('f-three');
+
+      await app.runOpenFlow();
+
+      expect(find.text('1 failed'), findsOneWidget);
+      expect(find.text('Assertion Failure'), findsOneWidget);
+      expect(find.text('2/3 assertions'), findsOneWidget);
+      await app.tapKey(const Key('run-step-header-0'));
+      await tester.tap(find.text('Assertions'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('assertion-passed-0')), findsOneWidget);
+      expect(find.byKey(const Key('assertion-passed-1')), findsOneWidget);
+      expect(find.byKey(const Key('assertion-failed-2')), findsOneWidget);
+      expect(find.textContaining('got "Pear"'), findsWidgets);
+    });
+
+    journeyTest('an assertion added in the editor is evaluated on the next run', (tester) async {
+      final app = await launchWith(tester, flows: const [
+        Flow(id: 'f-edit', name: 'Edit me', steps: [FlowStep(endpointId: 'e-items')]),
+      ]);
+      await app.openFlow('f-edit');
+
+      await app.tapKey(const Key('add-assertion-0'));
+      await app.runOpenFlow();
+
+      // The editor proposes response.status == 200, which the demo route satisfies.
+      expect(find.text('1 passed'), findsOneWidget);
+      expect(find.text('1/1 assertions'), findsOneWidget);
+    });
+
     journeyTest('a value extracted from one step is used in the next one', (tester) async {
       final app = await launchWith(
         tester,

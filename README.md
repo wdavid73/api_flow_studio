@@ -20,6 +20,18 @@ Beyond a basic request/response cycle, it supports:
   `response.body.data.otp`) into a variable the next step consumes, with
   per-step assertions and "stop on failure" — e.g. a registration flow:
   check if a user exists → send OTP → validate OTP → create user.
+- **Assertions** on every flow step: any number of checks on the response, each a
+  field, an operator and an expected value — `==`, `!=`, `contains`,
+  `not contains`, `exists`, `not exists`, `matches` (regex), `>` and `<`. Fields
+  are dot paths starting with `response`: `response.status`,
+  `response.body.data.id`, `response.headers.content-type`, plus
+  `response.elapsedMs` and `response.sizeBytes` (so `response.elapsedMs < 800`
+  works). The expected value can use `{{variables}}`. All assertions of a step
+  run, and the run view shows which held and which did not. A flow saved with the
+  old single "assert field / expected value" pair opens as one `==` assertion.
+  Workspace files are now version 2; version 1 files still import, but an older
+  copy of the app will refuse (or, for `flows.json`, silently ignore) assertions
+  written by this one.
 - **Paste-a-curl-command** to prefill a new request's method, URL, headers,
   and body.
 - Per-request **history** of past responses (bodies kept to 100 KB, 500 entries
