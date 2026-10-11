@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:api_flow_studio/engine/import/import_registry.dart';
 import 'package:api_flow_studio/engine/import/importer.dart' show maxImportFileBytes;
@@ -226,5 +227,68 @@ void main() {
 
     final fields = (await collections()).endpoints.single.body.maybeMap(multipart: (b) => b.fields, orElse: () => throw StateError('not multipart'));
     expect(fields.single.value, '');
+  });
+
+  group('Postman files', () {
+    String fixture(String name) => File('test/engine/import/postman/fixtures/$name').readAsStringSync();
+
+    testWidgets('a collection with things left out opens the summary and lists them', (tester) async {
+      await pumpSidebar(tester);
+
+      await importFile(tester, PickedImportFile.fromText('petstore.postman_collection.json', fixture('petstore.postman_collection.json')));
+
+      expect(find.byKey(const Key('import-summary-dialog')), findsOneWidget);
+      expect(find.text('Imported Postman collection: 11 requests in 5 folders, 1 environment — 2 values to fill in'), findsOneWidget);
+      expect(find.text('11 things were left out or changed:'), findsOneWidget);
+      expect(find.byKey(const Key('import-warning-0')), findsOneWidget);
+      expect(find.text('Collection'), findsWidgets);
+      expect(find.text('pre-request script ignored'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('import-summary-close')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Petstore API'), findsOneWidget);
+      expect((await collections()).endpoints, hasLength(11));
+    });
+
+    testWidgets('an environment file whose names had to change opens the summary, and is not made active', (tester) async {
+      await pumpSidebar(tester);
+
+      await importFile(tester, PickedImportFile.fromText('staging.postman_environment.json', fixture('staging.postman_environment.json')));
+
+      expect(find.byKey(const Key('import-summary-dialog')), findsOneWidget);
+      expect(find.text('Imported Postman environment: 1 environment — 1 value to fill in'), findsOneWidget);
+      expect(find.textContaining('base-url → base_url'), findsOneWidget);
+      final environments = await store.readEnvironments();
+      expect(environments.single.name, 'Staging');
+      expect(environments.single.variables.keys, ['base_url', 'token']);
+      expect(await store.readActiveEnvironmentId(), isNull);
+    });
+
+    testWidgets('a clean environment file only needs a toast', (tester) async {
+      await pumpSidebar(tester);
+      final text = jsonEncode({
+        'name': 'Dev',
+        'values': [
+          {'key': 'base_url', 'value': 'https://dev.test', 'enabled': true},
+        ],
+        '_postman_variable_scope': 'environment',
+      });
+
+      await importFile(tester, PickedImportFile.fromText('dev.postman_environment.json', text));
+
+      expect(container.read(toastProvider), 'Imported Postman environment: 1 environment');
+      expect(find.byKey(const Key('import-summary-dialog')), findsNothing);
+    });
+
+    testWidgets('a v1 collection is explained', (tester) async {
+      await pumpSidebar(tester);
+
+      await importFile(tester, PickedImportFile.fromText('old.json', jsonEncode({'id': 'a', 'name': 'Old', 'order': [], 'folders': [], 'requests': []})));
+
+      expect(find.byKey(const Key('import-error-dialog')), findsOneWidget);
+      expect(find.text('That is a Postman collection v1, which is not supported. Export it again as v2.1.'), findsOneWidget);
+      expect((await collections()).groups, isEmpty);
+    });
   });
 }

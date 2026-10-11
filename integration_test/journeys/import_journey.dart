@@ -75,5 +75,84 @@ void defineImportJourney(JourneyHarness Function() harness) {
       expect((await app.store.readCollections()).groups, hasLength(before));
       expect(find.byType(AlertDialog), findsNothing);
     });
+
+    group('from Postman', () {
+      /// A small collection with what matters: a folder, a request, a variable, a script
+      /// (which cannot come along) and a file field (whose path never does).
+      String postmanCollection() => jsonEncode({
+            'info': {'name': 'Orders API', 'schema': 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'},
+            'variable': [
+              {'key': 'base-url', 'value': 'https://orders.test'},
+            ],
+            'item': [
+              {
+                'name': 'Orders',
+                'item': [
+                  {
+                    'name': 'Create order',
+                    'event': [
+                      {'listen': 'prerequest', 'script': {'exec': ['pm.environment.set("x", 1);']}},
+                    ],
+                    'request': {
+                      'method': 'POST',
+                      'url': '{{base-url}}/orders',
+                      'body': {
+                        'mode': 'formdata',
+                        'formdata': [
+                          {'key': 'receipt', 'type': 'file', 'src': '/Users/someone/receipt.pdf'},
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+          });
+
+      journeyTest('a collection brings its folders, an environment that is not active, and a summary of what was left out', (tester) async {
+        final app = await harness().launchApp(tester);
+        final activeBefore = await app.store.readActiveEnvironmentId();
+
+        await app.importIntoSidebar(PickedImportFile.fromText('orders.postman_collection.json', postmanCollection()));
+
+        expect(find.byKey(const Key('import-summary-dialog')), findsOneWidget);
+        expect(find.text('Imported Postman collection: 1 request in 2 folders, 1 environment — 1 value to fill in'), findsOneWidget);
+        expect(find.text('pre-request script ignored'), findsOneWidget);
+        expect(find.text('file field "receipt" needs a file chosen'), findsOneWidget);
+        await app.tapKey(const Key('import-summary-close'));
+
+        expect(find.text('Orders API'), findsOneWidget);
+        final environments = await app.store.readEnvironments();
+        final imported = environments.firstWhere((e) => e.name == 'Orders API (imported)');
+        expect(imported.variables['base_url']!.value, 'https://orders.test');
+        expect(await app.store.readActiveEnvironmentId(), activeBefore, reason: 'an imported environment is never made active');
+
+        final request = (await app.store.readCollections()).endpoints.firstWhere((e) => e.name == 'Create order');
+        expect(request.url, '{{base_url}}/orders', reason: 'the variable was renamed so it resolves');
+        final fields = request.body.maybeMap(multipart: (b) => b.fields, orElse: () => throw StateError('not multipart'));
+        expect(fields.single.value, isEmpty, reason: 'no path from the file');
+      });
+
+      journeyTest('an environment file adds an environment', (tester) async {
+        final app = await harness().launchApp(tester);
+        final before = (await app.store.readEnvironments()).length;
+        final text = jsonEncode({
+          'name': 'Staging',
+          'values': [
+            {'key': 'base-url', 'value': 'https://staging.test', 'enabled': true},
+          ],
+          '_postman_variable_scope': 'environment',
+        });
+
+        await app.importIntoSidebar(PickedImportFile.fromText('staging.postman_environment.json', text));
+
+        expect(find.byKey(const Key('import-summary-dialog')), findsOneWidget, reason: 'the renamed variable is a warning');
+        await app.tapKey(const Key('import-summary-close'));
+        final environments = await app.store.readEnvironments();
+        expect(environments, hasLength(before + 1));
+        expect(environments.last.name, 'Staging');
+        expect(environments.last.variables.keys, ['base_url']);
+      });
+    });
   });
 }

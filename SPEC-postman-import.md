@@ -103,8 +103,8 @@ Tanto la forma de lista (`[{key, value}]`) como la de objeto (`{token: …}`) se
 
 ## Mapeo: archivo de ambientes (`values`)
 Un archivo con `values: [{key, value, enabled, type}]` (de un ambiente o de las globales de Postman)
-se importa como **un ambiente** con ese nombre (`name`, o `Postman environment`; las globales,
-`_postman_variable_scope: "globals"`, se llaman `<name> (globals)` si no traen otro). `type: secret` →
+se importa como **un ambiente** con ese nombre (`name`, o `Postman environment` si falta; las globales,
+`_postman_variable_scope: "globals"`, con su `name` o `Postman globals` si falta). `type: secret` →
 variable secreta. Las entradas con `enabled: false` se omiten con un aviso que las nombra. Los
 nombres se sanean igual que arriba.
 
@@ -241,3 +241,27 @@ ayudantes tolerantes (`_string`, `_list`, `_map`) que ignoran tipos inesperados 
    futuro podría cubrir los casos simples (`pm.environment.set('x', 'valor')`); ¿lo anoto como idea?
 5. **Salvaguarda de tamaño:** una colección enorme genera miles de filas en el sidebar. Sigo sin tope de requests
    (decisión de `import-core`); ¿lo quieres aquí al menos como aviso a partir de cierto número?
+
+## Estado
+
+Implementado de P1 a P7 (`tasks/postman-import/`). Criterios de éxito y dónde se comprueban:
+
+| # | Criterio | Pruebas |
+|---|---|---|
+| 1 | Árbol de carpetas y requests, en orden | `postman_collection_importer_test.dart` (`the tree`, fixture realista) |
+| 2 | Método, URL, params, headers, descripción; variables de ruta | `postman_request_test.dart` |
+| 3 | Cuerpos raw, urlencoded, formdata, graphql; binario y deshabilitado avisados | `postman_body_test.dart` |
+| 4 | Auth bearer, basic, apikey, heredada; tipo no soportado avisado una vez | `postman_auth_test.dart`, `postman_collection_importer_test.dart` |
+| 5 | Dinámicas, nombres renombrados, ambiente `<nombre> (imported)` sin activar | `postman_variables_test.dart`, `postman_apply_test.dart` |
+| 6 | Archivo de ambientes / globales | `postman_environment_importer_test.dart` |
+| 7 | Nada se ejecuta ni se lee; archivos sin ruta y por rellenar | `postman_body_test.dart`, `postman_apply_test.dart` |
+| 8 | v1, otro formato o dañado: mensaje claro | `postman_collection_importer_test.dart`, `import_file_test.dart` |
+| 9 | Resumen con los avisos ubicados; toast si no hay | `import_file_test.dart`, `import_journey.dart` |
+| 10 | `analyze` y `test` en verde | CI |
+
+Decisiones al implementar: un `auth` sin `type` se hereda (no es una definición); las entradas de un
+`formdata` o `urlencoded` sin clave se omiten sin aviso (son filas vacías), igual que los headers sin
+clave; el aviso de una autenticación definida en la colección se ubica en `Collection`; si una variable
+de carpeta repite un nombre ya definido se conserva la primera y se avisa; el archivo de ambientes avisa
+de las entradas sin clave y de las repetidas, además de las deshabilitadas; las globales conservan su
+`name` en vez de añadirle `(globals)`.

@@ -41,7 +41,8 @@ Beyond a basic request/response cycle, it supports:
 - **Import** (sidebar): bring a file of requests into the active project as a **new
   folder**, with a summary of what came in and what had to be left out. Today it
   reads the collections JSON that the sidebar's own Export writes (and the bundled
-  `sample-endpoints.json`); see [Importing](#importing).
+  `sample-endpoints.json`), **Postman** collections (v2.0 and v2.1) and Postman
+  environment files; see [Importing](#importing).
 - **Paste-a-curl-command** to prefill a new request's method, URL, headers,
   and body (`-d`, and `-F`/`--form`/`--form-string` for Form Data); the copied
   curl writes Form Data back as `-F`.
@@ -194,11 +195,29 @@ its extension) and brings it in:
   opens a summary that lists each item. A request whose folder is not in the file, for
   example, is skipped and named there.
 - **File paths are never imported** from a Form Data body (see below): the field arrives
-  as "no file chosen".
+  as "no file chosen", and counts in the "values to fill in".
 - A file that is not a format it knows says so and lists the formats it does know; a
   **workspace** file is explained, not imported (open it with Project ▸ Import
   workspace…, which makes a whole new project); files over 32 MB are refused without
   being read.
+
+### Formats
+
+| File | What you get |
+|---|---|
+| Collections JSON (the sidebar's Export, `sample-endpoints.json`) | its folders and requests |
+| **Postman collection** v2.0 / v2.1 | a root folder named after the collection with the same tree, in the same order; method, URL, params, headers, description, bodies (raw, urlencoded, Form Data, GraphQL) and authentication (bearer, basic, API key) inherited from folders and the collection; the collection's variables as an environment `<name> (imported)` |
+| **Postman environment** or globals | one environment (secret variables stay secret) |
+
+Not imported, and listed in the summary when a file has them: **scripts** (pre-request
+and test — nothing is ever executed), saved example responses, OAuth and the other
+authentication types, binary bodies, disabled bodies, and the files of a Form Data
+body. Raw bodies that are not JSON (XML, HTML, text) arrive in the JSON body editor with a
+matching `Content-Type`. Postman's dynamic variables are mapped onto this app's
+(`{{$guid}}` becomes `{{$uuid}}`); variable names with characters other than letters,
+digits and `_` are renamed (`base-url` becomes `base_url`) everywhere in the file so they
+still resolve, and the summary lists the renames. A Postman **v1** collection is refused
+with a note to export it again as v2.1.
 
 ## Projects and workspaces
 

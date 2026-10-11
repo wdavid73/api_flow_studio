@@ -34,9 +34,9 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-postman-import.md](../../SPEC-postman-im
   - Verify: `fvm flutter test test/engine/import test/ui/import`
   - Files: `lib/engine/import/postman/postman_collection_importer.dart`, `lib/engine/import/import_registry.dart`, `test/engine/import/postman/`
 
-- [ ] **P7: UI, journey y README**
+- [x] **P7: UI, journey y README**
   - Acceptance: un widget test con avisos Postman en el resumen; journey con carpeta, ambiente sin activar y resumen; README con formatos y límites; criterios marcados
   - Verify: `fvm flutter test && fvm flutter analyze`
   - Files: `test/ui/import/`, `integration_test/journeys/import_journey.dart`, `README.md`, `SPEC-postman-import.md`
 
-- [ ] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana
+- [x] **Checkpoint final:** `analyze` + suite completa + `test/integration` en verde; revisión humana
