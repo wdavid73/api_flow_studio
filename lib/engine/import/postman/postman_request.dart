@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../models/models.dart';
 import '../import_result.dart';
 import 'postman_json.dart';
@@ -28,6 +30,7 @@ Endpoint requestToEndpoint({
 
   final url = _readUrl(request['url'], path, t, warnings);
   final headers = _readHeaders(request['header'], t);
+  final body = _readBody(request['body'], headers, path, t, warnings);
 
   final name = (asString(item['name']) ?? '').trim();
   final description = textOf(request['description']).isNotEmpty ? textOf(request['description']) : textOf(item['description']);
@@ -40,8 +43,9 @@ Endpoint requestToEndpoint({
     method: method,
     url: url.base,
     description: description,
-    headers: headers,
+    headers: [...headers, ...body.extraHeaders],
     queryParams: url.query,
+    body: body.body,
   );
 }
 
@@ -157,4 +161,132 @@ List<KeyValueEntry> _readHeaders(Object? header, _Translate t) {
     ));
   }
   return headers;
+}
+
+typedef _Body = ({RequestBody body, List<KeyValueEntry> extraHeaders});
+
+const _Body _noBody = (body: RequestBody.none(), extraHeaders: <KeyValueEntry>[]);
+
+/// What `request.body` becomes. A `Content-Type` is added only for a raw body that the
+/// JSON editor would otherwise send as JSON, and only when the request has none of its
+/// own (enabled or not).
+_Body _readBody(Object? value, List<KeyValueEntry> headers, String path, _Translate t, List<ImportWarning> warnings) {
+  final body = asMap(value);
+  if (body == null) return _noBody;
+
+  void warn(String message) => warnings.add(ImportWarning(where: path, message: message));
+
+  final mode = asString(body['mode']);
+  if (mode == null || mode.isEmpty) return _noBody;
+  if (body['disabled'] == true) {
+    warn('the body is disabled in Postman; left empty');
+    return _noBody;
+  }
+
+  switch (mode) {
+    case 'raw':
+      return _readRaw(body, headers, t, warn);
+    case 'urlencoded':
+      return (
+        body: RequestBody.formUrlEncoded([
+          for (final entry in asList(body['urlencoded']))
+            ?_entry(entry, t),
+        ]),
+        extraHeaders: const <KeyValueEntry>[],
+      );
+    case 'formdata':
+      return (body: RequestBody.multipart(_readFormData(body['formdata'], t, warn)), extraHeaders: const <KeyValueEntry>[]);
+    case 'graphql':
+      return (body: _readGraphql(asMap(body['graphql']), t, warn), extraHeaders: const <KeyValueEntry>[]);
+    case 'file':
+      warn('binary (file) body is not supported; the body was left empty');
+      return _noBody;
+    default:
+      warn('body mode "$mode" is not supported; the body was left empty');
+      return _noBody;
+  }
+}
+
+/// A `{key, value, disabled}` row, or null when it has no key.
+KeyValueEntry? _entry(Object? value, _Translate t) {
+  final map = asMap(value);
+  final key = map == null ? null : asString(map['key']);
+  if (map == null || key == null || key.isEmpty) return null;
+  return KeyValueEntry(key: t(key), value: t(map['value'] == null ? '' : '${map['value']}'), enabled: map['disabled'] != true);
+}
+
+_Body _readRaw(Map<String, dynamic> body, List<KeyValueEntry> headers, _Translate t, void Function(String) warn) {
+  final text = t(asString(body['raw']) ?? '');
+  if (text.trim().isEmpty) return _noBody;
+
+  final language = (asString(asMap(asMap(body['options'])?['raw'])?['language']) ?? '').toLowerCase();
+  final isJson = language == 'json' || ((language.isEmpty || language == 'text') && _looksLikeJson(text));
+  if (isJson) return (body: RequestBody.json(text), extraHeaders: const <KeyValueEntry>[]);
+
+  const types = {
+    'xml': 'application/xml',
+    'html': 'text/html',
+    'javascript': 'application/javascript',
+  };
+  final type = types[language] ?? 'text/plain';
+  final label = language.isEmpty ? 'text' : language;
+  final hasOwnType = headers.any((h) => h.key.toLowerCase() == 'content-type');
+  if (hasOwnType) {
+    warn('raw body in "$label" imported as text (the request\'s own Content-Type is kept)');
+    return (body: RequestBody.json(text), extraHeaders: const <KeyValueEntry>[]);
+  }
+  warn('raw body in "$label" imported as text with Content-Type $type');
+  return (body: RequestBody.json(text), extraHeaders: [KeyValueEntry(key: 'Content-Type', value: type)]);
+}
+
+/// Whether [text] is a JSON object or array, with `{{variables}}` counted as values.
+bool _looksLikeJson(String text) {
+  try {
+    final decoded = jsonDecode(text.replaceAll(RegExp(r'\{\{[^{}]+\}\}'), '0'));
+    return decoded is Map || decoded is List;
+  } on FormatException {
+    return false;
+  }
+}
+
+/// The parts of a `formdata` body. A file part keeps its name and content type but
+/// never its `src`: a path in someone else's file is not a file you chose to send.
+List<MultipartField> _readFormData(Object? value, _Translate t, void Function(String) warn) {
+  final fields = <MultipartField>[];
+  for (final entry in asList(value)) {
+    final map = asMap(entry);
+    final key = map == null ? null : asString(map['key']);
+    if (map == null || key == null || key.isEmpty) continue;
+
+    final name = t(key);
+    final enabled = map['disabled'] != true;
+    if (map['type'] == 'file') {
+      fields.add(MultipartField(name: name, kind: MultipartFieldKind.file, contentType: asString(map['contentType']), enabled: enabled));
+      if (enabled) warn('file field "$name" needs a file chosen');
+    } else {
+      fields.add(MultipartField(name: name, value: t(map['value'] == null ? '' : '${map['value']}'), enabled: enabled));
+    }
+  }
+  return fields;
+}
+
+/// `{query, variables}` as the JSON body GraphQL servers expect.
+RequestBody _readGraphql(Map<String, dynamic>? graphql, _Translate t, void Function(String) warn) {
+  final query = t(asString(graphql?['query']) ?? '');
+  final variablesText = (asString(graphql?['variables']) ?? '').trim();
+
+  Object? variables = <String, Object?>{};
+  if (variablesText.isNotEmpty) {
+    try {
+      final decoded = jsonDecode(t(variablesText));
+      if (decoded is Map) {
+        variables = decoded;
+      } else {
+        throw const FormatException('not an object');
+      }
+    } on FormatException {
+      warn('graphql variables are not valid JSON; sent as {}');
+    }
+  }
+  return RequestBody.json(const JsonEncoder.withIndent('  ').convert({'query': query, 'variables': variables}));
 }

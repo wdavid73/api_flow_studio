@@ -17,7 +17,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-postman-import.md](../../SPEC-postman-im
   - Verify: `fvm flutter test test/engine/import/postman`
   - Files: `lib/engine/import/postman/postman_request.dart`, `test/engine/import/postman/postman_request_test.dart`
 
-- [ ] **P4: los cuerpos**
+- [x] **P4: los cuerpos**
   - Acceptance: raw (JSON y otros con Content-Type solo si falta), urlencoded, formdata (archivo sin ruta con aviso), graphql, binario y deshabilitado con aviso; un `src` nunca llega al resultado
   - Verify: `fvm flutter test test/engine/import/postman`
   - Files: `lib/engine/import/postman/postman_request.dart`, `test/engine/import/postman/postman_body_test.dart`
