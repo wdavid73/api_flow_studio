@@ -12,7 +12,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-cli.md](../../SPEC-flow-cli.md)
   - Verify: `fvm flutter test test/cli/cli_options_test.dart`
   - Files: `lib/cli/cli_options.dart`, `test/cli/cli_options_test.dart`
 
-- [ ] **C3: selección de ambiente y flujos, variables**
+- [x] **C3: selección de ambiente y flujos, variables**
   - Acceptance: ambiente único/por nombre/errores; flujos por nombre o id, ambiguo y vacío; guard de producción; precedencia ambiente < `AFS_VAR_*` < `--var`; lista de secretas vacías
   - Verify: `fvm flutter test test/cli/selection_test.dart`
   - Files: `lib/cli/selection.dart`, `test/cli/selection_test.dart`
