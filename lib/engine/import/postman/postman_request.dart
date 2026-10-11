@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../models/models.dart';
 import '../import_result.dart';
+import 'postman_auth.dart';
 import 'postman_json.dart';
 import 'postman_variables.dart';
 
@@ -10,7 +11,7 @@ import 'postman_variables.dart';
 /// Reading is tolerant (a request may be just a URL string, a `url` text or an object,
 /// a `header` a list or a block of text) and everything that cannot be carried over is
 /// added to [warnings], located by [path] (`Auth / Login`). Variables in every text go
-/// through [translator].
+/// through [translator]. [auth] is what the request resolved to (its own, or inherited).
 Endpoint requestToEndpoint({
   required Map<String, dynamic> item,
   required String id,
@@ -18,6 +19,7 @@ Endpoint requestToEndpoint({
   required String path,
   required VariableTranslator translator,
   required List<ImportWarning> warnings,
+  PostmanAuth auth = PostmanAuth.none,
 }) {
   final unknown = <String>[];
   String t(String text) => translator.translate(text, unknownDynamic: unknown);
@@ -43,9 +45,10 @@ Endpoint requestToEndpoint({
     method: method,
     url: url.base,
     description: description,
-    headers: [...headers, ...body.extraHeaders],
-    queryParams: url.query,
+    headers: [...headers, ...body.extraHeaders, ?auth.header],
+    queryParams: [...url.query, ?auth.queryParam],
     body: body.body,
+    authConfig: auth.config,
   );
 }
 

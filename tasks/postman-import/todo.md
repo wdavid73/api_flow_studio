@@ -22,12 +22,12 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-postman-import.md](../../SPEC-postman-im
   - Verify: `fvm flutter test test/engine/import/postman`
   - Files: `lib/engine/import/postman/postman_request.dart`, `test/engine/import/postman/postman_body_test.dart`
 
-- [ ] **P5: autenticación heredada**
+- [x] **P5: autenticación heredada**
   - Acceptance: bearer, basic, apikey header/query, noauth que corta la herencia, tipos no soportados con un aviso donde se define, forma de lista y de objeto
   - Verify: `fvm flutter test test/engine/import/postman`
   - Files: `lib/engine/import/postman/postman_auth.dart`, `test/engine/import/postman/postman_auth_test.dart`
 
-- [ ] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
+- [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
 - [ ] **P6: el importador de colecciones y el registro**
   - Acceptance: fixture realista con las cifras esperadas; v1 con su mensaje; scripts y ejemplos avisados; ambiente `<nombre> (imported)`; el registro real elige bien; `applyImport` no deja rutas ni activa nada
