@@ -27,12 +27,12 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-openapi-import.md](../../SPEC-openapi-im
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_operation.dart`, `openapi_importer.dart`, `test/engine/import/openapi/openapi_operation_test.dart`
 
-- [ ] **O6: cuerpos**
+- [x] **O6: cuerpos**
   - Acceptance: preferencia de tipo; JSON (`example`/`examples`/muestra, `+json`); urlencoded; multipart con archivo por elegir; texto/XML con Content-Type; binario avisado
   - Verify: `fvm flutter test test/engine/import/openapi`
   - Files: `lib/engine/import/openapi/openapi_body.dart`, `test/engine/import/openapi/openapi_body_test.dart`
 
-- [ ] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
+- [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
 - [ ] **O7: seguridad**
   - Acceptance: efectiva por operación; bearer/basic/apiKey; no soportados una vez por esquema; conflicto; variables secretas vacías
