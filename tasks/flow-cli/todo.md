@@ -34,7 +34,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-flow-cli.md](../../SPEC-flow-cli.md)
 
 - [x] **Checkpoint 1:** `fvm flutter analyze` sin avisos y `fvm flutter test` completo en verde
 
-- [ ] **C7: de punta a punta contra un servidor local**
+- [x] **C7: de punta a punta contra un servidor local**
   - Acceptance: dos pasos con extracción y assertions → 0 y JUnit correcto; assertion fallida → 1; timeout corta un paso lento; `{{$token}}` se genera en el request real
   - Verify: `fvm flutter test test/cli/end_to_end_test.dart`
   - Files: `test/cli/end_to_end_test.dart`
