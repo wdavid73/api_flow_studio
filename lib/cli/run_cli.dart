@@ -102,6 +102,12 @@ Future<int> runCli(
 Future<WorkspaceFile?> _loadWorkspace(String path, StringSink err) async {
   final String text;
   try {
+    // WorkspaceFile.parse limits the size in characters, but only after the whole file
+    // is in memory: refuse what cannot fit (at most 4 bytes per character) before that.
+    if (await File(path).length() > maxWorkspaceFileChars * 4) {
+      err.writeln('error: ${const WorkspaceFileException(WorkspaceFileProblem.tooLarge).message}');
+      return null;
+    }
     text = await File(path).readAsString();
   } on FileSystemException catch (e) {
     err.writeln('error: cannot read $path: ${e.osError?.message ?? e.message}');

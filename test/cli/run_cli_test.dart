@@ -237,6 +237,51 @@ void main() {
       expect(err.toString(), contains('not an API Flow Studio workspace'));
     });
 
+    test('a workspace saved with a UTF-8 byte order mark (as some Windows editors do) still opens', () async {
+      final file = File('${tmp.path}/bom.json')..writeAsStringSync('\uFEFF${_workspace().encode()}');
+
+      final code = await run(['-w', file.path, '-e', 'qa']);
+
+      expect(code, 0);
+      expect(err.toString(), isNot(contains('not valid JSON')));
+    });
+
+    test('a file with a byte order mark and nothing valid after it is still reported as not JSON', () async {
+      final file = File('${tmp.path}/bom.json')..writeAsStringSync('\uFEFFhello');
+
+      final code = await run(['-w', file.path]);
+
+      expect(code, 2);
+      expect(err.toString(), contains('not valid JSON'));
+    });
+
+    test('a file over the size limit is refused as too large', () async {
+      final file = File('${tmp.path}/big.json')..writeAsStringSync('a' * (maxWorkspaceFileChars + 1));
+
+      final code = await run(['-w', file.path], executor: executor);
+
+      expect(code, 2);
+      expect(err.toString(), contains('too large'));
+    });
+
+    test('a file so large it is refused before being read at all', () async {
+      // More bytes than the character limit could ever need (4 per character), and
+      // not even valid UTF-8: reading it would say so, so "too large" proves it was not read.
+      final file = File('${tmp.path}/huge.json');
+      final sink = file.openWrite();
+      final chunk = List<int>.filled(1024 * 1024, 0xFF);
+      for (var i = 0; i < maxWorkspaceFileChars * 4 ~/ (1024 * 1024) + 2; i++) {
+        sink.add(chunk);
+      }
+      await sink.close();
+
+      final code = await run(['-w', file.path], executor: executor);
+
+      expect(code, 2);
+      expect(err.toString(), contains('too large'));
+      expect(executor.calls, isEmpty);
+    });
+
     test('a workspace from a newer version', () async {
       final file = File('${tmp.path}/x.json')
         ..writeAsStringSync(jsonEncode({'format': 'api-flow-studio-workspace', 'version': workspaceFormatVersion + 1, 'project': {'name': 'x'}}));
