@@ -62,7 +62,9 @@ class SchemaSampler {
   /// Stands for "leave this out of the object or array that holds it" (a recursive part).
   static final Object _omit = Object();
 
-  Object? _sample(Object? schema, _Run run, int depth, List<String> stack, String where) {
+  /// With [forRequest], a schema marked `readOnly` (what a server sends back, not something
+  /// to put in a request) stands for [_omit]: the property that holds it is left out.
+  Object? _sample(Object? schema, _Run run, int depth, List<String> stack, String where, {bool forRequest = false}) {
     if (++run.nodes > maxNodes || depth > maxDepth) {
       run.cut = true;
       return null;
@@ -87,6 +89,8 @@ class SchemaSampler {
       if (resolved == null) return null;
       map = resolved;
     }
+
+    if (forRequest && map['readOnly'] == true) return _omit;
 
     for (final key in const ['example', 'default', 'const']) {
       if (map.containsKey(key)) return _plain(map[key], run, 0);
@@ -144,9 +148,7 @@ class SchemaSampler {
       // Out of allowance: the rest of the properties would only be empty keys, and a wide
       // schema shared by thousands of operations would make each body as big as the schema.
       if (run.nodes > maxNodes) break;
-      // What a server sends back (readOnly) is not something to put in a request.
-      if (_refs.resolve(entry.value, where: where)?['readOnly'] == true) continue;
-      final value = _sample(entry.value, run, depth + 1, path, where);
+      final value = _sample(entry.value, run, depth + 1, path, where, forRequest: true);
       if (run.nodes > maxNodes && value == null) break;
       if (!identical(value, _omit)) result[entry.key] = value;
     }
