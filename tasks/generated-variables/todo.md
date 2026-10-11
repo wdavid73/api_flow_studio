@@ -24,7 +24,7 @@ Plan: [plan.md](plan.md) · Spec: [SPEC-generated-variables.md](../../SPEC-gener
   - Verify: `fvm flutter test test/ui/request_builder test/ui/theme`
   - Files: `lib/ui/theme/widgets/json_syntax.dart`, `lib/ui/request_builder/variable_highlighting_controller.dart`, `lib/ui/request_builder/json_body.dart`, tests correspondientes
 
-- [ ] **G5: inspector "Request Sent" con la URL enviada**
+- [x] **G5: inspector "Request Sent" con la URL enviada**
   - Acceptance: un paso con `{{$uuid}}` en la URL muestra la misma URL que recibió el servidor falso (no el token ni otra re-interpolación); sin respuesta, comportamiento actual
   - Verify: `fvm flutter test test/ui/flows`
   - Files: `lib/ui/flows/flow_run_view_screen.dart`, `lib/ui/flows/run_step_inspector.dart` (si hace falta), `test/ui/flows/`

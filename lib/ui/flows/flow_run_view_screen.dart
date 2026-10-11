@@ -57,7 +57,10 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
     if (result == null || result.status == FlowStepStatus.skipped) return null;
     final endpoint = widget.endpoints[widget.flow.steps[index].endpointId];
     if (endpoint == null) return null;
-    return interpolate(endpoint.url, _variablesEnteringStep(index));
+    // The executor reports the url it really sent (with any generated
+    // `{{$token}}` values); re-interpolating would show different ones.
+    return result.response?.requestUrl ??
+        interpolate(endpoint.url, _variablesEnteringStep(index));
   }
 
   /// Picks which step the inspector shows once a run finishes: the first

@@ -109,6 +109,56 @@ void main() {
     });
   });
 
+  testWidgets('Request Sent shows the url actually sent, not a re-interpolated one', (tester) async {
+    await tester.runAsync(() async {
+      const withToken = Endpoint(
+        id: 'e-3',
+        groupId: 'g-1',
+        name: 'Create',
+        method: 'POST',
+        url: '{{base_url}}/users/{{\$uuid}}',
+      );
+      final flow = Flow(id: 'f-1', name: 'Flow', steps: const [FlowStep(endpointId: 'e-3')]);
+      final executor = MockRequestExecutor();
+      when(() => executor.execute(withToken, variables: any(named: 'variables'))).thenAnswer(
+        (_) async => const ExecutedResponse(
+          status: 200,
+          requestUrl: 'https://api.dev/users/3f2b8c1e-0000-4000-8000-000000000000',
+        ),
+      );
+
+      final dir = await Directory.systemTemp.createTemp('flow_run_view_url_test_');
+      addTearDown(() async {
+        if (await dir.exists()) await dir.delete(recursive: true);
+      });
+      final store = JsonStore(directory: dir);
+      await store.writeEnvironments(const [
+        Environment(id: 'env-1', name: 'Dev', variables: {
+          'base_url': EnvironmentVariable(value: 'https://api.dev'),
+        }),
+      ]);
+      await store.writeActiveEnvironmentId('env-1');
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            jsonStoreProvider.overrideWithValue(store),
+            requestExecutorProvider.overrideWithValue(executor),
+          ],
+          child: MaterialApp(
+            home: FlowRunViewScreen(flow: flow, endpoints: {withToken.id: withToken}),
+          ),
+        ),
+      );
+      await settle(tester);
+
+      expect(
+        find.textContaining('POST https://api.dev/users/3f2b8c1e-0000-4000-8000-000000000000'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('{{'), findsNothing);
+    });
+  });
+
   testWidgets('expanding a failed step shows the error detail panel with a classification',
       (tester) async {
     await tester.runAsync(() async {
