@@ -1,11 +1,11 @@
 {
-    "name": "api_flow_studio",
-    "short_name": "api_flow_studio",
+    "name": "API Flow Studio",
+    "short_name": "API Flow Studio",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Build, send and chain HTTP API requests into flows.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
