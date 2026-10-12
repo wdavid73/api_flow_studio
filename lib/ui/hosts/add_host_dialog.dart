@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'host_matrix_provider.dart';
+import '../../l10n/l10n.dart';
 
 final RegExp _validName = RegExp(r'^\w+$');
 
@@ -32,14 +33,14 @@ class _AddHostDialogState extends ConsumerState<AddHostDialog> {
   }
 
   String? _validate(String name) {
-    if (name.isEmpty) return 'Enter a name.';
-    if (!_validName.hasMatch(name)) return 'Use letters, digits and underscores only.';
+    if (name.isEmpty) return context.l10n.hostsEnterName;
+    if (!_validName.hasMatch(name)) return context.l10n.hostsNameChars;
 
     final environments = ref.read(environmentsProvider).value?.environments ?? const [];
     final usedBySecret = environments.any((e) => e.variables[name]?.secret ?? false);
-    if (usedBySecret) return 'A secret variable already uses that name.';
+    if (usedBySecret) return context.l10n.hostsNameUsedBySecret;
 
-    if (ref.read(hostMatrixProvider).rows.any((r) => r.name == name)) return 'That host already exists.';
+    if (ref.read(hostMatrixProvider).rows.any((r) => r.name == name)) return context.l10n.hostsAlreadyExists;
     return null;
   }
 
@@ -56,7 +57,7 @@ class _AddHostDialogState extends ConsumerState<AddHostDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add host'),
+      title: Text(context.l10n.hostsAddHost),
       content: SizedBox(
         width: 360,
         child: Column(
@@ -86,13 +87,13 @@ class _AddHostDialogState extends ConsumerState<AddHostDialog> {
       actions: [
         HeaderGhostButton(
           key: const Key('host-name-cancel'),
-          label: 'Cancel',
+          label: context.l10n.commonCancel,
           onPressed: () => Navigator.of(context).pop(),
         ),
         FilledButton(
           key: const Key('host-name-confirm'),
           onPressed: _submit,
-          child: const Text('Add'),
+          child: Text(context.l10n.commonAdd),
         ),
       ],
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/l10n.dart';
 
 class ResponseHeadersTab extends StatelessWidget {
   const ResponseHeadersTab({super.key, required this.headers});
@@ -11,7 +12,7 @@ class ResponseHeadersTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (headers.isEmpty) {
-      return const Center(child: Text('No headers'));
+      return Center(child: Text(context.l10n.commonNoHeaders));
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),

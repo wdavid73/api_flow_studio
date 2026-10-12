@@ -1,0 +1,676 @@
+{
+  "@@locale": "en",
+  "appTitle": "API Flow Studio",
+  "commonCancel": "Cancel",
+  "commonClose": "Close",
+  "commonCreate": "Create",
+  "commonDelete": "Delete",
+  "commonAdd": "Add",
+  "commonImport": "Import",
+  "commonExport": "Export",
+  "commonRename": "Rename",
+  "commonSave": "Save",
+  "commonSend": "Send",
+  "commonNone": "None",
+  "commonError": "Error",
+  "commonAll": "All",
+  "commonKey": "Key",
+  "commonValue": "Value",
+  "commonHeaders": "Headers",
+  "commonNoHeaders": "No headers",
+  "commonOk": "OK",
+  "commonTimeMs": "{ms} ms",
+  "@commonTimeMs": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "commonSizeBytes": "{bytes} B",
+  "@commonSizeBytes": {
+    "placeholders": {
+      "bytes": {
+        "type": "int"
+      }
+    }
+  },
+  "commonNothingMatches": "Nothing matches that search.",
+  "commonFailedToLoad": "Failed to load {what}: {error}",
+  "@commonFailedToLoad": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      },
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "languageTooltip": "Change language",
+  "languageSystemDefault": "System default",
+  "navWorkspace": "Workspace",
+  "navEnvironments": "Environments",
+  "navFlows": "Flows",
+  "navHistory": "History",
+  "headerTagline": "API playground",
+  "headerMoreEnvironments": "More environments",
+  "hostsButton": "Hosts & notes",
+  "hostsDialogTitle": "Hosts by environment",
+  "hostsAddHost": "Add host",
+  "hostsHelp": "Hosts are environment variables whose value is a URL. Edit a cell to change it in that environment; clear it to remove the variable there.",
+  "hostsEnterName": "Enter a name.",
+  "hostsNameChars": "Use letters, digits and underscores only.",
+  "hostsNameUsedBySecret": "A secret variable already uses that name.",
+  "hostsAlreadyExists": "That host already exists.",
+  "hostsEmpty": "No hosts yet — add an environment variable whose value is a URL, or use Add host.",
+  "hostsColumnHost": "HOST",
+  "hostsColumnNote": "NOTE",
+  "hostsNoteHint": "Note…",
+  "hostsUsedBy": "Used by {count, plural, =1{1 request} other{{count} requests}}",
+  "@hostsUsedBy": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hostsAllDefined": "Every host is defined in every environment.",
+  "hostsActiveTag": "ACTIVE",
+  "hostsWarningNotDefinedIn": " isn't defined in {environments}. Requests that use ",
+  "@hostsWarningNotDefinedIn": {
+    "placeholders": {
+      "environments": {
+        "type": "String"
+      }
+    }
+  },
+  "hostsWarningUnresolved": " will be sent with that text unresolved there.",
+  "sessionNoToken": "No token",
+  "sessionKeptInMemory": "kept in memory only",
+  "sessionTokenSaved": "Token saved",
+  "sessionTokenExpired": "Token expired",
+  "sessionExpiresInMinutes": "Expires in {minutes} min",
+  "@sessionExpiresInMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionExpiresInHours": "Expires in {hours} h",
+  "@sessionExpiresInHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionNoEnvironment": "No environment",
+  "sessionTitle": "Session · {environment}",
+  "@sessionTitle": {
+    "placeholders": {
+      "environment": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionNotJwt": "Doesn't look like a JWT. It is still sent as a Bearer.",
+  "sessionSubject": "sub {subject}",
+  "@sessionSubject": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionAccessToken": "Access token",
+  "sessionRefreshToken": "Refresh token",
+  "sessionShow": "Show",
+  "sessionSendAuthorization": "Send Authorization",
+  "sessionCaptureTokens": "Capture tokens from 2xx",
+  "sessionClearTokens": "Clear tokens",
+  "sessionTokensCaptured": "Tokens captured for {environment}",
+  "@sessionTokensCaptured": {
+    "placeholders": {
+      "environment": {
+        "type": "String"
+      }
+    }
+  },
+  "workspaceExported": "Workspace \"{name}\" exported — secrets are not included",
+  "@workspaceExported": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workspaceCouldNotSave": "Could not save the workspace: {error}",
+  "@workspaceCouldNotSave": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "workspaceCouldNotReadFile": "Could not read the file: {error}",
+  "@workspaceCouldNotReadFile": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "workspaceImported": "Imported \"{name}\"",
+  "@workspaceImported": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workspaceImportedToFill": "Imported \"{name}\" — {count, plural, =1{1 value} other{{count} values}} to fill in",
+  "@workspaceImportedToFill": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workspaceCouldNotImportTitle": "Could not import the workspace",
+  "workspaceCouldNotImport": "Could not import the workspace: {error}",
+  "@workspaceCouldNotImport": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "projectNew": "New project",
+  "projectNewEllipsis": "New project…",
+  "projectRename": "Rename project",
+  "projectRenameEllipsis": "Rename project…",
+  "projectSwitch": "Switch project",
+  "projectExportWorkspace": "Export workspace…",
+  "projectImportWorkspace": "Import workspace…",
+  "projectDeleteEllipsis": "Delete project…",
+  "projectCreatedToast": "Project \"{name}\" created",
+  "@projectCreatedToast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "projectRenamedToast": "Project renamed to \"{name}\"",
+  "@projectRenamedToast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "projectDeletedToast": "Project \"{name}\" deleted",
+  "@projectDeletedToast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "projectDeleteTitle": "Delete \"{name}\"?",
+  "@projectDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "projectDeleteBody": "This permanently deletes its environments, collections, flows and history. It cannot be undone.",
+  "projectNameEmpty": "Give the project a name.",
+  "projectNameTooLong": "Names are limited to {max} characters.",
+  "@projectNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "projectNameDuplicate": "A project with that name already exists.",
+  "projectNameHint": "Project name",
+  "projectColor": "Color",
+  "importDescribe": "Imported {source}: {parts}{fill}",
+  "@importDescribe": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "parts": {
+        "type": "String"
+      },
+      "fill": {
+        "type": "String"
+      }
+    }
+  },
+  "importPartsRequestsInFolders": "{requests, plural, =1{1 request} other{{requests} requests}} in {folders, plural, =1{1 folder} other{{folders} folders}}",
+  "@importPartsRequestsInFolders": {
+    "placeholders": {
+      "requests": {
+        "type": "int"
+      },
+      "folders": {
+        "type": "int"
+      }
+    }
+  },
+  "importPartsEnvironments": "{count, plural, =1{1 environment} other{{count} environments}}",
+  "@importPartsEnvironments": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importPartsNothing": "nothing",
+  "importValuesToFill": " — {count, plural, =1{1 value} other{{count} values}} to fill in",
+  "@importValuesToFill": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importSummaryTitle": "Import summary",
+  "importWarningsHeader": "{count, plural, =1{1 thing was} other{{count} things were}} left out or changed:",
+  "@importWarningsHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importWarningsMore": "…and {count} more not shown",
+  "@importWarningsMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importErrorTitle": "Could not import",
+  "importCouldNotRead": "Could not read that file.",
+  "importCouldNotImportFile": "Could not import that file: {error}",
+  "@importCouldNotImportFile": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "historyKicker": "HISTORY",
+  "historyTitle": "Request history",
+  "historyFilterHint": "Filter history…",
+  "historyClear": "Clear history",
+  "historyEmpty": "No history yet — send a saved request.",
+  "historyClearTitle": "Clear the history of \"{project}\"?",
+  "@historyClearTitle": {
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "historyClearBody": "This deletes every saved response of this project. Your requests, environments and flows are not touched.",
+  "historyClearConfirm": "Clear",
+  "historyCleared": "History cleared",
+  "historyDeletedRequest": "Deleted request",
+  "historyToday": "TODAY",
+  "historyYesterday": "YESTERDAY",
+  "historySaveToRecord": "Save this request to start recording history",
+  "historyTabEmpty": "No history yet — send a request",
+  "historyHistoricalLabel": "Historical response — not live",
+  "historyTruncated": "Body truncated to 100 KB",
+  "historyErrorWithMessage": "Error: {message}",
+  "@historyErrorWithMessage": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionsKicker": "EXPLORER",
+  "collectionsNewFolder": "New folder",
+  "collectionsPasteCurl": "Paste curl",
+  "collectionsImportEllipsis": "Import…",
+  "collectionsExportTooltip": "Export endpoints (JSON)",
+  "collectionsFilterHint": "Filter requests…",
+  "collectionsEmpty": "No endpoints yet — create a folder to get started.",
+  "collectionsVersion": "API Flow Studio {version}",
+  "@collectionsVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionsExportTitle": "Export endpoints",
+  "collectionsExportedTo": "Exported to {path}",
+  "@collectionsExportedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionsFolderName": "Folder name",
+  "collectionsAddRequest": "Add request",
+  "collectionsNewRequestName": "New Request",
+  "collectionsDeleteFolder": "Delete folder",
+  "collectionsDeleteFolderFirst": "Delete this folder's contents first.",
+  "collectionsEmptyFolder": "No endpoints yet — + Add request",
+  "collectionsDeleteRequest": "Delete request",
+  "collectionsLoadWhat": "collections",
+  "curlPasteTitle": "Paste curl",
+  "curlCouldNotParse": "Couldn't parse this curl command: {message}",
+  "@curlCouldNotParse": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "requestUnsaved": "UNSAVED",
+  "requestNoFolder": "NO FOLDER",
+  "requestTabDocs": "Docs",
+  "requestTabParams": "Params",
+  "requestTabHeaders": "Headers",
+  "requestTabBody": "Body",
+  "requestTabAuth": "Auth",
+  "requestTabTests": "Tests",
+  "requestTabSettings": "Settings",
+  "requestTestsOutOfScope": "Tests are out of MVP scope",
+  "requestSettingsOutOfScope": "Settings are out of MVP scope",
+  "requestDocsHint": "Describe what this endpoint is for, when to use it, prerequisites, etc.",
+  "authBasic": "Basic",
+  "authBearer": "Bearer",
+  "authUsername": "Username",
+  "authPassword": "Password",
+  "authToken": "Token",
+  "bodyJson": "JSON",
+  "bodyFormUrlEncoded": "Form URL-Encoded",
+  "bodyFormData": "Form Data",
+  "bodyNone": "This request has no body",
+  "bodyFormatJson": "Format JSON",
+  "bodyInvalidJson": "Invalid JSON",
+  "tableAddRow": "Add row",
+  "multipartAddField": "Add field",
+  "multipartText": "Text",
+  "multipartFile": "File",
+  "multipartPathHint": "path to the file",
+  "multipartChoose": "Choose…",
+  "multipartNoFile": "No file chosen",
+  "responseCopy": "Copy",
+  "responseNothingToCopy": "Nothing to copy",
+  "responseCopied": "Response copied",
+  "responseCurlCopied": "curl copied",
+  "responseTabResponse": "Response",
+  "responseTabHistory": "History",
+  "responseNone": "No response yet",
+  "responseNoneHint": "Pick a request and send. Cmd/Ctrl + Enter also sends.",
+  "responseErrorWithMessage": "Error: {message}",
+  "@responseErrorWithMessage": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "responseTabBody": "Body",
+  "responseTabHeaders": "Headers",
+  "responseTabCookies": "Cookies",
+  "responseTabTimeline": "Timeline",
+  "responseViewFormat": "Format",
+  "responseViewRaw": "Raw",
+  "responseViewPreview": "Preview",
+  "responseNoCookies": "No cookies",
+  "responseTimeline": "Request sent → response received, {ms}ms",
+  "@responseTimeline": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "commonActiveTag": "ACTIVE",
+  "envKicker": "ENVIRONMENTS",
+  "envNew": "New Environment",
+  "envCreateFirst": "Create your first environment to get started",
+  "envEmptyList": "No environments yet — create your first one above.",
+  "envVariableCount": "{count, plural, =1{1 variable} other{{count} variables}}",
+  "@envVariableCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "envColumnName": "NAME",
+  "envColumnValue": "VALUE",
+  "envColumnSecret": "SECRET",
+  "envAddVariable": "Add variable",
+  "envProTip": "Pro tip: Syntax & Resolution",
+  "envTipReference": "Reference variables anywhere across URLs, headers, and payloads using the ",
+  "envTipSyntaxSuffix": " syntax.",
+  "envTipGenerated": "A fresh value is generated on every send: ",
+  "envVariableHint": "Variable",
+  "envLoadWhat": "environments",
+  "flowsKicker": "FLOWS",
+  "flowsNew": "New flow",
+  "flowsNewName": "New Flow",
+  "flowsImportTooltip": "Import flows",
+  "flowsExportTooltip": "Export flows",
+  "flowsSelectOrCreate": "Select or create a flow to get started",
+  "flowsEmptyList": "No flows yet — create one to chain requests together.",
+  "flowsStepCount": "{count, plural, =1{1 step} other{{count} steps}}",
+  "@flowsStepCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowsDelete": "Delete flow",
+  "flowsSave": "Save Flow",
+  "flowsRun": "Run Flow",
+  "flowsNoSteps": "No steps yet — add a saved endpoint to get started",
+  "flowsAddNextStep": "Add Next Step to Pipeline",
+  "flowsLoadWhat": "flows",
+  "flowsSelectAll": "All flows",
+  "flowsNothingToExport": "There are no flows to export yet",
+  "flowsExportTitle": "Export flows",
+  "flowsImportTitle": "Import flows",
+  "flowsExported": "Exported {count, plural, =1{1 flow} other{{count} flows}} — credentials are not included",
+  "@flowsExported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowsExportFailed": "Could not export the flows: {error}",
+  "@flowsExportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "flowsFileEmpty": "That file has no flows in it.",
+  "flowsImportFailed": "Could not import the flows: {error}",
+  "@flowsImportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "flowsImportErrorTitle": "Could not import the flows",
+  "flowsImported": "Imported {flows}{details}",
+  "@flowsImported": {
+    "placeholders": {
+      "flows": {
+        "type": "String"
+      },
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "flowsImportedFlowCount": "{count, plural, =1{1 flow} other{{count} flows}}",
+  "@flowsImportedFlowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowsImportedDetails": " — {parts}",
+  "@flowsImportedDetails": {
+    "placeholders": {
+      "parts": {
+        "type": "String"
+      }
+    }
+  },
+  "flowsPartRequestsAdded": "{count, plural, =1{1 request} other{{count} requests}} added",
+  "@flowsPartRequestsAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowsPartRequestsReused": "{count, plural, =1{1 request} other{{count} requests}} already there",
+  "@flowsPartRequestsReused": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowsPartStepsMissing": "{count, plural, =1{1 step} other{{count} steps}} without a request",
+  "@flowsPartStepsMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowsPartFilesToChoose": "{count, plural, =1{1 file} other{{count} files}} to choose",
+  "@flowsPartFilesToChoose": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flowsFileTooLarge": "That file is too large to be a flows file (the limit is 10 MB).",
+  "flowsFileNotJson": "That file is not valid JSON.",
+  "flowsFileNotFlows": "That file is not an API Flow Studio flows file.",
+  "flowsFileNewer": "That file was made by a newer version of API Flow Studio. Update the app to open it.",
+  "flowsFileInvalid": "That flows file is damaged or incomplete.",
+  "pickerAddStep": "Add step",
+  "pickerUncategorized": "Uncategorized",
+  "pickerNoSaved": "No saved endpoints yet — save a request first.",
+  "pickerAllEndpoints": "All endpoints",
+  "pickerSearchHint": "Search endpoints…",
+  "pickerNoMatch": "No endpoints match your search.",
+  "assertionsTitle": "Assertions",
+  "assertionsAdd": "Add assertion",
+  "assertionsGot": "got \"{value}\"",
+  "@assertionsGot": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "assertionsSummary": "{passed}/{total} assertions",
+  "@assertionsSummary": {
+    "placeholders": {
+      "passed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "errorUnknown": "Unknown Error",
+  "errorAssertionFailure": "Assertion Failure",
+  "errorConfiguration": "Configuration Error",
+  "errorNetwork": "Network Error",
+  "runReRunFlow": "Re-run Flow",
+  "runPassed": "{count} passed",
+  "@runPassed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "runFailed": "{count} failed",
+  "@runFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "runSkipped": "{count} skipped",
+  "@runSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "runSelectStep": "Select a step to see its details",
+  "runMissingEndpoint": "Missing endpoint",
+  "runSkippedStep": "Skipped",
+  "inspectorErrorDetails": "Error Details",
+  "inspectorRequestSent": "Request Sent",
+  "inspectorResponseBody": "Response Body",
+  "inspectorNoRequest": "No request was sent",
+  "inspectorNoResponse": "No response received",
+  "inspectorRerunFrom": "Re-run From Step {step}",
+  "@inspectorRerunFrom": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      }
+    }
+  },
+  "stepMissingEndpoint": "Missing endpoint ({id})",
+  "@stepMissingEndpoint": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "stepTerminal": "TERMINAL",
+  "stepPayloadTemplate": "PAYLOAD TEMPLATE",
+  "stepExtractTitle": "Extract Output Variables",
+  "stepAddExtracted": "Add extracted variable",
+  "stepStopOnFailure": "Stop on failure",
+  "multipartNameHint": "name",
+  "multipartAutoHint": "auto",
+  "multipartValueHint": "value",
+  "assertionExpectedHint": "expected"
+}

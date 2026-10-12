@@ -16,6 +16,7 @@ import 'day_label.dart';
 import 'history_provider.dart';
 import 'history_row.dart';
 import '../projects/projects_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// Text typed in the History search field. UI-only state, not persisted.
 final historySearchQueryProvider = StateProvider<String>((ref) {
@@ -26,10 +27,10 @@ final historySearchQueryProvider = StateProvider<String>((ref) {
 /// Whether [entry] matches the lowercase [query]: its request's name, method
 /// or URL contains it (a deleted request matches on its `Deleted request`
 /// label). An empty query matches everything.
-bool _matches(HistoryEntry entry, Endpoint? endpoint, String query) {
+bool _matches(AppLocalizations l10n, HistoryEntry entry, Endpoint? endpoint, String query) {
   if (query.isEmpty) return true;
   final fields = endpoint == null
-      ? ['deleted request']
+      ? [l10n.historyDeletedRequest.toLowerCase()]
       : [endpoint.name, endpoint.method, endpoint.url];
   return fields.any((f) => f.toLowerCase().contains(query));
 }
@@ -46,7 +47,7 @@ class HistoryScreen extends ConsumerWidget {
     final endpoints = ref.watch(collectionsProvider).value?.endpoints ?? const <Endpoint>[];
     final byId = {for (final e in endpoints) e.id: e};
     final query = ref.watch(historySearchQueryProvider).trim().toLowerCase();
-    final visible = [for (final e in entries) if (_matches(e, byId[e.endpointId], query)) e];
+    final visible = [for (final e in entries) if (_matches(context.l10n, e, byId[e.endpointId], query)) e];
 
     return Padding(
       key: const Key('history-screen'),
@@ -54,9 +55,9 @@ class HistoryScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('HISTORY', style: AppTypography.kicker.copyWith(color: AppColors.outline)),
+          Text(context.l10n.historyKicker, style: AppTypography.kicker.copyWith(color: AppColors.outline)),
           const SizedBox(height: AppSpacing.xs),
-          Text('Request history', style: AppTypography.title),
+          Text(context.l10n.historyTitle, style: AppTypography.title),
           const SizedBox(height: AppSpacing.lg),
           if (entries.isNotEmpty) ...[
             Row(
@@ -65,9 +66,9 @@ class HistoryScreen extends ConsumerWidget {
                   width: 360,
                   child: TextField(
                     key: const Key('history-search-field'),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       isDense: true,
-                      hintText: 'Filter history…',
+                      hintText: context.l10n.historyFilterHint,
                       prefixIcon: Icon(Icons.search, size: 16),
                     ),
                     onChanged: (value) => ref.read(historySearchQueryProvider.notifier).state = value,
@@ -76,7 +77,7 @@ class HistoryScreen extends ConsumerWidget {
                 const Spacer(),
                 HeaderGhostButton(
                   key: const Key('clear-history-button'),
-                  label: 'Clear history',
+                  label: context.l10n.historyClear,
                   onPressed: () => _confirmClear(context, ref),
                 ),
               ],
@@ -88,7 +89,7 @@ class HistoryScreen extends ConsumerWidget {
                 ? Center(
                     key: const Key('history-screen-empty'),
                     child: Text(
-                      'No history yet — send a saved request.',
+                      context.l10n.historyEmpty,
                       style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
                     ),
                   )
@@ -96,7 +97,7 @@ class HistoryScreen extends ConsumerWidget {
                     ? Center(
                         key: const Key('history-no-results'),
                         child: Text(
-                          'Nothing matches that search.',
+                          context.l10n.commonNothingMatches,
                           style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
                         ),
                       )
@@ -111,25 +112,23 @@ class HistoryScreen extends ConsumerWidget {
 /// Asks before deleting the history of the active project, then does it.
 Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {
   final project = ref.read(projectsProvider).active;
+  final l10n = context.l10n;
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Clear the history of "${project.name}"?'),
-      content: const Text(
-        'This deletes every saved response of this project. '
-        'Your requests, environments and flows are not touched.',
-      ),
+      title: Text(context.l10n.historyClearTitle(project.name)),
+      content: Text(context.l10n.historyClearBody),
       actions: [
         TextButton(
           key: const Key('clear-history-cancel-button'),
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.commonCancel),
         ),
         TextButton(
           key: const Key('clear-history-confirm-button'),
           style: TextButton.styleFrom(foregroundColor: AppColors.error),
           onPressed: () => Navigator.of(context).pop(true),
-          child: const Text('Clear'),
+          child: Text(context.l10n.historyClearConfirm),
         ),
       ],
     ),
@@ -139,7 +138,7 @@ Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {
   await ref.read(jsonStoreProvider).clearHistory();
   ref.invalidate(allHistoryProvider);
   ref.invalidate(historyProvider);
-  showToast(ref, 'History cleared');
+  showToast(ref, l10n.historyCleared);
 }
 
 class _DayGroups extends ConsumerWidget {
@@ -155,7 +154,7 @@ class _DayGroups extends ConsumerWidget {
     String? currentDay;
 
     for (final entry in entries) {
-      final day = dayLabel(entry.timestamp.toLocal(), now);
+      final day = dayLabel(entry.timestamp.toLocal(), now, l10n: context.l10n);
       if (day != currentDay) {
         currentDay = day;
         children.add(Padding(

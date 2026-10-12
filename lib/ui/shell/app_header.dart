@@ -8,6 +8,7 @@ import '../theme/widgets/app_logo.dart';
 import '../projects/project_switcher.dart';
 import 'app_destination.dart';
 import 'environment_pill.dart';
+import '../../l10n/l10n.dart';
 
 /// Window width below which the header wraps onto several lines instead of
 /// staying a single 56px row.
@@ -34,7 +35,7 @@ class AppHeader extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('API Flow Studio', style: AppTypography.headlineSm.copyWith(letterSpacing: -0.42)),
-            Text('API playground', style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant)),
+            Text(context.l10n.headerTagline, style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant)),
           ],
         ),
       ],
@@ -126,7 +127,7 @@ class _NavItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.field - 2),
           ),
           child: Text(
-            destination.label,
+            destination.label(context.l10n),
             style: AppTypography.bodyMd.copyWith(
               color: isSelected ? AppColors.onSurface : AppColors.onSurfaceVariant,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,

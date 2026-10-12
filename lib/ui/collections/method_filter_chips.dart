@@ -7,6 +7,7 @@ import '../theme/app_typography.dart';
 import '../theme/widgets/method_badge.dart';
 import 'endpoint_filter.dart';
 import '../projects/projects_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// The method the sidebar is filtered to ([allMethods] for none). UI-only
 /// state, not persisted.
@@ -37,7 +38,7 @@ class MethodFilterChips extends ConsumerWidget {
         for (final method in _chips)
           MethodChip(
             containerKey: Key('method-filter-$method'),
-            label: method == allMethods ? 'All' : method,
+            label: method == allMethods ? context.l10n.commonAll : method,
             color: method == allMethods ? AppColors.onSurfaceVariant : MethodBadge.colorForMethod(method),
             selected: method == selected,
             onTap: () => ref.read(sidebarMethodFilterProvider.notifier).state = method,

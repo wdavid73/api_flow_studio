@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../engine/flows/flow_step_result.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import 'package:flutter/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// A failed step's diagnostics: a short human-readable classification of
 /// [FlowStepResult.failureReason] plus the raw reason text.
@@ -33,7 +35,7 @@ class ErrorDetailPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            classifyFailure(result),
+            classifyFailure(result, l10n: context.l10n),
             style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
           ),
           // One line per failed assertion (a step can fail several). They come from
@@ -57,10 +59,11 @@ class ErrorDetailPanel extends StatelessWidget {
 /// A short, human-readable label for [result]'s failure, derived from the
 /// shape of [FlowRunner]'s three failure-reason messages -- there's no
 /// separate error-code field to classify on.
-String classifyFailure(FlowStepResult result) {
+String classifyFailure(FlowStepResult result, {AppLocalizations? l10n}) {
+  l10n ??= lookupAppLocalizations(const Locale('en'));
   final reason = result.failureReason;
-  if (reason == null) return 'Unknown Error';
-  if (reason.startsWith('Assertion failed')) return 'Assertion Failure';
-  if (reason.startsWith('Endpoint ') && reason.endsWith('not found')) return 'Configuration Error';
-  return 'Network Error';
+  if (reason == null) return l10n.errorUnknown;
+  if (reason.startsWith('Assertion failed')) return l10n.errorAssertionFailure;
+  if (reason.startsWith('Endpoint ') && reason.endsWith('not found')) return l10n.errorConfiguration;
+  return l10n.errorNetwork;
 }

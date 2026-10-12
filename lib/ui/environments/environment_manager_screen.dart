@@ -11,6 +11,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'environments_provider.dart';
 import '../projects/projects_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// Which environment is currently shown in the right-hand editor. UI-only,
 /// not persisted (distinct from [EnvironmentsState.activeEnvironmentId],
@@ -30,7 +31,7 @@ class EnvironmentManagerScreen extends ConsumerWidget {
     return asyncState.when(
       data: (state) => _Loaded(state: state),
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(child: Text('Failed to load environments: $error')),
+      error: (error, stack) => Center(child: Text(context.l10n.commonFailedToLoad(context.l10n.envLoadWhat, error))),
     );
   }
 }
@@ -57,10 +58,10 @@ class _Loaded extends ConsumerWidget {
 
     return ListDetailLayout(
       header: ListPanelHeader(
-        title: 'ENVIRONMENTS',
-        actionLabel: 'New Environment',
+        title: context.l10n.envKicker,
+        actionLabel: context.l10n.envNew,
         actionKey: const Key('new-environment-button'),
-        onAction: () => ref.read(environmentsProvider.notifier).create('New Environment'),
+        onAction: () => ref.read(environmentsProvider.notifier).create(context.l10n.envNew),
       ),
       list: _EnvironmentList(
         environments: state.environments,
@@ -68,9 +69,9 @@ class _Loaded extends ConsumerWidget {
         activeId: state.activeEnvironmentId,
       ),
       detail: selected == null
-          ? const Center(
+          ? Center(
               key: Key('no-environment-selected'),
-              child: Text('Create your first environment to get started'),
+              child: Text(context.l10n.envCreateFirst),
             )
           : _VariableEditor(environment: selected),
     );
@@ -91,11 +92,11 @@ class _EnvironmentList extends ConsumerWidget {
       children: [
         Expanded(
           child: environments.isEmpty
-              ? const Center(
+              ? Center(
                   key: Key('empty-environments-state'),
                   child: Padding(
                     padding: EdgeInsets.all(AppSpacing.md),
-                    child: Text('No environments yet — create your first one above.'),
+                    child: Text(context.l10n.envEmptyList),
                   ),
                 )
               : ListView.builder(
@@ -134,7 +135,7 @@ class _EnvironmentList extends ConsumerWidget {
                                     children: [
                                       Text(env.name, style: AppTypography.headlineSm),
                                       Text(
-                                        '${env.variables.length} variables',
+                                        context.l10n.envVariableCount(env.variables.length),
                                         style: AppTypography.bodySm.copyWith(
                                           color: AppColors.onSurfaceVariant,
                                         ),
@@ -145,7 +146,7 @@ class _EnvironmentList extends ConsumerWidget {
                                 if (isProd) _Tag(key: Key('env-prod-tag-${env.id}'), label: 'PROD', color: AppColors.error),
                                 if (isActive) ...[
                                   if (isProd) const SizedBox(width: AppSpacing.xs),
-                                  _Tag(key: Key('env-active-tag-${env.id}'), label: 'ACTIVE', color: color),
+                                  _Tag(key: Key('env-active-tag-${env.id}'), label: context.l10n.commonActiveTag, color: color),
                                 ],
                                 IconButton(
                                   key: ValueKey('delete-env-button-${env.id}'),
@@ -226,21 +227,21 @@ class _VariableEditor extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'NAME',
+                      context.l10n.envColumnName,
                       style: AppTypography.kicker.copyWith(color: AppColors.outline),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      'VALUE',
+                      context.l10n.envColumnValue,
                       style: AppTypography.kicker.copyWith(color: AppColors.outline),
                     ),
                   ),
                   SizedBox(
                     width: 48,
                     child: Text(
-                      'SECRET',
+                      context.l10n.envColumnSecret,
                       textAlign: TextAlign.center,
                       style: AppTypography.kicker.copyWith(color: AppColors.outline),
                     ),
@@ -283,7 +284,7 @@ class _VariableEditor extends ConsumerWidget {
             alignment: Alignment.centerLeft,
             child: HeaderGhostButton(
               key: const Key('add-variable-button'),
-              label: 'Add variable',
+              label: context.l10n.envAddVariable,
               onPressed: () => _mutate(ref, (current) {
                 var name = 'new_variable';
                 var suffix = 1;
@@ -319,21 +320,18 @@ class _VariableEditor extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Pro tip: Syntax & Resolution', style: AppTypography.headlineSm),
+                      Text(context.l10n.envProTip, style: AppTypography.headlineSm),
                       const SizedBox(height: AppSpacing.xs),
                       Text.rich(
                         TextSpan(
                           style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
                           children: [
-                            const TextSpan(
-                              text: 'Reference variables anywhere across URLs, headers, and '
-                                  'payloads using the ',
-                            ),
+                            TextSpan(text: context.l10n.envTipReference),
                             TextSpan(
                               text: '{{variable_name}}',
                               style: AppTypography.codeSm.copyWith(color: AppColors.secondary),
                             ),
-                            const TextSpan(text: ' syntax.'),
+                            TextSpan(text: context.l10n.envTipSyntaxSuffix),
                           ],
                         ),
                       ),
@@ -343,7 +341,7 @@ class _VariableEditor extends ConsumerWidget {
                         TextSpan(
                           style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
                           children: [
-                            const TextSpan(text: 'A fresh value is generated on every send: '),
+                            TextSpan(text: context.l10n.envTipGenerated),
                             for (final name in DynamicValues.names.indexed)
                               TextSpan(
                                 text: '{{\$${name.$2}}}${name.$1 == DynamicValues.names.length - 1 ? '.' : ', '}',
@@ -390,7 +388,7 @@ class _VariableRow extends StatelessWidget {
             child: TextFormField(
               key: const Key('variable-name-field'),
               initialValue: name,
-              decoration: const InputDecoration(hintText: 'Variable', isDense: true),
+              decoration: InputDecoration(hintText: context.l10n.envVariableHint, isDense: true),
               onChanged: onNameChanged,
             ),
           ),
@@ -400,7 +398,7 @@ class _VariableRow extends StatelessWidget {
               key: const Key('variable-value-field'),
               initialValue: variable.value,
               obscureText: variable.secret,
-              decoration: const InputDecoration(hintText: 'Value', isDense: true),
+              decoration: InputDecoration(hintText: context.l10n.commonValue, isDense: true),
               onChanged: (value) => onVariableChanged(variable.copyWith(value: value)),
             ),
           ),

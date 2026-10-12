@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'file_picker_service.dart';
+import '../../l10n/l10n.dart';
 
 /// The Form Data body editor: one row per field (enabled, name, Text/File, then a
 /// text value or a path with a Choose button and a content type, remove) and an
@@ -102,7 +103,7 @@ class _MultipartTableState extends ConsumerState<MultipartTable> {
             key: const Key('add-multipart-field'),
             onPressed: _add,
             icon: const Icon(Icons.add, size: 16),
-            label: const Text('Add field'),
+            label: Text(context.l10n.multipartAddField),
           ),
         ),
       ],
@@ -148,7 +149,7 @@ class _FieldRow extends StatelessWidget {
                 child: TextFormField(
                   key: ValueKey('multipart-name-$row'),
                   initialValue: field.name,
-                  decoration: const InputDecoration(hintText: 'name', isDense: true),
+                  decoration: InputDecoration(hintText: context.l10n.multipartNameHint, isDense: true),
                   onChanged: (value) => onEdit(field.copyWith(name: value)),
                 ),
               ),
@@ -158,9 +159,9 @@ class _FieldRow extends StatelessWidget {
                   key: ValueKey('multipart-kind-$row'),
                   value: field.kind,
                   isDense: true,
-                  items: const [
-                    DropdownMenuItem(value: MultipartFieldKind.text, child: Text('Text')),
-                    DropdownMenuItem(value: MultipartFieldKind.file, child: Text('File')),
+                  items: [
+                    DropdownMenuItem(value: MultipartFieldKind.text, child: Text(context.l10n.multipartText)),
+                    DropdownMenuItem(value: MultipartFieldKind.file, child: Text(context.l10n.multipartFile)),
                   ],
                   onChanged: (kind) {
                     // A text value is not a path and a path is not text: start clean.
@@ -175,7 +176,7 @@ class _FieldRow extends StatelessWidget {
                   child: TextFormField(
                     key: ValueKey('multipart-path-$row'),
                     initialValue: field.value,
-                    decoration: const InputDecoration(hintText: 'path to the file', isDense: true),
+                    decoration: InputDecoration(hintText: context.l10n.multipartPathHint, isDense: true),
                     onChanged: (value) => onEdit(field.copyWith(value: value)),
                   ),
                 ),
@@ -183,7 +184,7 @@ class _FieldRow extends StatelessWidget {
                 OutlinedButton(
                   key: ValueKey('multipart-choose-$row'),
                   onPressed: onChoose,
-                  child: const Text('Choose…'),
+                  child: Text(context.l10n.multipartChoose),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -191,7 +192,7 @@ class _FieldRow extends StatelessWidget {
                   child: TextFormField(
                     key: ValueKey('multipart-type-$row'),
                     initialValue: field.contentType ?? '',
-                    decoration: const InputDecoration(hintText: 'auto', isDense: true),
+                    decoration: InputDecoration(hintText: context.l10n.multipartAutoHint, isDense: true),
                     // Empty means "work it out from the extension", which is null.
                     onChanged: (value) => onEdit(
                       value.isEmpty ? field.copyWith(contentType: null) : field.copyWith(contentType: value),
@@ -204,7 +205,7 @@ class _FieldRow extends StatelessWidget {
                   child: TextFormField(
                     key: ValueKey('multipart-value-$row'),
                     initialValue: field.value,
-                    decoration: const InputDecoration(hintText: 'value', isDense: true),
+                    decoration: InputDecoration(hintText: context.l10n.multipartValueHint, isDense: true),
                     onChanged: (value) => onEdit(field.copyWith(value: value)),
                   ),
                 ),
@@ -219,7 +220,7 @@ class _FieldRow extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 48, top: 2),
               child: Text(
-                'No file chosen',
+                context.l10n.multipartNoFile,
                 key: ValueKey('multipart-no-file-$row'),
                 style: AppTypography.bodySm.copyWith(color: AppColors.warning),
               ),

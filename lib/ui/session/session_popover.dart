@@ -12,6 +12,7 @@ import '../theme/app_typography.dart';
 import 'session_label.dart';
 import 'session_provider.dart';
 import 'session_clock.dart';
+import '../../l10n/l10n.dart';
 
 /// The session popover, drawn over the app by [SessionButton] under the
 /// header's right edge: a click outside or `Esc` closes it ([onClose]).
@@ -22,7 +23,7 @@ class SessionPopover extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final environmentName = ref.watch(environmentsProvider).value?.active?.name ?? 'No environment';
+    final environmentName = ref.watch(environmentsProvider).value?.active?.name ?? context.l10n.sessionNoEnvironment;
 
     return Stack(
       children: [
@@ -51,7 +52,7 @@ class SessionPopover extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Session · $environmentName', style: AppTypography.headlineSm),
+                    Text(context.l10n.sessionTitle(environmentName), style: AppTypography.headlineSm),
                     const SizedBox(height: AppSpacing.md),
                     const _SessionForm(),
                   ],
@@ -149,11 +150,11 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
   String? _metadata(Session session, DateTime now) {
     if (!session.hasToken) return null;
     final claims = JwtClaims.tryParse(session.accessToken);
-    if (claims == null) return "Doesn't look like a JWT. It is still sent as a Bearer.";
+    if (claims == null) return context.l10n.sessionNotJwt;
 
     final parts = [
-      if (claims.subject != null) 'sub ${claims.subject}',
-      if (claims.expiresAt != null) sessionLabel(session, now).top,
+      if (claims.subject != null) context.l10n.sessionSubject(claims.subject!),
+      if (claims.expiresAt != null) sessionLabel(session, now, l10n: context.l10n).top,
     ];
     return parts.isEmpty ? null : parts.join(' · ');
   }
@@ -211,16 +212,16 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        tokenField('Access token', 'session-access-field', _access,
+        tokenField(context.l10n.sessionAccessToken, 'session-access-field', _access,
             (v) => _update((s) => s.copyWith(accessToken: v))),
-        tokenField('Refresh token', 'session-refresh-field', _refresh,
+        tokenField(context.l10n.sessionRefreshToken, 'session-refresh-field', _refresh,
             (v) => _update((s) => s.copyWith(refreshToken: v))),
         Wrap(
           children: [
-            check('Show', 'session-show-checkbox', _show, (v) => setState(() => _show = v)),
-            check('Send Authorization', 'session-attach-checkbox', session.attachAuth,
+            check(context.l10n.sessionShow, 'session-show-checkbox', _show, (v) => setState(() => _show = v)),
+            check(context.l10n.sessionSendAuthorization, 'session-attach-checkbox', session.attachAuth,
                 (v) => _update((s) => s.copyWith(attachAuth: v))),
-            check('Capture tokens from 2xx', 'session-capture-checkbox', session.captureTokens,
+            check(context.l10n.sessionCaptureTokens, 'session-capture-checkbox', session.captureTokens,
                 (v) => _update((s) => s.copyWith(captureTokens: v))),
           ],
         ),
@@ -236,7 +237,7 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
         const SizedBox(height: AppSpacing.md),
         HeaderGhostButton(
           key: const Key('session-clear-button'),
-          label: 'Clear tokens',
+          label: context.l10n.sessionClearTokens,
           onPressed: () => _update((s) => s.copyWith(accessToken: '', refreshToken: '')),
         ),
       ],

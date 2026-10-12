@@ -4,6 +4,8 @@ import '../../engine/import/import_result.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/l10n.dart';
+import 'import_summary_text.dart';
 
 /// The most warnings the dialog lays out: a file can have thousands, and each is a widget.
 const int maxListedImportWarnings = 200;
@@ -14,17 +16,17 @@ Future<void> showImportSummaryDialog(BuildContext context, ImportSummary summary
     context: context,
     builder: (context) => AlertDialog(
       key: const Key('import-summary-dialog'),
-      title: const Text('Import summary'),
+      title: Text(context.l10n.importSummaryTitle),
       content: SizedBox(
         width: 520,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(summary.describe()),
+            Text(describeImport(context.l10n, summary)),
             const SizedBox(height: AppSpacing.md),
             Text(
-              '${summary.warnings.length} ${summary.warnings.length == 1 ? 'thing was' : 'things were'} left out or changed:',
+              context.l10n.importWarningsHeader(summary.warnings.length),
               style: AppTypography.labelMd.copyWith(color: AppColors.warning),
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -49,7 +51,7 @@ Future<void> showImportSummaryDialog(BuildContext context, ImportSummary summary
                       key: const Key('import-warnings-hidden'),
                       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                       child: Text(
-                        '…and ${summary.warnings.length - maxListedImportWarnings} more not shown',
+                        context.l10n.importWarningsMore(summary.warnings.length - maxListedImportWarnings),
                         style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant),
                       ),
                     ),
@@ -63,7 +65,7 @@ Future<void> showImportSummaryDialog(BuildContext context, ImportSummary summary
         TextButton(
           key: const Key('import-summary-close'),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+          child: Text(context.l10n.commonClose),
         ),
       ],
     ),
@@ -76,13 +78,13 @@ Future<void> showImportErrorDialog(BuildContext context, String message) {
     context: context,
     builder: (context) => AlertDialog(
       key: const Key('import-error-dialog'),
-      title: const Text('Could not import'),
+      title: Text(context.l10n.importErrorTitle),
       content: Text(message),
       actions: [
         TextButton(
           key: const Key('import-error-close'),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+          child: Text(context.l10n.commonClose),
         ),
       ],
     ),

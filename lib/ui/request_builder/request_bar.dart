@@ -13,6 +13,7 @@ import 'tabs/docs_tab.dart';
 import 'tabs/headers_tab.dart';
 import 'tabs/params_tab.dart';
 import 'url_field.dart';
+import '../../l10n/l10n.dart';
 
 /// The request builder: a method dropdown, a URL field, a Send button
 /// wired to the real [RequestExecutor], Params/Headers/Body/Auth/Docs tabs
@@ -48,7 +49,7 @@ class RequestBar extends ConsumerWidget {
                 onPressed: draft.id == draftEndpointId
                     ? null
                     : () => ref.read(collectionsProvider.notifier).updateEndpoint(draft),
-                child: const Text('Save'),
+                child: Text(context.l10n.commonSave),
               ),
               const SizedBox(width: 12),
               FilledButton(
@@ -61,7 +62,7 @@ class RequestBar extends ConsumerWidget {
                         width: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Send'),
+                    : Text(context.l10n.commonSend),
               ),
             ],
           ),
@@ -72,10 +73,18 @@ class RequestBar extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const PillTabBar(
-                    labels: ['Docs', 'Params', 'Headers', 'Body', 'Auth', 'Tests', 'Settings'],
+                  PillTabBar(
+                    labels: [
+                      context.l10n.requestTabDocs,
+                      context.l10n.requestTabParams,
+                      context.l10n.requestTabHeaders,
+                      context.l10n.requestTabBody,
+                      context.l10n.requestTabAuth,
+                      context.l10n.requestTabTests,
+                      context.l10n.requestTabSettings,
+                    ],
                   ),
-                  const Expanded(
+                  Expanded(
                     child: TabBarView(
                       children: [
                         DocsTab(),
@@ -83,8 +92,8 @@ class RequestBar extends ConsumerWidget {
                         HeadersTab(),
                         BodyTab(),
                         AuthTab(),
-                        Center(child: Text('Tests are out of MVP scope')),
-                        Center(child: Text('Settings are out of MVP scope')),
+                        Center(child: Text(context.l10n.requestTestsOutOfScope)),
+                        Center(child: Text(context.l10n.requestSettingsOutOfScope)),
                       ],
                     ),
                   ),

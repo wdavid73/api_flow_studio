@@ -7,6 +7,7 @@ import '../theme/app_typography.dart';
 import '../theme/widgets/method_badge.dart';
 import '../theme/widgets/status_badge.dart';
 import 'day_label.dart';
+import '../../l10n/l10n.dart';
 
 /// One send in the global history: the request it belonged to (method, name,
 /// URL; or `Deleted request` when that request no longer exists), then the
@@ -45,7 +46,7 @@ class HistoryRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      endpoint?.name ?? 'Deleted request',
+                      endpoint?.name ?? context.l10n.historyDeletedRequest,
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.bodyMd.copyWith(
                         color: endpoint == null ? AppColors.onSurfaceVariant : AppColors.onSurface,
@@ -63,11 +64,11 @@ class HistoryRow extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.md),
               if (entry.error != null || entry.status == null)
-                Text('Error', style: AppTypography.codeMd.copyWith(color: AppColors.error))
+                Text(context.l10n.commonError, style: AppTypography.codeMd.copyWith(color: AppColors.error))
               else
                 StatusBadge(statusCode: entry.status!),
               const SizedBox(width: AppSpacing.md),
-              Text('${entry.elapsedMs} ms', style: muted),
+              Text(context.l10n.commonTimeMs(entry.elapsedMs), style: muted),
               const SizedBox(width: AppSpacing.md),
               Text(formatTime(entry.timestamp.toLocal()), style: muted),
             ],

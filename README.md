@@ -291,6 +291,17 @@ folder between versions.
 
 Design and acceptance criteria: [SPEC-workspaces.md](SPEC-workspaces.md).
 
+## Language
+
+The header has a language button (next to *Hosts & notes*) with English, Español and *System default*.
+The choice is saved in `app_settings.json` in the data folder. The texts live in `lib/l10n/app_en.arb`
+(the template) and `app_es.arb`; `flutter gen-l10n` (it also runs on `flutter run`/`test`) generates
+`AppLocalizations` from them. To add a language, add `app_<code>.arb` with the same keys and list it in
+`appLanguages` (`lib/ui/l10n/locale_provider.dart`); a test checks both files have the same keys.
+
+What is not translated yet: the messages the engine itself produces (import warnings, flow failure
+reasons and assertion messages, the terminal runner) and the titles of the native file dialogs.
+
 ## Exporting and importing flows
 
 The Flows screen has an import and an export button. Each asks which flows to use (one checkbox

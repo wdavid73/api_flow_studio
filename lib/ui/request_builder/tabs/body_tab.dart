@@ -11,6 +11,7 @@ import '../json_body.dart';
 import '../key_value_table.dart';
 import '../multipart_table.dart';
 import '../request_draft_provider.dart';
+import '../../../l10n/l10n.dart';
 
 enum BodyKind { none, json, formUrlEncoded, multipart }
 
@@ -48,11 +49,11 @@ class BodyTab extends ConsumerWidget {
           padding: const EdgeInsets.all(12),
           child: SegmentedButton<BodyKind>(
             key: const Key('body-kind-selector'),
-            segments: const [
-              ButtonSegment(value: BodyKind.none, label: Text('None')),
-              ButtonSegment(value: BodyKind.json, label: Text('JSON')),
-              ButtonSegment(value: BodyKind.formUrlEncoded, label: Text('Form URL-Encoded')),
-              ButtonSegment(value: BodyKind.multipart, label: Text('Form Data')),
+            segments: [
+              ButtonSegment(value: BodyKind.none, label: Text(context.l10n.commonNone)),
+              ButtonSegment(value: BodyKind.json, label: Text(context.l10n.bodyJson)),
+              ButtonSegment(value: BodyKind.formUrlEncoded, label: Text(context.l10n.bodyFormUrlEncoded)),
+              ButtonSegment(value: BodyKind.multipart, label: Text(context.l10n.bodyFormData)),
             ],
             selected: {kind},
             onSelectionChanged: (selection) => setKind(selection.first),
@@ -62,7 +63,7 @@ class BodyTab extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: draft.body.map(
-              none: (_) => const Center(child: Text('This request has no body')),
+              none: (_) => Center(child: Text(context.l10n.bodyNone)),
               json: (b) => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -70,7 +71,7 @@ class BodyTab extends ConsumerWidget {
                     children: [
                       HeaderGhostButton(
                         key: const Key('format-json-button'),
-                        label: 'Format JSON',
+                        label: context.l10n.bodyFormatJson,
                         onPressed: () {
                           final formatted = formatJsonBody(b.raw);
                           if (formatted != null) notifier.setBody(RequestBody.json(formatted));
@@ -79,7 +80,7 @@ class BodyTab extends ConsumerWidget {
                       const SizedBox(width: AppSpacing.md),
                       if (!isValidJsonBody(b.raw))
                         Text(
-                          'Invalid JSON',
+                          context.l10n.bodyInvalidJson,
                           key: const Key('invalid-json-warning'),
                           style: AppTypography.bodySm.copyWith(color: AppColors.warning),
                         ),

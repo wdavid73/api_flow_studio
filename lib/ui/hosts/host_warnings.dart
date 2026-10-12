@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'host_matrix_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// Under the table: one warning per base missing in some environment (those
 /// that would break a Send in the active environment first), or a line saying
@@ -26,7 +27,7 @@ class HostWarnings extends ConsumerWidget {
       return Padding(
         padding: const EdgeInsets.only(top: AppSpacing.lg),
         child: Text(
-          'Every host is defined in every environment.',
+          context.l10n.hostsAllDefined,
           key: const Key('hosts-all-defined'),
           style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
         ),
@@ -71,7 +72,7 @@ class _WarningCard extends StatelessWidget {
                 color: AppColors.warning.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
-              child: Text('ACTIVE', style: AppTypography.badgeMono.copyWith(color: AppColors.warning)),
+              child: Text(context.l10n.hostsActiveTag, style: AppTypography.badgeMono.copyWith(color: AppColors.warning)),
             ),
             const SizedBox(width: AppSpacing.md),
           ],
@@ -81,9 +82,9 @@ class _WarningCard extends StatelessWidget {
                 style: body,
                 children: [
                   TextSpan(text: warning.name, style: AppTypography.codeMd.copyWith(color: AppColors.warning, fontWeight: FontWeight.w700)),
-                  TextSpan(text: " isn't defined in ${warning.missingEnvironmentNames.join(', ')}. Requests that use "),
+                  TextSpan(text: context.l10n.hostsWarningNotDefinedIn(warning.missingEnvironmentNames.join(', '))),
                   TextSpan(text: '{{${warning.name}}}', style: AppTypography.codeMd.copyWith(color: AppColors.warning)),
-                  const TextSpan(text: ' will be sent with that text unresolved there.'),
+                  TextSpan(text: context.l10n.hostsWarningUnresolved),
                 ],
               ),
             ),

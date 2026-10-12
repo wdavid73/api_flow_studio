@@ -1,5 +1,7 @@
 import '../../engine/session/jwt_claims.dart';
 import '../../engine/session/session.dart';
+import 'package:flutter/widgets.dart';
+import '../../l10n/app_localizations.dart';
 
 /// How the session button is colored.
 enum SessionTone { none, valid, expired }
@@ -16,22 +18,23 @@ class SessionLabel {
 /// Describes [session] as of [now]: the time left on a JWT (`Expires in 12
 /// min`, or hours from 90 minutes up), `Token expired`, `Token saved` for a
 /// token without a readable expiry, or `No token`. Never includes the token.
-SessionLabel sessionLabel(Session session, DateTime now) {
+SessionLabel sessionLabel(Session session, DateTime now, {AppLocalizations? l10n}) {
+  l10n ??= lookupAppLocalizations(const Locale('en'));
   if (!session.hasToken) {
-    return const SessionLabel(top: 'No token', bottom: 'kept in memory only', tone: SessionTone.none);
+    return SessionLabel(top: l10n.sessionNoToken, bottom: l10n.sessionKeptInMemory, tone: SessionTone.none);
   }
 
   const bottom = 'Authorization: Bearer';
   final remaining = JwtClaims.tryParse(session.accessToken)?.expiresIn(now);
 
   if (remaining == null) {
-    return const SessionLabel(top: 'Token saved', bottom: bottom, tone: SessionTone.valid);
+    return SessionLabel(top: l10n.sessionTokenSaved, bottom: bottom, tone: SessionTone.valid);
   }
   if (remaining <= Duration.zero) {
-    return const SessionLabel(top: 'Token expired', bottom: bottom, tone: SessionTone.expired);
+    return SessionLabel(top: l10n.sessionTokenExpired, bottom: bottom, tone: SessionTone.expired);
   }
 
   final minutes = (remaining.inMilliseconds / Duration.millisecondsPerMinute).round().clamp(1, 1 << 30);
-  final top = minutes < 90 ? 'Expires in $minutes min' : 'Expires in ${(minutes / 60).round()} h';
+  final top = minutes < 90 ? l10n.sessionExpiresInMinutes(minutes) : l10n.sessionExpiresInHours((minutes / 60).round());
   return SessionLabel(top: top, bottom: bottom, tone: SessionTone.valid);
 }

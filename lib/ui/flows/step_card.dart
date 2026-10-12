@@ -7,6 +7,7 @@ import '../theme/app_typography.dart';
 import '../theme/widgets/json_view.dart';
 import '../theme/widgets/method_badge.dart';
 import 'assertions_editor.dart';
+import '../../l10n/l10n.dart';
 
 /// One step in the flow builder's vertical pipeline. [endpoint] is null
 /// when the step's endpointId no longer resolves to a saved endpoint
@@ -61,7 +62,7 @@ class StepCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    endpoint?.name ?? 'Missing endpoint (${step.endpointId})',
+                    endpoint?.name ?? context.l10n.stepMissingEndpoint(step.endpointId),
                     overflow: TextOverflow.ellipsis,
                     style: endpoint == null
                         ? TextStyle(color: Theme.of(context).colorScheme.error)
@@ -78,7 +79,7 @@ class StepCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                     child: Text(
-                      'TERMINAL',
+                      context.l10n.stepTerminal,
                       style: AppTypography.badgeMono.copyWith(color: AppColors.onSurfaceVariant),
                     ),
                   ),
@@ -115,7 +116,7 @@ class StepCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'PAYLOAD TEMPLATE',
+                      context.l10n.stepPayloadTemplate,
                       style: AppTypography.labelSm.copyWith(color: AppColors.onSurfaceVariant),
                     ),
                     const SizedBox(height: AppSpacing.xs),
@@ -133,7 +134,7 @@ class StepCard extends StatelessWidget {
                 ),
               ),
             const Divider(height: AppSpacing.lg * 2),
-            Text('Extract Output Variables', style: Theme.of(context).textTheme.labelMedium),
+            Text(context.l10n.stepExtractTitle, style: Theme.of(context).textTheme.labelMedium),
             for (var i = 0; i < extractEntries.length; i++)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
@@ -196,7 +197,7 @@ class StepCard extends StatelessWidget {
                 onUpdateStep(step.copyWith(extract: {...step.extract, name: ''}));
               },
               icon: const Icon(Icons.add, size: 14),
-              label: const Text('Add extracted variable'),
+              label: Text(context.l10n.stepAddExtracted),
             ),
             const Divider(height: AppSpacing.lg * 2),
             AssertionsEditor(
@@ -207,7 +208,7 @@ class StepCard extends StatelessWidget {
             SwitchListTile(
               key: ValueKey('stop-on-failure-$index'),
               contentPadding: EdgeInsets.zero,
-              title: const Text('Stop on failure'),
+              title: Text(context.l10n.stepStopOnFailure),
               value: step.stopOnFailure,
               onChanged: (value) => onUpdateStep(step.copyWith(stopOnFailure: value)),
             ),

@@ -6,6 +6,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'request_draft_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// Heading above the URL bar: the endpoint's folder as a small uppercase
 /// kicker (`UNSAVED` for a draft, `NO FOLDER` if its folder is gone), its
@@ -20,10 +21,10 @@ class RequestHeader extends ConsumerWidget {
 
     final String kicker;
     if (draft.id == draftEndpointId) {
-      kicker = 'UNSAVED';
+      kicker = context.l10n.requestUnsaved;
     } else {
       final group = groups.where((g) => g.id == draft.groupId).firstOrNull;
-      kicker = (group?.name ?? 'NO FOLDER').toUpperCase();
+      kicker = (group?.name ?? context.l10n.requestNoFolder).toUpperCase();
     }
     final description = draft.description.trim().split('\n').first.trim();
 

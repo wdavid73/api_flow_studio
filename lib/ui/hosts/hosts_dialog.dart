@@ -9,6 +9,7 @@ import 'add_host_dialog.dart';
 import 'host_matrix_provider.dart';
 import 'host_matrix_table.dart';
 import 'host_warnings.dart';
+import '../../l10n/l10n.dart';
 
 /// The "Hosts & notes" dialog: help text and the hosts-by-environment table.
 class HostsDialog extends ConsumerWidget {
@@ -34,10 +35,10 @@ class HostsDialog extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text('Hosts by environment', style: AppTypography.headlineMd)),
+                  Expanded(child: Text(context.l10n.hostsDialogTitle, style: AppTypography.headlineMd)),
                   HeaderGhostButton(
                     key: const Key('hosts-add-button'),
-                    label: 'Add host',
+                    label: context.l10n.hostsAddHost,
                     onPressed: () async {
                       final name = await showDialog<String>(context: context, builder: (_) => const AddHostDialog());
                       if (name != null) {
@@ -48,15 +49,14 @@ class HostsDialog extends ConsumerWidget {
                   const SizedBox(width: AppSpacing.sm),
                   HeaderGhostButton(
                     key: const Key('hosts-close-button'),
-                    label: 'Close',
+                    label: context.l10n.commonClose,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Hosts are environment variables whose value is a URL. Edit a cell to change it in that '
-                'environment; clear it to remove the variable there.',
+                context.l10n.hostsHelp,
                 style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
               ),
               const SizedBox(height: AppSpacing.lg),

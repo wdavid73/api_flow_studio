@@ -8,6 +8,7 @@ import '../theme/app_spacing.dart';
 import '../theme/widgets/json_view.dart';
 import '../theme/widgets/status_badge.dart';
 import 'history_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// Per-endpoint response history: last N entries, most-recent-first.
 /// Clicking one expands its stored status/headers/body inline, read-only,
@@ -20,9 +21,9 @@ class HistoryTab extends ConsumerWidget {
     final draft = ref.watch(requestDraftProvider);
 
     if (draft.id == draftEndpointId) {
-      return const Center(
+      return Center(
         key: Key('history-unsaved-state'),
-        child: Text('Save this request to start recording history'),
+        child: Text(context.l10n.historySaveToRecord),
       );
     }
 
@@ -31,9 +32,9 @@ class HistoryTab extends ConsumerWidget {
     return asyncHistory.when(
       data: (entries) {
         if (entries.isEmpty) {
-          return const Center(
+          return Center(
             key: Key('empty-history-state'),
-            child: Text('No history yet — send a request'),
+            child: Text(context.l10n.historyTabEmpty),
           );
         }
         final mostRecentFirst = entries.reversed.toList();
@@ -44,7 +45,7 @@ class HistoryTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(child: Text('Failed to load history: $error')),
+      error: (error, stack) => Center(child: Text(context.l10n.commonFailedToLoad(context.l10n.historyTitle.toLowerCase(), error))),
     );
   }
 }
@@ -62,9 +63,9 @@ class _HistoryRow extends StatelessWidget {
         children: [
           if (entry.status != null) StatusBadge(statusCode: entry.status!),
           if (entry.error != null)
-            const Text('Error', style: TextStyle(color: AppColors.error)),
+            Text(context.l10n.commonError, style: const TextStyle(color: AppColors.error)),
           const SizedBox(width: AppSpacing.sm),
-          Text('${entry.elapsedMs}ms'),
+          Text(context.l10n.commonTimeMs(entry.elapsedMs)),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
@@ -86,7 +87,7 @@ class _HistoryRow extends StatelessWidget {
                   Icon(Icons.history, size: 14, color: Theme.of(context).colorScheme.outline),
                   const SizedBox(width: AppSpacing.xs),
                   Text(
-                    'Historical response — not live',
+                    context.l10n.historyHistoricalLabel,
                     key: const Key('historical-label'),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
@@ -95,14 +96,14 @@ class _HistoryRow extends StatelessWidget {
               if (entry.truncated) ...[
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Body truncated to 100 KB',
+                  context.l10n.historyTruncated,
                   key: const Key('history-truncated-label'),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.warning),
                 ),
               ],
               const SizedBox(height: AppSpacing.sm),
               if (entry.error != null)
-                Text('Error: ${entry.error}')
+                Text(context.l10n.historyErrorWithMessage('${entry.error}'))
               else
                 JsonView(text: entry.body ?? ''),
             ],

@@ -10,6 +10,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'host_matrix_provider.dart';
 import 'host_notes_provider.dart';
+import '../../l10n/l10n.dart';
 
 const double _nameWidth = 240;
 const double _environmentWidth = 230;
@@ -32,7 +33,7 @@ class HostMatrixTable extends ConsumerWidget {
         child: Center(
           key: const Key('hosts-empty'),
           child: Text(
-            'No hosts yet — add an environment variable whose value is a URL, or use Add host.',
+            context.l10n.hostsEmpty,
             style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
           ),
         ),
@@ -73,7 +74,7 @@ class _HeaderRow extends StatelessWidget {
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.outlineVariant))),
       child: Row(
         children: [
-          SizedBox(width: _nameWidth, child: Text('HOST', style: kicker)),
+          SizedBox(width: _nameWidth, child: Text(context.l10n.hostsColumnHost, style: kicker)),
           for (final environment in environments)
             SizedBox(
               key: Key('host-env-header-${environment.id}'),
@@ -104,7 +105,7 @@ class _HeaderRow extends StatelessWidget {
                 ],
               ),
             ),
-          SizedBox(width: _noteWidth, child: Text('NOTE', style: kicker)),
+          SizedBox(width: _noteWidth, child: Text(context.l10n.hostsColumnNote, style: kicker)),
         ],
       ),
     );
@@ -133,7 +134,7 @@ class _HostRowView extends StatelessWidget {
               children: [
                 Text(row.name, style: AppTypography.codeMd.copyWith(fontWeight: FontWeight.w600)),
                 Text(
-                  'Used by ${row.usedBy} ${row.usedBy == 1 ? 'request' : 'requests'}',
+                  context.l10n.hostsUsedBy(row.usedBy),
                   style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant),
                 ),
               ],
@@ -263,7 +264,7 @@ class _NoteCellState extends ConsumerState<_NoteCell> {
         key: Key('host-note-${widget.hostName}'),
         controller: _controller,
         style: AppTypography.bodySm,
-        decoration: const InputDecoration(isDense: true, hintText: 'Note…'),
+        decoration: InputDecoration(isDense: true, hintText: context.l10n.hostsNoteHint),
         onChanged: (text) => ref.read(hostNotesProvider.notifier).setNote(widget.hostName, text),
       ),
     );

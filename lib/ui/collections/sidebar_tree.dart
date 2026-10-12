@@ -18,6 +18,7 @@ import 'endpoint_filter.dart';
 import 'method_filter_chips.dart';
 import 'paste_curl_dialog.dart';
 import '../projects/projects_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// The real app version, shown in the sidebar footer in place of the
 /// design mockup's fake "Proxy: Localhost" line -- kept in sync with
@@ -66,7 +67,7 @@ class SidebarTree extends ConsumerWidget {
     return asyncState.when(
       data: (state) => _Loaded(state: state),
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(child: Text('Failed to load collections: $error')),
+      error: (error, stack) => Center(child: Text(context.l10n.commonFailedToLoad(context.l10n.collectionsLoadWhat, error))),
     );
   }
 }
@@ -91,7 +92,7 @@ class _Loaded extends ConsumerWidget {
           child: Row(
             children: [
               Text(
-                'EXPLORER',
+                context.l10n.collectionsKicker,
                 style: AppTypography.labelSm.copyWith(
                   color: AppColors.onSurfaceVariant,
                   letterSpacing: 1,
@@ -100,28 +101,28 @@ class _Loaded extends ConsumerWidget {
               const Spacer(),
               IconButton(
                 key: const Key('new-root-folder-button'),
-                tooltip: 'New folder',
+                tooltip: context.l10n.collectionsNewFolder,
                 style: _headerIconButtonStyle,
                 icon: const Icon(Icons.create_new_folder_outlined, size: 16),
                 onPressed: () => _promptNewFolder(context, ref, parentGroupId: null),
               ),
               IconButton(
                 key: const Key('paste-curl-button'),
-                tooltip: 'Paste curl',
+                tooltip: context.l10n.collectionsPasteCurl,
                 style: _headerIconButtonStyle,
                 icon: const Icon(Icons.content_paste, size: 16),
                 onPressed: () => showPasteCurlDialog(context),
               ),
               IconButton(
                 key: const Key('import-collections-button'),
-                tooltip: 'Import…',
+                tooltip: context.l10n.collectionsImportEllipsis,
                 style: _headerIconButtonStyle,
                 icon: const Icon(Icons.file_upload_outlined, size: 16),
                 onPressed: () => importFile(context, ref),
               ),
               IconButton(
                 key: const Key('export-collections-button'),
-                tooltip: 'Export endpoints (JSON)',
+                tooltip: context.l10n.collectionsExportTooltip,
                 style: _headerIconButtonStyle,
                 icon: const Icon(Icons.file_download_outlined, size: 16),
                 onPressed: () => _exportCollections(context, ref, state),
@@ -134,9 +135,9 @@ class _Loaded extends ConsumerWidget {
           child: TextField(
             key: const Key('sidebar-search-field'),
             focusNode: ref.watch(sidebarSearchFocusNodeProvider),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               isDense: true,
-              hintText: 'Filter requests…',
+              hintText: context.l10n.collectionsFilterHint,
               prefixIcon: Icon(Icons.search, size: 16),
             ),
             onChanged: (value) => ref.read(sidebarSearchQueryProvider.notifier).state = value,
@@ -150,11 +151,11 @@ class _Loaded extends ConsumerWidget {
         const SizedBox(height: AppSpacing.xs),
         Expanded(
           child: state.groups.isEmpty
-              ? const Center(
+              ? Center(
                   key: Key('empty-workspace-state'),
                   child: Padding(
                     padding: EdgeInsets.all(AppSpacing.md),
-                    child: Text('No endpoints yet — create a folder to get started.'),
+                    child: Text(context.l10n.collectionsEmpty),
                   ),
                 )
               : filtered.isEmpty
@@ -163,7 +164,7 @@ class _Loaded extends ConsumerWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(AppSpacing.md),
                         child: Text(
-                          'Nothing matches that search.',
+                          context.l10n.commonNothingMatches,
                           style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
                         ),
                       ),
@@ -179,7 +180,7 @@ class _Loaded extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
           color: AppColors.surfaceContainerLowest,
           child: Text(
-            'API Flow Studio $_appVersion',
+            context.l10n.collectionsVersion(_appVersion),
             style: AppTypography.codeSm.copyWith(color: AppColors.onSurfaceVariant),
           ),
         ),
@@ -197,8 +198,9 @@ Future<void> _exportCollections(
   WidgetRef ref,
   CollectionsState state,
 ) async {
+  final l10n = context.l10n;
   final path = await FilePicker.platform.saveFile(
-    dialogTitle: 'Export endpoints',
+    dialogTitle: l10n.collectionsExportTitle,
     fileName: 'api-flow-studio-endpoints.json',
     type: FileType.custom,
     allowedExtensions: ['json'],
@@ -212,7 +214,7 @@ Future<void> _exportCollections(
   await File(path).writeAsString(json);
 
   if (context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Exported to $path')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.collectionsExportedTo(path))));
   }
 }
 
@@ -225,20 +227,20 @@ Future<void> _promptNewFolder(
   final name = await showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('New folder'),
+      title: Text(context.l10n.collectionsNewFolder),
       content: TextField(
         key: const Key('new-folder-name-field'),
         controller: controller,
         autofocus: true,
-        decoration: const InputDecoration(hintText: 'Folder name'),
+        decoration: InputDecoration(hintText: context.l10n.collectionsFolderName),
         onSubmitted: (value) => Navigator.of(context).pop(value),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.l10n.commonCancel)),
         TextButton(
           key: const Key('confirm-new-folder-button'),
           onPressed: () => Navigator.of(context).pop(controller.text),
-          child: const Text('Create'),
+          child: Text(context.l10n.commonCreate),
         ),
       ],
     ),
@@ -314,13 +316,13 @@ class _FolderNode extends ConsumerWidget {
               ),
               IconButton(
                 key: ValueKey('add-endpoint-${node.group.id}'),
-                tooltip: 'Add request',
+                tooltip: context.l10n.collectionsAddRequest,
                 icon: const Icon(Icons.add, size: 16),
                 onPressed: () async {
                   final endpoint = Endpoint(
                     id: const Uuid().v4(),
                     groupId: node.group.id,
-                    name: 'New Request',
+                    name: context.l10n.collectionsNewRequestName,
                     method: 'GET',
                     url: '',
                   );
@@ -330,7 +332,7 @@ class _FolderNode extends ConsumerWidget {
               ),
               IconButton(
                 key: ValueKey('delete-group-${node.group.id}'),
-                tooltip: 'Delete folder',
+                tooltip: context.l10n.collectionsDeleteFolder,
                 icon: const Icon(Icons.delete_outline, size: 16),
                 onPressed: () async {
                   try {
@@ -338,8 +340,8 @@ class _FolderNode extends ConsumerWidget {
                   } on GroupNotEmptyException {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Delete this folder\'s contents first.'),
+                        SnackBar(
+                          content: Text(context.l10n.collectionsDeleteFolderFirst),
                         ),
                       );
                     }
@@ -357,7 +359,7 @@ class _FolderNode extends ConsumerWidget {
           if (node.children.isEmpty && node.endpoints.isEmpty)
             Padding(
               padding: indent.add(const EdgeInsets.only(left: AppSpacing.lg)),
-              child: const Text('No endpoints yet — + Add request', key: Key('empty-folder-state')),
+              child: Text(context.l10n.collectionsEmptyFolder, key: const Key('empty-folder-state')),
             ),
         ],
       ],
@@ -409,7 +411,7 @@ class _EndpointRow extends ConsumerWidget {
                 ),
                 IconButton(
                   key: ValueKey('delete-endpoint-${endpoint.id}'),
-                  tooltip: 'Delete request',
+                  tooltip: context.l10n.collectionsDeleteRequest,
                   icon: const Icon(Icons.delete_outline, size: 14),
                   onPressed: () => ref.read(collectionsProvider.notifier).deleteEndpoint(endpoint.id),
                 ),

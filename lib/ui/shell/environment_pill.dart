@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'environment_kind.dart';
+import '../../l10n/l10n.dart';
 
 /// Segmented environment selector for the header: one button per
 /// environment, the active one filled with the accent (red when it's a production
@@ -42,9 +43,13 @@ class EnvironmentPill extends ConsumerWidget {
         borderRadius: BorderRadius.circular(AppRadius.full),
         border: Border.all(color: AppColors.outlineVariant),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      // Shrinks the buttons when the header is too narrow for them (a longer language, a
+      // wider button next to the pill) instead of overflowing.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           for (final env in shown)
             _Segment(
               segmentKey: Key('env-pill-${env.id}'),
@@ -56,7 +61,7 @@ class EnvironmentPill extends ConsumerWidget {
           if (hasOverflow)
             PopupMenuButton<String>(
               key: const Key('environment-overflow'),
-              tooltip: 'More environments',
+              tooltip: context.l10n.headerMoreEnvironments,
               padding: EdgeInsets.zero,
               onSelected: select,
               itemBuilder: (context) => [
@@ -74,6 +79,7 @@ class EnvironmentPill extends ConsumerWidget {
               ),
             ),
         ],
+      ),
       ),
     );
   }

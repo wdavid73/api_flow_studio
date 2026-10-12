@@ -13,6 +13,8 @@ import '../environments/environments_provider.dart';
 import '../shell/app_toast.dart';
 import 'import_file_dialogs.dart';
 import 'import_summary_dialog.dart';
+import '../../l10n/l10n.dart';
+import 'import_summary_text.dart';
 
 /// Puts [result] into the active project, all or nothing, and says what came in.
 ///
@@ -73,6 +75,7 @@ Future<ImportResult> _translate(String text, String fileName) {
 /// project and reports. A file that cannot be imported is explained in a dialog and
 /// nothing changes; cancelling the file dialog does nothing.
 Future<void> importFile(BuildContext context, WidgetRef ref) async {
+  final l10n = context.l10n;
   final picked = await ref.read(importFileDialogsProvider).pickFile(supportedExtensions(importers));
   if (picked == null) return;
 
@@ -84,20 +87,20 @@ Future<void> importFile(BuildContext context, WidgetRef ref) async {
     try {
       text = await picked.read();
     } catch (_) {
-      throw const ImportException('Could not read that file.');
+      throw ImportException(l10n.importCouldNotRead);
     }
     summary = await applyImport(ref.read, await _translate(text, picked.name));
   } on ImportException catch (error) {
     if (context.mounted) await showImportErrorDialog(context, error.message);
     return;
   } catch (error) {
-    if (context.mounted) await showImportErrorDialog(context, 'Could not import that file: $error');
+    if (context.mounted) await showImportErrorDialog(context, context.l10n.importCouldNotImportFile(error));
     return;
   }
 
   if (!context.mounted) return;
   if (summary.warnings.isEmpty) {
-    showToast(ref, summary.describe());
+    showToast(ref, describeImport(context.l10n, summary));
   } else {
     await showImportSummaryDialog(context, summary);
   }

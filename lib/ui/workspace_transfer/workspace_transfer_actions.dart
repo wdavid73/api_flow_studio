@@ -6,9 +6,10 @@ import '../../engine/workspace/workspace_file.dart';
 import '../projects/projects_provider.dart';
 import '../shell/app_toast.dart';
 import 'workspace_file_dialogs.dart';
+import '../../l10n/l10n.dart';
 
 /// Saves the active project to a workspace file the person picks.
-Future<void> exportActiveProject(WidgetRef ref) async {
+Future<void> exportActiveProject(WidgetRef ref, AppLocalizations l10n) async {
   final state = ref.read(projectsProvider);
   final dialogs = ref.read(workspaceFileDialogsProvider);
 
@@ -16,22 +17,23 @@ Future<void> exportActiveProject(WidgetRef ref) async {
     final file = await exportWorkspace(state.store, state.active);
     final saved = await dialogs.saveText(workspaceFileName(state.active.name), file.encode());
     if (!saved) return; // cancelled: nothing to say
-    showToast(ref, 'Workspace "${state.active.name}" exported — secrets are not included');
+    showToast(ref, l10n.workspaceExported(state.active.name));
   } catch (error) {
-    showToast(ref, 'Could not save the workspace: $error');
+    showToast(ref, l10n.workspaceCouldNotSave(error));
   }
 }
 
 /// Imports a workspace file the person picks as a new project and switches to
 /// it. A file that cannot be used is explained in a dialog.
 Future<void> importWorkspaceFromFile(BuildContext context, WidgetRef ref) async {
+  final l10n = context.l10n;
   final dialogs = ref.read(workspaceFileDialogsProvider);
 
   final String? text;
   try {
     text = await dialogs.openText();
   } catch (error) {
-    showToast(ref, 'Could not read the file: $error');
+    showToast(ref, l10n.workspaceCouldNotReadFile(error));
     return;
   }
   if (text == null) return;
@@ -42,9 +44,7 @@ Future<void> importWorkspaceFromFile(BuildContext context, WidgetRef ref) async 
     final pending = imported.secretsToFill;
     showToast(
       ref,
-      pending == 0
-          ? 'Imported "$name"'
-          : 'Imported "$name" — $pending ${pending == 1 ? 'value' : 'values'} to fill in',
+      pending == 0 ? l10n.workspaceImported(name) : l10n.workspaceImportedToFill(name, pending),
     );
   } on WorkspaceFileException catch (error) {
     if (!context.mounted) return;
@@ -52,18 +52,18 @@ Future<void> importWorkspaceFromFile(BuildContext context, WidgetRef ref) async 
       context: context,
       builder: (context) => AlertDialog(
         key: const Key('import-error-dialog'),
-        title: const Text('Could not import the workspace'),
+        title: Text(context.l10n.workspaceCouldNotImportTitle),
         content: Text(error.message),
         actions: [
           TextButton(
             key: const Key('import-error-ok-button'),
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+            child: Text(context.l10n.commonOk),
           ),
         ],
       ),
     );
   } catch (error) {
-    showToast(ref, 'Could not import the workspace: $error');
+    showToast(ref, l10n.workspaceCouldNotImport(error));
   }
 }

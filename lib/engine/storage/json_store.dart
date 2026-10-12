@@ -215,6 +215,17 @@ class JsonStore {
 
   Future<void> writeProjectIndex(ProjectIndex index) => _writeAtomic('projects.json', index.toJson());
 
+  /// The language the person chose (`en`, `es`...), from `app_settings.json`; null means
+  /// "follow the system". Kept in the data folder's root, apart from any project.
+  Future<String?> readAppLocale() => _readOrDefault(
+        'app_settings.json',
+        (decoded) => (decoded as Map<String, dynamic>)['locale'] as String?,
+        null,
+      );
+
+  Future<void> writeAppLocale(String? languageCode) =>
+      _writeAtomic('app_settings.json', {'locale': ?languageCode});
+
   Future<List<Flow>> readFlows() => _readOrDefault(
         'flows.json',
         (decoded) =>

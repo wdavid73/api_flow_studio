@@ -10,6 +10,7 @@ import '../workspace_transfer/workspace_transfer_actions.dart';
 import 'project_colors.dart';
 import 'project_dialogs.dart';
 import 'projects_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// The header button that shows the active project (name and color) and opens a
 /// menu to switch to another one.
@@ -24,6 +25,7 @@ class ProjectSwitcher extends ConsumerWidget {
   static const _importWorkspace = ':import';
 
   Future<void> _onSelected(BuildContext context, WidgetRef ref, String value) async {
+  final l10n = context.l10n;
     final controller = ref.read(projectsProvider.notifier);
     final state = ref.read(projectsProvider);
 
@@ -31,34 +33,34 @@ class ProjectSwitcher extends ConsumerWidget {
       case _newProject:
         final result = await showProjectFormDialog(
           context,
-          title: 'New project',
-          confirmLabel: 'Create',
+          title: context.l10n.projectNew,
+          confirmLabel: context.l10n.commonCreate,
           existing: state.projects,
           colorIndex: nextProjectColorIndex(state.projects),
         );
         if (result == null) return;
         await controller.create(result.name, colorIndex: result.colorIndex);
-        showToast(ref, 'Project "${result.name}" created');
+        showToast(ref, l10n.projectCreatedToast(result.name));
       case _renameProject:
         final result = await showProjectFormDialog(
           context,
-          title: 'Rename project',
-          confirmLabel: 'Rename',
+          title: context.l10n.projectRename,
+          confirmLabel: context.l10n.commonRename,
           existing: state.projects,
           initialName: state.active.name,
           exceptId: state.active.id,
         );
         if (result == null) return;
         await controller.rename(state.active.id, result.name);
-        showToast(ref, 'Project renamed to "${result.name}"');
+        showToast(ref, l10n.projectRenamedToast(result.name));
       case _exportWorkspace:
-        await exportActiveProject(ref);
+        await exportActiveProject(ref, context.l10n);
       case _importWorkspace:
         await importWorkspaceFromFile(context, ref);
       case _deleteProject:
         if (!await confirmDeleteProject(context, state.active)) return;
         await controller.delete(state.active.id);
-        showToast(ref, 'Project "${state.active.name}" deleted');
+        showToast(ref, l10n.projectDeletedToast(state.active.name));
       default:
         if (value != state.active.id) await controller.switchTo(value);
     }
@@ -71,7 +73,7 @@ class ProjectSwitcher extends ConsumerWidget {
 
     return PopupMenuButton<String>(
       key: const Key('project-switcher'),
-      tooltip: 'Switch project',
+      tooltip: context.l10n.projectSwitch,
       offset: const Offset(0, 40),
       color: AppColors.surfaceContainerLow,
       shape: RoundedRectangleBorder(
@@ -87,32 +89,32 @@ class ProjectSwitcher extends ConsumerWidget {
             child: _ProjectRow(project: project, active: project.id == active.id),
           ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           key: Key('new-project-button'),
           value: _newProject,
-          child: _ActionRow(icon: Icons.add, label: 'New project…'),
+          child: _ActionRow(icon: Icons.add, label: context.l10n.projectNewEllipsis),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           key: Key('rename-project-button'),
           value: _renameProject,
-          child: _ActionRow(icon: Icons.edit_outlined, label: 'Rename project…'),
+          child: _ActionRow(icon: Icons.edit_outlined, label: context.l10n.projectRenameEllipsis),
         ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           key: Key('export-workspace-button'),
           value: _exportWorkspace,
-          child: _ActionRow(icon: Icons.file_upload_outlined, label: 'Export workspace…'),
+          child: _ActionRow(icon: Icons.file_upload_outlined, label: context.l10n.projectExportWorkspace),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           key: Key('import-workspace-button'),
           value: _importWorkspace,
-          child: _ActionRow(icon: Icons.file_download_outlined, label: 'Import workspace…'),
+          child: _ActionRow(icon: Icons.file_download_outlined, label: context.l10n.projectImportWorkspace),
         ),
         if (state.projects.length > 1)
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             key: Key('delete-project-button'),
             value: _deleteProject,
-            child: _ActionRow(icon: Icons.delete_outline, label: 'Delete project…', danger: true),
+            child: _ActionRow(icon: Icons.delete_outline, label: context.l10n.projectDeleteEllipsis, danger: true),
           ),
       ],
       child: Container(

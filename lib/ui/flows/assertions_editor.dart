@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../engine/models/models.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/l10n.dart';
 
 /// The list of a step's assertions: one row per assertion (field, operator,
 /// expected value, remove) and an "Add assertion" button.
@@ -80,7 +81,7 @@ class _AssertionsEditorState extends State<AssertionsEditor> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Assertions', style: AppTypography.labelMd),
+        Text(context.l10n.assertionsTitle, style: AppTypography.labelMd),
         for (var row = 0; row < widget.assertions.length; row++)
           KeyedSubtree(
             key: ValueKey('assertion-row-${_ids[row]}'),
@@ -101,7 +102,7 @@ class _AssertionsEditorState extends State<AssertionsEditor> {
             key: ValueKey('add-assertion-$step'),
             onPressed: _add,
             icon: const Icon(Icons.add, size: 14),
-            label: const Text('Add assertion'),
+            label: Text(context.l10n.assertionsAdd),
           ),
         ),
       ],
@@ -160,7 +161,7 @@ class _AssertionRow extends StatelessWidget {
               ? TextFormField(
                   key: ValueKey('assertion-expected-$step-$row'),
                   initialValue: assertion.expected,
-                  decoration: const InputDecoration(hintText: 'expected', isDense: true),
+                  decoration: InputDecoration(hintText: context.l10n.assertionExpectedHint, isDense: true),
                   onChanged: (value) => onChanged(assertion.copyWith(expected: value)),
                 )
               : const SizedBox.shrink(),

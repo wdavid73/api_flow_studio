@@ -13,6 +13,7 @@ import '../theme/widgets/pill_tab_bar.dart';
 import '../theme/widgets/status_badge.dart';
 import 'assertions_tab.dart';
 import 'error_detail_panel.dart';
+import '../../l10n/l10n.dart';
 
 /// The right-hand detail panel for whichever step is selected in the run
 /// view's timeline: a tabbed inspector (Error Details -- only for a failed
@@ -40,11 +41,11 @@ class RunStepInspector extends StatelessWidget {
   Widget build(BuildContext context) {
     final failed = result.status == FlowStepStatus.failure;
     final tabs = [
-      if (failed) 'Error Details',
-      if (result.assertionResults.isNotEmpty) 'Assertions',
-      'Request Sent',
-      'Response Body',
-      'Headers',
+      if (failed) context.l10n.inspectorErrorDetails,
+      if (result.assertionResults.isNotEmpty) context.l10n.assertionsTitle,
+      context.l10n.inspectorRequestSent,
+      context.l10n.inspectorResponseBody,
+      context.l10n.commonHeaders,
     ];
 
     final response = result.response;
@@ -65,7 +66,7 @@ class RunStepInspector extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    endpoint?.name ?? 'Missing endpoint',
+                    endpoint?.name ?? context.l10n.runMissingEndpoint,
                     style: AppTypography.headlineSm,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -75,11 +76,11 @@ class RunStepInspector extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   dot,
                   const SizedBox(width: AppSpacing.sm),
-                  Text('${response.elapsedMs} ms', key: const Key('inspector-elapsed'), style: AppTypography.codeMd),
+                  Text(context.l10n.commonTimeMs(response.elapsedMs), key: const Key('inspector-elapsed'), style: AppTypography.codeMd),
                   const SizedBox(width: AppSpacing.sm),
                   dot,
                   const SizedBox(width: AppSpacing.sm),
-                  Text('${response.sizeBytes} B', key: const Key('inspector-size'), style: AppTypography.codeMd),
+                  Text(context.l10n.commonSizeBytes(response.sizeBytes), key: const Key('inspector-size'), style: AppTypography.codeMd),
                 ],
               ],
             ),
@@ -100,7 +101,7 @@ class RunStepInspector extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(top: AppSpacing.sm),
                             child: SelectableText(
-                              '${endpoint?.method ?? ''} ${requestUrl ?? 'No request was sent'}',
+                              '${endpoint?.method ?? ''} ${requestUrl ?? context.l10n.inspectorNoRequest}',
                               style: const TextStyle(color: AppColors.onSurfaceVariant),
                             ),
                           ),
@@ -119,16 +120,16 @@ class RunStepInspector extends StatelessWidget {
                                       child: JsonView(text: prettyResponseBody(result.response!.body)),
                                     ),
                                   )
-                                : const Text(
-                                    'No response received',
+                                : Text(
+                                    context.l10n.inspectorNoResponse,
                                     style: TextStyle(color: AppColors.onSurfaceVariant),
                                   ),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: AppSpacing.sm),
                             child: (result.response?.headers.isEmpty ?? true)
-                                ? const Text(
-                                    'No headers',
+                                ? Text(
+                                    context.l10n.commonNoHeaders,
                                     style: TextStyle(color: AppColors.onSurfaceVariant),
                                   )
                                 : ListView(
@@ -174,7 +175,7 @@ class RunStepInspector extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: HeaderGhostButton(
                 key: ValueKey('rerun-from-step-$index'),
-                label: 'Re-run From Step ${index + 1}',
+                label: context.l10n.inspectorRerunFrom(index + 1),
                 onPressed: onRerunFromHere ?? () {},
               ),
             ),

@@ -4,6 +4,7 @@ import '../../engine/flows/flow_step_result.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/l10n.dart';
 
 /// What a step checked: one row per assertion with a pass/fail mark, the check
 /// in words and, when it failed, why.
@@ -43,7 +44,7 @@ class AssertionsTab extends StatelessWidget {
                         ),
                       if (results[i].passed && results[i].actual != null)
                         SelectableText(
-                          'got "${results[i].actual}"',
+                          context.l10n.assertionsGot('${results[i].actual}'),
                           style: AppTypography.codeSm.copyWith(color: AppColors.onSurfaceVariant),
                         ),
                     ],

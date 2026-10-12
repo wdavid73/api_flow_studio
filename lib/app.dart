@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'l10n/app_localizations.dart';
 import 'ui/environments/environment_manager_screen.dart';
 import 'ui/flows/flows_screen.dart';
 import 'ui/history/history_screen.dart';
 import 'ui/hosts/hosts_button.dart';
+import 'ui/l10n/language_button.dart';
+import 'ui/l10n/locale_provider.dart';
 import 'ui/session/session_button.dart';
 import 'ui/shell/app_background.dart';
 import 'ui/shell/app_banner.dart';
@@ -15,15 +19,23 @@ import 'ui/shell/production_strip.dart';
 import 'ui/workspace/workspace_screen.dart';
 import 'ui/theme/app_theme.dart';
 
-class ApiFlowStudioApp extends StatelessWidget {
+class ApiFlowStudioApp extends ConsumerWidget {
   const ApiFlowStudioApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
-      title: 'API Flow Studio',
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark(),
+      locale: ref.watch(localeProvider),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: const AppShell(),
     );
   }
@@ -43,7 +55,7 @@ class AppShell extends ConsumerWidget {
           body: Column(
             children: [
               const ProductionStrip(),
-              const AppHeader(actions: [HostsButton(), SessionButton()]),
+              const AppHeader(actions: [HostsButton(), LanguageButton(), SessionButton()]),
               const BannerHost(),
               Expanded(child: _DestinationBody(destination: selected)),
             ],

@@ -8,6 +8,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../theme/widgets/method_badge.dart';
+import '../../l10n/l10n.dart';
 
 /// Sentinel key for endpoints whose `groupId` doesn't resolve to a known
 /// [Group] (shouldn't normally happen, but keeps the picker from silently
@@ -53,7 +54,7 @@ class _AddStepPickerDialogState extends State<_AddStepPickerDialog> {
       widget.groups.any((g) => g.id == endpoint.groupId) ? endpoint.groupId : _uncategorizedKey;
 
   String _categoryName(String key) {
-    if (key == _uncategorizedKey) return 'Uncategorized';
+    if (key == _uncategorizedKey) return context.l10n.pickerUncategorized;
     return widget.groups.firstWhere((g) => g.id == key).name;
   }
 
@@ -94,17 +95,17 @@ class _AddStepPickerDialogState extends State<_AddStepPickerDialog> {
   Widget build(BuildContext context) {
     if (widget.endpoints.isEmpty) {
       return AlertDialog(
-        title: const Text('Add step'),
-        content: const SizedBox(
+        title: Text(context.l10n.pickerAddStep),
+        content: SizedBox(
           width: 400,
           height: 200,
           child: Center(
             key: Key('add-step-picker-empty'),
-            child: Text('No saved endpoints yet — save a request first.'),
+            child: Text(context.l10n.pickerNoSaved),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.l10n.commonCancel)),
         ],
       );
     }
@@ -203,7 +204,7 @@ class _AddStepPickerDialogState extends State<_AddStepPickerDialog> {
     }
 
     return AlertDialog(
-      title: const Text('Add step'),
+      title: Text(context.l10n.pickerAddStep),
       content: SizedBox(
         width: 560,
         height: 480,
@@ -214,7 +215,7 @@ class _AddStepPickerDialogState extends State<_AddStepPickerDialog> {
               width: 160,
               child: ListView(
                 children: [
-                  folderRow(groupId: null, label: 'All endpoints', count: filtered.length),
+                  folderRow(groupId: null, label: context.l10n.pickerAllEndpoints, count: filtered.length),
                   for (final key in allCategoryKeys)
                     folderRow(
                       groupId: key,
@@ -232,9 +233,9 @@ class _AddStepPickerDialogState extends State<_AddStepPickerDialog> {
                   TextField(
                     key: const Key('add-step-picker-search-field'),
                     autofocus: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       isDense: true,
-                      hintText: 'Search endpoints…',
+                      hintText: context.l10n.pickerSearchHint,
                       prefixIcon: Icon(Icons.search, size: 16),
                     ),
                     onChanged: (value) => setState(() => _query = value),
@@ -250,9 +251,9 @@ class _AddStepPickerDialogState extends State<_AddStepPickerDialog> {
                   const SizedBox(height: AppSpacing.xs),
                   Expanded(
                     child: rightList.isEmpty
-                        ? const Center(
+                        ? Center(
                             key: Key('add-step-picker-no-results'),
-                            child: Text('No endpoints match your search.'),
+                            child: Text(context.l10n.pickerNoMatch),
                           )
                         : _selectedGroupId == null
                             ? ListView(
@@ -272,7 +273,7 @@ class _AddStepPickerDialogState extends State<_AddStepPickerDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.l10n.commonCancel)),
       ],
     );
   }

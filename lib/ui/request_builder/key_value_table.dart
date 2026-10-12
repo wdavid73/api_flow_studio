@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../engine/models/models.dart';
 import '../theme/app_spacing.dart';
+import '../../l10n/l10n.dart';
 
 /// Editable key/value/enabled table shared by the Params and Headers tabs
 /// (and, from Task 2.4 onward, the formUrlEncoded body editor).
@@ -41,7 +42,7 @@ class KeyValueTable extends StatelessWidget {
         TextButton.icon(
           onPressed: _addRow,
           icon: const Icon(Icons.add, size: 16),
-          label: const Text('Add row'),
+          label: Text(context.l10n.tableAddRow),
         ),
       ],
     );
@@ -79,7 +80,7 @@ class _KeyValueRow extends StatelessWidget {
             child: TextFormField(
               key: const Key('kv-key-field'),
               initialValue: entry.key,
-              decoration: const InputDecoration(hintText: 'Key', isDense: true),
+              decoration: InputDecoration(hintText: context.l10n.commonKey, isDense: true),
               onChanged: onKeyChanged,
             ),
           ),
@@ -88,7 +89,7 @@ class _KeyValueRow extends StatelessWidget {
             child: TextFormField(
               key: const Key('kv-value-field'),
               initialValue: entry.value,
-              decoration: const InputDecoration(hintText: 'Value', isDense: true),
+              decoration: InputDecoration(hintText: context.l10n.commonValue, isDense: true),
               onChanged: onValueChanged,
             ),
           ),

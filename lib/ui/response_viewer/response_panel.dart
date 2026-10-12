@@ -20,6 +20,7 @@ import 'response_body_tab.dart';
 import 'response_cookies_tab.dart';
 import 'response_headers_tab.dart';
 import 'response_timeline_tab.dart';
+import '../../l10n/l10n.dart';
 
 /// The response side of the workspace: Response / History tabs with Copy and
 /// curl buttons beside them. Response shows a status line
@@ -36,14 +37,14 @@ class ResponsePanel extends ConsumerWidget {
 
     final copyButton = HeaderGhostButton(
           key: const Key('copy-body-button'),
-          label: 'Copy',
+          label: context.l10n.responseCopy,
           onPressed: () {
             if (response == null || response.error != null) {
-              showToast(ref, 'Nothing to copy');
+              showToast(ref, context.l10n.responseNothingToCopy);
               return;
             }
             Clipboard.setData(ClipboardData(text: rawResponseBody(response.body)));
-            showToast(ref, 'Response copied');
+            showToast(ref, context.l10n.responseCopied);
           },
         );
     final curlButton = HeaderGhostButton(
@@ -54,7 +55,7 @@ class ResponsePanel extends ConsumerWidget {
             // token (unless the request sets its own auth) and its variables.
             final request = applySession(ref.read(requestDraftProvider), ref.read(activeSessionProvider));
             Clipboard.setData(ClipboardData(text: buildCurl(request, variables: ref.read(effectiveVariablesProvider))));
-            showToast(ref, 'curl copied');
+            showToast(ref, context.l10n.responseCurlCopied);
           },
         );
 
@@ -65,7 +66,7 @@ class ResponsePanel extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Expanded(child: Align(alignment: Alignment.centerLeft, child: PillTabBar(labels: ['Response', 'History']))),
+              Expanded(child: Align(alignment: Alignment.centerLeft, child: PillTabBar(labels: [context.l10n.responseTabResponse, context.l10n.responseTabHistory]))),
               copyButton,
               const SizedBox(width: AppSpacing.sm),
               curlButton,
@@ -101,10 +102,10 @@ class _ResponseView extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('No response yet', style: AppTypography.codeLg),
+          Text(context.l10n.responseNone, style: AppTypography.codeLg),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Pick a request and send. Cmd/Ctrl + Enter also sends.',
+            context.l10n.responseNoneHint,
             style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
           ),
         ],
@@ -113,7 +114,7 @@ class _ResponseView extends StatelessWidget {
     if (response.error != null) {
       return Center(
         key: const Key('response-error'),
-        child: Text('Error: ${response.error}'),
+        child: Text(context.l10n.responseErrorWithMessage('${response.error}')),
       );
     }
 
@@ -128,11 +129,11 @@ class _ResponseView extends StatelessWidget {
             const SizedBox(width: AppSpacing.sm),
             dot,
             const SizedBox(width: AppSpacing.sm),
-            Text('${response.elapsedMs} ms', key: const Key('response-elapsed'), style: AppTypography.codeMd),
+            Text(context.l10n.commonTimeMs(response.elapsedMs), key: const Key('response-elapsed'), style: AppTypography.codeMd),
             const SizedBox(width: AppSpacing.sm),
             dot,
             const SizedBox(width: AppSpacing.sm),
-            Text('${response.sizeBytes} B', key: const Key('response-size'), style: AppTypography.codeMd),
+            Text(context.l10n.commonSizeBytes(response.sizeBytes), key: const Key('response-size'), style: AppTypography.codeMd),
           ],
         ),
         Expanded(
@@ -141,14 +142,14 @@ class _ResponseView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const TabBar(
+                TabBar(
                   isScrollable: true,
                   tabAlignment: TabAlignment.start,
                   tabs: [
-                    Tab(text: 'Body'),
-                    Tab(text: 'Headers'),
-                    Tab(text: 'Cookies'),
-                    Tab(text: 'Timeline'),
+                    Tab(text: context.l10n.responseTabBody),
+                    Tab(text: context.l10n.responseTabHeaders),
+                    Tab(text: context.l10n.responseTabCookies),
+                    Tab(text: context.l10n.responseTabTimeline),
                   ],
                 ),
                 Expanded(

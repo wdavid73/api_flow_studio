@@ -6,6 +6,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'project_colors.dart';
+import '../../l10n/l10n.dart';
 
 /// What the user typed in the new / rename project dialog.
 typedef ProjectFormResult = ({String name, int colorIndex});
@@ -40,22 +41,19 @@ Future<bool> confirmDeleteProject(BuildContext context, Project project) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Delete "${project.name}"?'),
-      content: const Text(
-        'This permanently deletes its environments, collections, flows and history. '
-        'It cannot be undone.',
-      ),
+      title: Text(context.l10n.projectDeleteTitle(project.name)),
+      content: Text(context.l10n.projectDeleteBody),
       actions: [
         TextButton(
           key: const Key('delete-project-cancel-button'),
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.commonCancel),
         ),
         TextButton(
           key: const Key('delete-project-confirm-button'),
           style: TextButton.styleFrom(foregroundColor: AppColors.error),
           onPressed: () => Navigator.of(context).pop(true),
-          child: const Text('Delete'),
+          child: Text(context.l10n.commonDelete),
         ),
       ],
     ),
@@ -63,10 +61,10 @@ Future<bool> confirmDeleteProject(BuildContext context, Project project) async {
   return confirmed ?? false;
 }
 
-String projectNameProblemText(ProjectNameProblem problem) => switch (problem) {
-      ProjectNameProblem.empty => 'Give the project a name.',
-      ProjectNameProblem.tooLong => 'Names are limited to $maxProjectNameLength characters.',
-      ProjectNameProblem.duplicate => 'A project with that name already exists.',
+String projectNameProblemText(AppLocalizations l10n, ProjectNameProblem problem) => switch (problem) {
+      ProjectNameProblem.empty => l10n.projectNameEmpty,
+      ProjectNameProblem.tooLong => l10n.projectNameTooLong(maxProjectNameLength),
+      ProjectNameProblem.duplicate => l10n.projectNameDuplicate,
     };
 
 class _ProjectFormDialog extends StatefulWidget {
@@ -125,7 +123,7 @@ class _ProjectFormDialogState extends State<_ProjectFormDialog> {
               key: const Key('project-name-field'),
               controller: _controller,
               autofocus: true,
-              decoration: const InputDecoration(hintText: 'Project name'),
+              decoration: InputDecoration(hintText: context.l10n.projectNameHint),
               onChanged: (_) {
                 if (_problem != null) setState(() => _problem = null);
               },
@@ -135,14 +133,14 @@ class _ProjectFormDialogState extends State<_ProjectFormDialog> {
               Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.sm),
                 child: Text(
-                  projectNameProblemText(problem),
+                  projectNameProblemText(context.l10n, problem),
                   key: const Key('project-name-error'),
                   style: AppTypography.bodySm.copyWith(color: AppColors.error),
                 ),
               ),
             if (widget.initialColorIndex != null) ...[
               const SizedBox(height: AppSpacing.lg),
-              Text('Color', style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant)),
+              Text(context.l10n.projectColor, style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant)),
               const SizedBox(height: AppSpacing.sm),
               Wrap(
                 spacing: AppSpacing.sm,
@@ -164,7 +162,7 @@ class _ProjectFormDialogState extends State<_ProjectFormDialog> {
         TextButton(
           key: const Key('project-dialog-cancel-button'),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.commonCancel),
         ),
         TextButton(
           key: const Key('project-dialog-confirm-button'),

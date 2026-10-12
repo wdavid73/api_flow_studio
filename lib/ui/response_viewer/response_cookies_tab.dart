@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_typography.dart';
+import '../../l10n/l10n.dart';
 
 /// Best-effort cookie display: [headers] already joins repeated
 /// `Set-Cookie` values with ", " (see RequestExecutor), which isn't a
@@ -24,7 +25,7 @@ class ResponseCookiesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final cookies = _cookies;
     if (cookies.isEmpty) {
-      return const Center(child: Text('No cookies'));
+      return Center(child: Text(context.l10n.responseNoCookies));
     }
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),

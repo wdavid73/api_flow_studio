@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/curl/curl_parser.dart';
 import '../request_builder/request_draft_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// Opens a dialog with a multi-line paste field; on a successful parse,
 /// loads the result into the request builder as a new unsaved draft (the
@@ -38,14 +39,14 @@ class _PasteCurlDialogState extends ConsumerState<_PasteCurlDialog> {
       ref.read(requestDraftProvider.notifier).loadEndpoint(parsed.copyWith(id: draftEndpointId));
       Navigator.of(context).pop();
     } on CurlParseException catch (e) {
-      setState(() => _error = "Couldn't parse this curl command: ${e.message}");
+      setState(() => _error = context.l10n.curlCouldNotParse(e.message));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Paste curl'),
+      title: Text(context.l10n.curlPasteTitle),
       content: SizedBox(
         width: 480,
         child: Column(
@@ -78,12 +79,12 @@ class _PasteCurlDialogState extends ConsumerState<_PasteCurlDialog> {
         TextButton(
           key: const Key('cancel-paste-curl-button'),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           key: const Key('confirm-paste-curl-button'),
           onPressed: _submit,
-          child: const Text('Import'),
+          child: Text(context.l10n.commonImport),
         ),
       ],
     );

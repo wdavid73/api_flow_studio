@@ -14,6 +14,7 @@ import 'flows_provider.dart';
 import 'flows_transfer_actions.dart';
 import 'step_card.dart';
 import '../projects/projects_provider.dart';
+import '../../l10n/l10n.dart';
 
 /// Which flow is currently shown in the right-hand builder. UI-only, not
 /// persisted (same pattern as [selectedEnvironmentIdProvider]).
@@ -38,7 +39,7 @@ class FlowsScreen extends ConsumerWidget {
     }
     final flowsError = asyncFlows.error;
     if (flowsError != null) {
-      return Center(child: Text('Failed to load flows: $flowsError'));
+      return Center(child: Text(context.l10n.commonFailedToLoad(context.l10n.flowsLoadWhat, flowsError)));
     }
     final flows = asyncFlows.value ?? const [];
     final endpoints = <String, Endpoint>{
@@ -48,23 +49,23 @@ class FlowsScreen extends ConsumerWidget {
     return ListDetailLayout(
       header: Consumer(
         builder: (context, ref, _) => ListPanelHeader(
-          title: 'FLOWS',
-          actionLabel: 'New flow',
+          title: context.l10n.flowsKicker,
+          actionLabel: context.l10n.flowsNew,
           actionKey: const Key('new-flow-button'),
           onAction: () async {
-            final flow = await ref.read(flowsProvider.notifier).createFlow('New Flow');
+            final flow = await ref.read(flowsProvider.notifier).createFlow(context.l10n.flowsNewName);
             ref.read(selectedFlowIdProvider.notifier).state = flow.id;
           },
           trailing: [
             IconButton(
               key: const Key('import-flows-button'),
-              tooltip: 'Import flows',
+              tooltip: context.l10n.flowsImportTooltip,
               icon: const Icon(Icons.file_download_outlined, size: 18),
               onPressed: () => importFlows(context, ref),
             ),
             IconButton(
               key: const Key('export-flows-button'),
-              tooltip: 'Export flows',
+              tooltip: context.l10n.flowsExportTooltip,
               icon: const Icon(Icons.file_upload_outlined, size: 18),
               onPressed: () => exportFlows(context, ref),
             ),
@@ -83,9 +84,9 @@ class FlowsScreen extends ConsumerWidget {
             }
           }
           if (selected == null) {
-            return const Center(
+            return Center(
               key: Key('no-flow-selected'),
-              child: Text('Select or create a flow to get started'),
+              child: Text(context.l10n.flowsSelectOrCreate),
             );
           }
           return _FlowBuilder(flow: selected, endpoints: endpoints);
@@ -105,11 +106,11 @@ class _FlowList extends ConsumerWidget {
     final selectedId = ref.watch(selectedFlowIdProvider);
 
     if (flows.isEmpty) {
-      return const Center(
+      return Center(
         key: Key('empty-flows-state'),
         child: Padding(
           padding: EdgeInsets.all(AppSpacing.md),
-          child: Text('No flows yet — create one to chain requests together.'),
+          child: Text(context.l10n.flowsEmptyList),
         ),
       );
     }
@@ -141,7 +142,7 @@ class _FlowList extends ConsumerWidget {
                         children: [
                           Text(flow.name, style: AppTypography.headlineSm, overflow: TextOverflow.ellipsis),
                           Text(
-                            '${flow.steps.length} steps',
+                            context.l10n.flowsStepCount(flow.steps.length),
                             style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant),
                           ),
                         ],
@@ -149,7 +150,7 @@ class _FlowList extends ConsumerWidget {
                     ),
                     IconButton(
                       key: ValueKey('delete-flow-${flow.id}'),
-                      tooltip: 'Delete flow',
+                      tooltip: context.l10n.flowsDelete,
                       icon: const Icon(Icons.delete_outline, size: 16),
                       onPressed: () async {
                         await ref.read(flowsProvider.notifier).deleteFlow(flow.id);
@@ -201,7 +202,7 @@ class _FlowBuilder extends ConsumerWidget {
                   OutlinedButton(
                     key: const Key('save-flow-button'),
                     onPressed: null, // saving is implicit on every edit; kept as a visual affordance
-                    child: const Text('Save Flow'),
+                    child: Text(context.l10n.flowsSave),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   FilledButton(
@@ -213,7 +214,7 @@ class _FlowBuilder extends ConsumerWidget {
                                 builder: (_) => FlowRunViewScreen(flow: flow, endpoints: endpoints),
                               ),
                             ),
-                    child: const Text('Run Flow'),
+                    child: Text(context.l10n.flowsRun),
                   ),
                 ],
               ),
@@ -222,9 +223,9 @@ class _FlowBuilder extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
           Expanded(
             child: flow.steps.isEmpty
-                ? const Center(
+                ? Center(
                     key: Key('empty-flow-state'),
-                    child: Text('No steps yet — add a saved endpoint to get started'),
+                    child: Text(context.l10n.flowsNoSteps),
                   )
                 : SingleChildScrollView(
                     child: Center(
@@ -265,7 +266,7 @@ class _FlowBuilder extends ConsumerWidget {
             alignment: Alignment.centerLeft,
             child: HeaderGhostButton(
               key: const Key('add-step-button'),
-              label: 'Add Next Step to Pipeline',
+              label: context.l10n.flowsAddNextStep,
               onPressed: () async {
                 final endpoint = await showAddStepPicker(context, ref);
                 if (endpoint != null) {

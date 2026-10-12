@@ -12,6 +12,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'run_step_card.dart';
 import 'run_step_inspector.dart';
+import '../../l10n/l10n.dart';
 
 /// Runs a [Flow] end-to-end against the currently active environment and
 /// shows each step's live result as it completes -- pushed from
@@ -159,7 +160,7 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
         actions: [
           IconButton(
             key: const Key('re-run-flow-button'),
-            tooltip: 'Re-run Flow',
+            tooltip: context.l10n.runReRunFlow,
             icon: const Icon(Icons.replay),
             onPressed: _running ? null : _run,
           ),
@@ -173,14 +174,14 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
             Row(
               key: const Key('run-summary-strip'),
               children: [
-                Text('$passed passed', style: const TextStyle(color: AppColors.tertiary)),
+                Text(context.l10n.runPassed(passed), style: const TextStyle(color: AppColors.tertiary)),
                 const SizedBox(width: AppSpacing.md),
-                Text('$failed failed', style: const TextStyle(color: AppColors.error)),
+                Text(context.l10n.runFailed(failed), style: const TextStyle(color: AppColors.error)),
                 const SizedBox(width: AppSpacing.md),
-                Text('$skipped skipped', style: const TextStyle(color: AppColors.outline)),
+                Text(context.l10n.runSkipped(skipped), style: const TextStyle(color: AppColors.outline)),
                 const SizedBox(width: AppSpacing.md),
                 Text(
-                  '$totalMs ms',
+                  context.l10n.commonTimeMs(totalMs),
                   key: const Key('run-summary-total'),
                   style: AppTypography.codeMd.copyWith(color: AppColors.onSurfaceVariant),
                 ),
@@ -219,9 +220,9 @@ class _FlowRunViewScreenState extends ConsumerState<FlowRunViewScreen> {
                   const VerticalDivider(width: AppSpacing.md * 2),
                   Expanded(
                     child: _selectedIndex == null || _results[_selectedIndex!] == null
-                        ? const Center(
+                        ? Center(
                             key: Key('no-step-selected'),
-                            child: Text('Select a step to see its details'),
+                            child: Text(context.l10n.runSelectStep),
                           )
                         : RunStepInspector(
                             index: _selectedIndex!,

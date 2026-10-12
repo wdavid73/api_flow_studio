@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../request_draft_provider.dart';
+import '../../../l10n/l10n.dart';
 
 /// Free-text description of what this endpoint does, for whoever opens it
 /// later and needs context beyond the URL and method.
@@ -18,9 +19,8 @@ class DocsTab extends ConsumerWidget {
       child: TextFormField(
         key: const Key('docs-description-field'),
         initialValue: draft.description,
-        decoration: const InputDecoration(
-          hintText: 'Describe para qué sirve este endpoint, cuándo usarlo, '
-              'requisitos previos, etc.',
+        decoration: InputDecoration(
+          hintText: context.l10n.requestDocsHint,
           alignLabelWithHint: true,
           border: OutlineInputBorder(),
         ),

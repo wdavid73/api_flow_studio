@@ -5,11 +5,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
 import 'engine/projects/projects_repository.dart';
 import 'engine/storage/json_store.dart';
+import 'ui/l10n/locale_provider.dart';
 import 'ui/projects/projects_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(ProviderScope(overrides: await _projectOverrides(), child: const ApiFlowStudioApp()));
+  runApp(ProviderScope(overrides: [...await _projectOverrides(), ...await _languageOverrides()], child: const ApiFlowStudioApp()));
+}
+
+/// The language saved last time (kept in the data folder's root, shared by every project).
+/// If it cannot be read the app follows the system language.
+Future<List<Override>> _languageOverrides() async {
+  if (kIsWeb) return const [];
+  final store = JsonStore(directory: JsonStore.defaultDirectory());
+  Locale? saved;
+  try {
+    saved = localeFromCode(await store.readAppLocale());
+  } catch (error) {
+    debugPrint('Could not read the saved language: $error');
+  }
+  return [appSettingsStoreProvider.overrideWithValue(store), initialLocaleProvider.overrideWithValue(saved)];
 }
 
 /// Opens the projects (moving data kept by older versions into a Default

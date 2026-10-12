@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Flow;
 
 import '../../engine/models/models.dart';
+import '../../l10n/l10n.dart';
 
 /// Asks which of [flows] to export or import: one checkbox each and an "All flows" one
 /// on top. Everything starts selected. Returns the chosen ids, or null when cancelled;
@@ -45,7 +46,7 @@ class _FlowSelectionDialogState extends State<_FlowSelectionDialog> {
             CheckboxListTile(
               key: const Key('flow-selection-all'),
               controlAffinity: ListTileControlAffinity.leading,
-              title: const Text('All flows'),
+              title: Text(context.l10n.flowsSelectAll),
               value: _all ? true : (_selected.isEmpty ? false : null),
               tristate: true,
               onChanged: (_) => setState(() {
@@ -66,7 +67,7 @@ class _FlowSelectionDialogState extends State<_FlowSelectionDialog> {
                       key: ValueKey('flow-selection-${flow.id}'),
                       controlAffinity: ListTileControlAffinity.leading,
                       title: Text(flow.name, overflow: TextOverflow.ellipsis),
-                      subtitle: Text('${flow.steps.length} ${flow.steps.length == 1 ? 'step' : 'steps'}'),
+                      subtitle: Text(context.l10n.flowsStepCount(flow.steps.length)),
                       value: _selected.contains(flow.id),
                       onChanged: (checked) => setState(() {
                         if (checked ?? false) {
@@ -86,7 +87,7 @@ class _FlowSelectionDialogState extends State<_FlowSelectionDialog> {
         TextButton(
           key: const Key('flow-selection-cancel'),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           key: const Key('flow-selection-confirm'),

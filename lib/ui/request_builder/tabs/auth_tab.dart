@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../engine/models/models.dart';
 import '../request_draft_provider.dart';
+import '../../../l10n/l10n.dart';
 
 enum AuthKind { none, basic, bearer }
 
@@ -37,10 +38,10 @@ class AuthTab extends ConsumerWidget {
         children: [
           SegmentedButton<AuthKind>(
             key: const Key('auth-kind-selector'),
-            segments: const [
-              ButtonSegment(value: AuthKind.none, label: Text('None')),
-              ButtonSegment(value: AuthKind.basic, label: Text('Basic')),
-              ButtonSegment(value: AuthKind.bearer, label: Text('Bearer')),
+            segments: [
+              ButtonSegment(value: AuthKind.none, label: Text(context.l10n.commonNone)),
+              ButtonSegment(value: AuthKind.basic, label: Text(context.l10n.authBasic)),
+              ButtonSegment(value: AuthKind.bearer, label: Text(context.l10n.authBearer)),
             ],
             selected: {kind},
             onSelectionChanged: (selection) => setKind(selection.first),
@@ -53,13 +54,13 @@ class AuthTab extends ConsumerWidget {
                 TextFormField(
                   key: const Key('auth-username-field'),
                   initialValue: b.username,
-                  decoration: const InputDecoration(labelText: 'Username'),
+                  decoration: InputDecoration(labelText: context.l10n.authUsername),
                   onChanged: (v) => notifier.setAuthConfig(b.copyWith(username: v)),
                 ),
                 TextFormField(
                   key: const Key('auth-password-field'),
                   initialValue: b.password,
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: InputDecoration(labelText: context.l10n.authPassword),
                   onChanged: (v) => notifier.setAuthConfig(b.copyWith(password: v)),
                 ),
               ],
@@ -67,7 +68,7 @@ class AuthTab extends ConsumerWidget {
             bearer: (b) => TextFormField(
               key: const Key('auth-token-field'),
               initialValue: b.token,
-              decoration: const InputDecoration(labelText: 'Token'),
+              decoration: InputDecoration(labelText: context.l10n.authToken),
               onChanged: (v) => notifier.setAuthConfig(b.copyWith(token: v)),
             ),
           ),

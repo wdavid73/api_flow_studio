@@ -6,6 +6,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/widgets/method_badge.dart';
 import '../theme/widgets/status_badge.dart';
+import '../../l10n/l10n.dart';
 
 /// One compact row in the flow run view's left-hand execution timeline.
 /// [result] is null while the step hasn't executed yet (still queued
@@ -29,10 +30,10 @@ class RunStepCard extends StatelessWidget {
   final VoidCallback? onSelect;
 
   /// `2/3 assertions` once the step has run with assertions, else null.
-  String? get _assertionSummary {
+  String? _assertionSummary(AppLocalizations l10n) {
     final results = result?.assertionResults ?? const <AssertionResult>[];
     if (results.isEmpty) return null;
-    return '${results.where((r) => r.passed).length}/${results.length} assertions';
+    return l10n.assertionsSummary(results.where((r) => r.passed).length, results.length);
   }
 
   bool get _isSelectable => result != null && result!.status != FlowStepStatus.skipped;
@@ -84,14 +85,14 @@ class RunStepCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        endpoint?.name ?? 'Missing endpoint',
+                        endpoint?.name ?? context.l10n.runMissingEndpoint,
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (status == FlowStepStatus.skipped)
-                        const Text('Skipped', style: TextStyle(color: AppColors.outline)),
-                      if (_assertionSummary != null)
+                        Text(context.l10n.runSkippedStep, style: const TextStyle(color: AppColors.outline)),
+                      if (_assertionSummary(context.l10n) != null)
                         Text(
-                          _assertionSummary!,
+                          _assertionSummary(context.l10n)!,
                           key: ValueKey('run-step-assertions-$index'),
                           style: TextStyle(
                             color: result!.assertionResults.every((r) => r.passed)

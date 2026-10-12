@@ -10,6 +10,7 @@ import 'session_clock.dart';
 import 'session_label.dart';
 import 'session_popover.dart';
 import 'session_provider.dart';
+import '../../l10n/l10n.dart';
 
 export 'session_clock.dart' show sessionClockProvider;
 
@@ -45,7 +46,7 @@ class _SessionButtonState extends ConsumerState<SessionButton> {
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(activeSessionProvider);
-    final label = sessionLabel(session, ref.watch(sessionClockProvider)());
+    final label = sessionLabel(session, ref.watch(sessionClockProvider)(), l10n: context.l10n);
 
     final topColor = switch (label.tone) {
       SessionTone.none => AppColors.onSurface,

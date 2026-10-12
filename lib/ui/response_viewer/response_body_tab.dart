@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import '../theme/widgets/json_view.dart';
+import '../../l10n/l10n.dart';
 
 enum BodyViewMode { format, raw, preview }
 
@@ -37,10 +38,10 @@ class _ResponseBodyTabState extends State<ResponseBodyTab> {
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: SegmentedButton<BodyViewMode>(
             key: const Key('body-view-mode-selector'),
-            segments: const [
-              ButtonSegment(value: BodyViewMode.format, label: Text('Format')),
-              ButtonSegment(value: BodyViewMode.raw, label: Text('Raw')),
-              ButtonSegment(value: BodyViewMode.preview, label: Text('Preview')),
+            segments: [
+              ButtonSegment(value: BodyViewMode.format, label: Text(context.l10n.responseViewFormat)),
+              ButtonSegment(value: BodyViewMode.raw, label: Text(context.l10n.responseViewRaw)),
+              ButtonSegment(value: BodyViewMode.preview, label: Text(context.l10n.responseViewPreview)),
             ],
             selected: {_mode},
             onSelectionChanged: (selection) => setState(() => _mode = selection.first),
