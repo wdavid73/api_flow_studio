@@ -291,6 +291,39 @@ folder between versions.
 
 Design and acceptance criteria: [SPEC-workspaces.md](SPEC-workspaces.md).
 
+## Web version
+
+Every push to `master` publishes the app to GitHub Pages: <https://wdavid73.github.io/api_flow_studio/>
+(`.github/workflows/pages.yml`; it runs `flutter analyze` and `flutter test` first and publishes nothing
+if they fail). The desktop releases are unchanged.
+
+**One-time setup** for whoever administers the repository: *Settings → Pages → Build and deployment →
+Source: GitHub Actions*.
+
+In the browser your data (projects, requests, environments, flows, history and the language) is kept in
+that browser's `localStorage`: it stays between visits on the same browser and is not shared with other
+browsers or computers. It holds about 5 MB; when it is full the app says so and keeps what was saved.
+Use *Export workspace* to move data or keep a copy. Import and export work through the browser's file
+picker and downloads.
+
+What a web page cannot do (the app tells you where it matters):
+
+- **CORS:** a request only works if the API allows this page's origin. A failed request shows a hint.
+  The desktop app has no such limit.
+- **`http://`:** an `https` page cannot call plain `http://` addresses (except `localhost`).
+- **Form Data files:** a *File* field cannot be sent (no access to paths on your computer); *Text* fields work.
+- **Cookies:** the browser hides `Set-Cookie`, so the Cookies tab cannot show them. Headers such as
+  `Cookie` or `User-Agent` are ignored by the browser when sending.
+- **Terminal runner:** only in the desktop/CLI build.
+
+After a deploy the browser may serve the previous version once (the app caches itself); reload to get
+the new one. To build it yourself:
+
+```bash
+fvm flutter build web --release --base-href /api_flow_studio/   # Git Bash: prefix MSYS_NO_PATHCONV=1
+```
+
+
 ## Language
 
 The header has a language button (next to *Hosts & notes*) with English, Español and *System default*.

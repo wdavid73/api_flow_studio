@@ -1,0 +1,64 @@
+name: Deploy Web
+
+# Builds the web version and publishes it to GitHub Pages at
+# https://<owner>.github.io/<repo>/ on every push to master.
+#
+# One-time setup by someone with admin rights on the repository:
+#   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+# Until that is set, the deploy job fails with a "Pages not enabled" error; the build job still
+# runs and checks that the web build works.
+#
+# This workflow is separate from release.yml (desktop builds and versions) and does not touch it.
+# The version-bump commit that release.yml pushes carries [skip ci], so it does not trigger this.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# The least the Pages deployment needs.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push waits for the running one instead of cutting it off,
+# so a half-published site is never replaced mid-way.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: "3.44.6" # keep in sync with .fvmrc and release.yml
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      # Nothing is published unless the same checks the release runs pass.
+      - run: flutter analyze
+      - run: flutter test
+      # The site lives under /<repo>/, so the app must load its files from there.
+      - name: Build the web app
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
