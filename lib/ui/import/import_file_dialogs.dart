@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// A file the person picked to import: its name and size are known up front, its
@@ -35,6 +37,19 @@ class FilePickerImportFileDialogs implements ImportFileDialogs {
       allowedExtensions: extensions,
       dialogTitle: 'Import',
     );
+
+    // A web page has no path to a file on the computer, only the bytes the browser hands over.
+    if (kIsWeb) {
+      final picked = result?.files.single;
+      final bytes = picked?.bytes;
+      if (picked == null || bytes == null) return null;
+      return PickedImportFile(
+        name: picked.name,
+        sizeBytes: bytes.length,
+        read: () async => utf8.decode(bytes, allowMalformed: true),
+      );
+    }
+
     final path = result?.files.single.path;
     if (path == null) return null;
 

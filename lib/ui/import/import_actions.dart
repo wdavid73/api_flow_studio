@@ -15,6 +15,7 @@ import 'import_file_dialogs.dart';
 import 'import_summary_dialog.dart';
 import '../../l10n/l10n.dart';
 import 'import_summary_text.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// Puts [result] into the active project, all or nothing, and says what came in.
 ///
@@ -66,7 +67,8 @@ Future<ImportSummary> applyImport(T Function<T>(ProviderListenable<T> provider) 
 const int _offThreadChars = 256 * 1024;
 
 Future<ImportResult> _translate(String text, String fileName) {
-  if (text.length <= _offThreadChars) return Future.value(runImport(text, importers, fileName: fileName));
+  // A web page has no isolates: it translates in place, however big the file.
+  if (kIsWeb || text.length <= _offThreadChars) return Future.value(runImport(text, importers, fileName: fileName));
   // `importers` is a top-level value, so each isolate has its own: only the text is sent.
   return Isolate.run(() => runImport(text, importers, fileName: fileName));
 }

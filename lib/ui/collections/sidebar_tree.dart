@@ -19,6 +19,8 @@ import 'method_filter_chips.dart';
 import 'paste_curl_dialog.dart';
 import '../projects/projects_provider.dart';
 import '../../l10n/l10n.dart';
+import '../files/file_download.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// The real app version, shown in the sidebar footer in place of the
 /// design mockup's fake "Proxy: Localhost" line -- kept in sync with
@@ -199,6 +201,20 @@ Future<void> _exportCollections(
   CollectionsState state,
 ) async {
   final l10n = context.l10n;
+  final json = const JsonEncoder.withIndent('  ').convert({
+    'groups': state.groups.map((g) => g.toJson()).toList(),
+    'endpoints': state.endpoints.map((e) => e.toJson()).toList(),
+  });
+
+  if (kIsWeb) {
+    const fileName = 'api-flow-studio-endpoints.json';
+    await downloadTextFile(fileName, json);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.collectionsExportedTo(fileName))));
+    }
+    return;
+  }
+
   final path = await FilePicker.platform.saveFile(
     dialogTitle: l10n.collectionsExportTitle,
     fileName: 'api-flow-studio-endpoints.json',
@@ -207,10 +223,6 @@ Future<void> _exportCollections(
   );
   if (path == null) return;
 
-  final json = const JsonEncoder.withIndent('  ').convert({
-    'groups': state.groups.map((g) => g.toJson()).toList(),
-    'endpoints': state.endpoints.map((e) => e.toJson()).toList(),
-  });
   await File(path).writeAsString(json);
 
   if (context.mounted) {

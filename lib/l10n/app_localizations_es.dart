@@ -1055,4 +1055,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get stepChangeRequest => 'Cambiar petición';
+
+  @override
+  String get multipartFileNotInBrowser =>
+      'Los campos de archivo no se pueden enviar desde una página web. Usa la app de escritorio.';
+
+  @override
+  String get browserHintCors =>
+      'En una página web un error de red suele ser CORS: la API debe permitir el origen de esta página. La app de escritorio no tiene este límite.';
+
+  @override
+  String get browserHintMixedContent =>
+      'Esta página se sirve por https, así que el navegador bloquea las llamadas a una dirección http:// (salvo localhost). Usa https:// o la app de escritorio.';
+
+  @override
+  String get responseCookiesHiddenInBrowser =>
+      'Una página web no puede leer Set-Cookie: el navegador lo oculta. Usa la app de escritorio para ver las cookies.';
+
+  @override
+  String get storageFull =>
+      'El navegador no tiene más espacio, así que el último cambio no se guardó. Exporta tu espacio de trabajo y borra parte del historial.';
 }

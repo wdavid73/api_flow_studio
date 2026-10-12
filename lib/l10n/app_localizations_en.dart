@@ -1049,4 +1049,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stepChangeRequest => 'Change request';
+
+  @override
+  String get multipartFileNotInBrowser =>
+      'File fields can\'t be sent from a web page. Use the desktop app.';
+
+  @override
+  String get browserHintCors =>
+      'In a web page a network error is often CORS: the API must allow this page\'s origin. The desktop app does not have this limit.';
+
+  @override
+  String get browserHintMixedContent =>
+      'This page is served over https, so the browser blocks calls to a plain http:// address (except localhost). Use https:// or the desktop app.';
+
+  @override
+  String get responseCookiesHiddenInBrowser =>
+      'A web page cannot read Set-Cookie: the browser keeps it hidden. Use the desktop app to see cookies.';
+
+  @override
+  String get storageFull =>
+      'The browser has no room left, so the last change was not saved. Export your workspace and clear some history.';
 }

@@ -274,5 +274,10 @@
   "multipartAutoHint": "auto",
   "multipartValueHint": "valor",
   "assertionExpectedHint": "esperado",
-  "stepChangeRequest": "Cambiar petición"
+  "stepChangeRequest": "Cambiar petición",
+  "multipartFileNotInBrowser": "Los campos de archivo no se pueden enviar desde una página web. Usa la app de escritorio.",
+  "browserHintCors": "En una página web un error de red suele ser CORS: la API debe permitir el origen de esta página. La app de escritorio no tiene este límite.",
+  "browserHintMixedContent": "Esta página se sirve por https, así que el navegador bloquea las llamadas a una dirección http:// (salvo localhost). Usa https:// o la app de escritorio.",
+  "responseCookiesHiddenInBrowser": "Una página web no puede leer Set-Cookie: el navegador lo oculta. Usa la app de escritorio para ver las cookies.",
+  "storageFull": "El navegador no tiene más espacio, así que el último cambio no se guardó. Exporta tu espacio de trabajo y borra parte del historial."
 }

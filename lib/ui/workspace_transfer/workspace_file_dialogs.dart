@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../files/file_download.dart';
 
 /// The system dialogs the workspace export and import go through, behind an
 /// interface so tests (and journeys) can answer them without a real dialog.
@@ -20,6 +23,11 @@ class FilePickerWorkspaceDialogs implements WorkspaceFileDialogs {
 
   @override
   Future<bool> saveText(String suggestedName, String text) async {
+    // The browser downloads the file: there is no "where to save" to ask (and nothing to cancel).
+    if (kIsWeb) {
+      await downloadTextFile(suggestedName, text);
+      return true;
+    }
     final path = await FilePicker.platform.saveFile(
       dialogTitle: 'Export workspace',
       fileName: suggestedName,
@@ -38,6 +46,10 @@ class FilePickerWorkspaceDialogs implements WorkspaceFileDialogs {
       allowedExtensions: ['json'],
       dialogTitle: 'Import workspace',
     );
+    if (kIsWeb) {
+      final bytes = result?.files.single.bytes;
+      return bytes == null ? null : utf8.decode(bytes, allowMalformed: true);
+    }
     final path = result?.files.single.path;
     return path == null ? null : File(path).readAsString();
   }

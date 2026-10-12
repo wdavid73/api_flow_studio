@@ -10,6 +10,9 @@ import '../variables/interpolator.dart';
 import 'executed_response.dart';
 import 'mime_types.dart';
 
+/// `true` when compiled to JavaScript (a JS `0.0` is identical to `0`).
+const bool _isWeb = identical(0, 0.0);
+
 /// Sends an [Endpoint] over real HTTP using `dio`, after resolving its
 /// `{{variable}}` tokens. This is the single entrypoint used both by the
 /// manual request builder UI and by `flow_runner`, one call per step.
@@ -118,6 +121,9 @@ class RequestExecutor {
         form.fields.add(MapEntry(field.name, field.value));
         continue;
       }
+
+      // A web page has no path to a file on the computer to read from.
+      if (_isWeb) return (data: null, error: 'Field "${field.name}" is a file: a web page cannot send files from this computer. Use the desktop app.');
 
       final path = field.value;
       if (path.isEmpty) return (data: null, error: 'Field "${field.name}" has no file chosen');

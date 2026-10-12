@@ -5,19 +5,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
 import 'engine/projects/projects_repository.dart';
 import 'engine/storage/json_store.dart';
+import 'engine/storage/local_storage_backend.dart';
 import 'ui/l10n/locale_provider.dart';
 import 'ui/projects/projects_provider.dart';
+import 'ui/shell/storage_full_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(ProviderScope(overrides: [...await _projectOverrides(), ...await _languageOverrides()], child: const ApiFlowStudioApp()));
+  final container = ProviderContainer(overrides: [...await _projectOverrides(), ...await _languageOverrides()]);
+  PlatformDispatcher.instance.onError = storageFullHandler(container);
+  runApp(UncontrolledProviderScope(container: container, child: const ApiFlowStudioApp()));
 }
 
-/// The language saved last time (kept in the data folder's root, shared by every project).
-/// If it cannot be read the app follows the system language.
+/// The browser's storage, where the web keeps projects and settings (one backend, so the keys
+/// of the project list, each project and the settings never meet).
+final _browserStorage = LocalStorageBackend();
+
+/// The language saved last time (kept in the data folder's root, or in the browser's storage on
+/// the web; shared by every project). If it cannot be read the app follows the system language.
 Future<List<Override>> _languageOverrides() async {
-  if (kIsWeb) return const [];
-  final store = JsonStore(directory: JsonStore.defaultDirectory());
+  final store = kIsWeb ? JsonStore.backed(_browserStorage, prefix: 'app:') : JsonStore(directory: JsonStore.defaultDirectory());
   Locale? saved;
   try {
     saved = localeFromCode(await store.readAppLocale());
@@ -32,7 +39,7 @@ Future<List<Override>> _languageOverrides() async {
 /// project over the old data, which a failed migration never touches.
 Future<List<Override>> _projectOverrides() async {
   try {
-    final repository = kIsWeb ? ProjectsRepository.inMemory() : ProjectsRepository.disk(JsonStore.defaultDirectory());
+    final repository = kIsWeb ? ProjectsRepository.web(_browserStorage) : ProjectsRepository.disk(JsonStore.defaultDirectory());
     await repository.ensureDefaultProject();
     final state = await ProjectsController.load(repository);
     return [

@@ -1747,6 +1747,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change request'**
   String get stepChangeRequest;
+
+  /// No description provided for @multipartFileNotInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'File fields can\'t be sent from a web page. Use the desktop app.'**
+  String get multipartFileNotInBrowser;
+
+  /// No description provided for @browserHintCors.
+  ///
+  /// In en, this message translates to:
+  /// **'In a web page a network error is often CORS: the API must allow this page\'s origin. The desktop app does not have this limit.'**
+  String get browserHintCors;
+
+  /// No description provided for @browserHintMixedContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This page is served over https, so the browser blocks calls to a plain http:// address (except localhost). Use https:// or the desktop app.'**
+  String get browserHintMixedContent;
+
+  /// No description provided for @responseCookiesHiddenInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'A web page cannot read Set-Cookie: the browser keeps it hidden. Use the desktop app to see cookies.'**
+  String get responseCookiesHiddenInBrowser;
+
+  /// No description provided for @storageFull.
+  ///
+  /// In en, this message translates to:
+  /// **'The browser has no room left, so the last change was not saved. Export your workspace and clear some history.'**
+  String get storageFull;
 }
 
 class _AppLocalizationsDelegate

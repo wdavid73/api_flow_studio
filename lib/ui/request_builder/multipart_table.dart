@@ -8,6 +8,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'file_picker_service.dart';
 import '../../l10n/l10n.dart';
+import '../platform/platform_capabilities.dart';
 
 /// The Form Data body editor: one row per field (enabled, name, Text/File, then a
 /// text value or a path with a Choose button and a content type, remove) and an
@@ -82,6 +83,7 @@ class _MultipartTableState extends ConsumerState<MultipartTable> {
 
   @override
   Widget build(BuildContext context) {
+    final canSendFiles = ref.watch(platformCapabilitiesProvider).canSendLocalFiles;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -91,6 +93,7 @@ class _MultipartTableState extends ConsumerState<MultipartTable> {
             child: _FieldRow(
               row: row,
               field: widget.fields[row],
+              canSendFiles: canSendFiles,
               onEdit: (field) => _edit(row, field),
               onReplace: (field) => _replace(row, field),
               onChoose: () => _choose(row),
@@ -115,6 +118,7 @@ class _FieldRow extends StatelessWidget {
   const _FieldRow({
     required this.row,
     required this.field,
+    required this.canSendFiles,
     required this.onEdit,
     required this.onReplace,
     required this.onChoose,
@@ -123,6 +127,9 @@ class _FieldRow extends StatelessWidget {
 
   final int row;
   final MultipartField field;
+
+  /// False in a web page: no path to a file on the computer, so a File field cannot be sent.
+  final bool canSendFiles;
   final ValueChanged<MultipartField> onEdit;
   final ValueChanged<MultipartField> onReplace;
   final VoidCallback onChoose;
@@ -161,7 +168,11 @@ class _FieldRow extends StatelessWidget {
                   isDense: true,
                   items: [
                     DropdownMenuItem(value: MultipartFieldKind.text, child: Text(context.l10n.multipartText)),
-                    DropdownMenuItem(value: MultipartFieldKind.file, child: Text(context.l10n.multipartFile)),
+                    DropdownMenuItem(
+                      value: MultipartFieldKind.file,
+                      enabled: canSendFiles || _isFile,
+                      child: Text(context.l10n.multipartFile),
+                    ),
                   ],
                   onChanged: (kind) {
                     // A text value is not a path and a path is not text: start clean.
@@ -183,7 +194,7 @@ class _FieldRow extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 OutlinedButton(
                   key: ValueKey('multipart-choose-$row'),
-                  onPressed: onChoose,
+                  onPressed: canSendFiles ? onChoose : null,
                   child: Text(context.l10n.multipartChoose),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -216,7 +227,16 @@ class _FieldRow extends StatelessWidget {
               ),
             ],
           ),
-          if (_isFile && field.enabled && field.value.isEmpty)
+          if (_isFile && !canSendFiles)
+            Padding(
+              padding: const EdgeInsets.only(left: 48, top: 2),
+              child: Text(
+                context.l10n.multipartFileNotInBrowser,
+                key: ValueKey('multipart-browser-note-$row'),
+                style: AppTypography.bodySm.copyWith(color: AppColors.warning),
+              ),
+            )
+          else if (_isFile && field.enabled && field.value.isEmpty)
             Padding(
               padding: const EdgeInsets.only(left: 48, top: 2),
               child: Text(

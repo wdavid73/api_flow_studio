@@ -21,6 +21,8 @@ import 'response_cookies_tab.dart';
 import 'response_headers_tab.dart';
 import 'response_timeline_tab.dart';
 import '../../l10n/l10n.dart';
+import '../platform/platform_capabilities.dart';
+import 'browser_hint.dart';
 
 /// The response side of the workspace: Response / History tabs with Copy and
 /// curl buttons beside them. Response shows a status line
@@ -89,13 +91,13 @@ class ResponsePanel extends ConsumerWidget {
 
 /// The Response tab: empty/error states, or the status line plus the
 /// Body | Headers | Cookies | Timeline tab set.
-class _ResponseView extends StatelessWidget {
+class _ResponseView extends ConsumerWidget {
   const _ResponseView({required this.response});
 
   final ExecutedResponse? response;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final response = this.response;
 
     if (response == null) {
@@ -112,9 +114,29 @@ class _ResponseView extends StatelessWidget {
       );
     }
     if (response.error != null) {
+      final hint = browserNetworkHint(
+        context.l10n,
+        isBrowser: ref.watch(platformCapabilitiesProvider).isBrowser,
+        url: response.requestUrl,
+      );
       return Center(
         key: const Key('response-error'),
-        child: Text(context.l10n.responseErrorWithMessage('${response.error}')),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(context.l10n.responseErrorWithMessage('${response.error}')),
+            if (hint != null)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.sm),
+                child: Text(
+                  hint,
+                  key: const Key('response-browser-hint'),
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySm.copyWith(color: AppColors.warning),
+                ),
+              ),
+          ],
+        ),
       );
     }
 
