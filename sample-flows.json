@@ -1,0 +1,885 @@
+{
+  "format": "api-flow-studio-flows",
+  "version": 1,
+  "exportedAt": "2026-10-12T15:42:28.181693Z",
+  "flows": [
+    {
+      "id": "flow-auth-session",
+      "name": "Auth: sign in, profile, refresh and sign out",
+      "steps": [
+        {
+          "endpointId": "8899e7d0-e6c0-4a77-8fc1-b64b046d4dd8",
+          "extract": {
+            "access_token": "response.body.data.accessToken",
+            "refresh_token": "response.body.data.refreshToken"
+          },
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            },
+            {
+              "field": "response.body.data.accessToken",
+              "operator": "exists",
+              "expected": ""
+            }
+          ],
+          "stopOnFailure": true
+        },
+        {
+          "endpointId": "a749a7c0-39c2-43ce-9645-8d63cda371d7",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": true
+        },
+        {
+          "endpointId": "cee45aa8-0651-4340-9c83-31f884d22644",
+          "extract": {
+            "access_token": "response.body.data.accessToken",
+            "refresh_token": "response.body.data.refreshToken"
+          },
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            },
+            {
+              "field": "response.body.data.accessToken",
+              "operator": "exists",
+              "expected": ""
+            }
+          ],
+          "stopOnFailure": true
+        },
+        {
+          "endpointId": "a749a7c0-39c2-43ce-9645-8d63cda371d7",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": true
+        },
+        {
+          "endpointId": "d7a0deb3-3f11-4e4a-8367-86de6b26908c",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": true
+        }
+      ]
+    },
+    {
+      "id": "flow-location-catalog",
+      "name": "Location catalog: countries, departments and cities",
+      "steps": [
+        {
+          "endpointId": "683e1868-8a65-46c8-a770-75ba74be23aa",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": true
+        },
+        {
+          "endpointId": "4a1b4a46-18cf-4ee1-bdee-8f5c82026180",
+          "extract": {
+            "departmentId": "response.body.data.0.id"
+          },
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            },
+            {
+              "field": "response.body.data",
+              "operator": "exists",
+              "expected": ""
+            }
+          ],
+          "stopOnFailure": true
+        },
+        {
+          "endpointId": "2cce3ed0-dc12-4a80-853b-fa81216ce9d2",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": true
+        },
+        {
+          "endpointId": "13aaa16b-d435-4037-82ce-446222c9244c",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": true
+        }
+      ]
+    },
+    {
+      "id": "flow-home-smoke",
+      "name": "Home screen smoke test (read-only)",
+      "steps": [
+        {
+          "endpointId": "4b0310c6-03b4-4dc0-8e2d-0a6cfbeec35b",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "de9926df-5b74-43d2-8466-70edab71df91",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "575d9cea-5b24-4286-93f8-acbc7053f835",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "2b69386f-50d6-4205-ac44-308b08bbfca2",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "9df32ead-1ec9-44a3-8f3b-636bcf874924",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "e4a04a74-0c05-4873-8c1e-e686da717926",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "f13ead32-6a1f-48ef-be21-65b67dd44b17",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "e90b0b34-d52f-4724-9057-7c679837275b",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        }
+      ]
+    },
+    {
+      "id": "flow-wallet-rewards",
+      "name": "Payments, wallet and rewards overview",
+      "steps": [
+        {
+          "endpointId": "d3e7ae42-527c-4f80-97bb-03fb919dc25c",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "256bfadd-3376-4df9-b25d-99a2c065c73e",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "8803b898-89cc-424c-8a85-c4fb487e5672",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "d3f59853-f960-4650-8295-86fdd3617b8d",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "ef4a3a68-8ba2-4781-a985-1f11c3e75da7",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "493d1271-9881-4d6b-8a93-924db4de78b5",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        },
+        {
+          "endpointId": "04903252-ea8f-4c4d-8cdf-80a18e0ed0c9",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": false
+        }
+      ]
+    },
+    {
+      "id": "flow-services-catalog",
+      "name": "External services: list and detail by category",
+      "steps": [
+        {
+          "endpointId": "9c4ea5dc-6417-4d01-a2c5-a24ef49dd1e6",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": true
+        },
+        {
+          "endpointId": "020b96b6-e190-439d-9e01-3c599cd9f555",
+          "extract": {},
+          "assertions": [
+            {
+              "field": "response.status",
+              "operator": "equals",
+              "expected": "200"
+            }
+          ],
+          "stopOnFailure": true
+        }
+      ]
+    }
+  ],
+  "requests": {
+    "groups": [
+      {
+        "id": "4db2e9f7-1bc8-4650-9236-294e56351a5e",
+        "name": "Auth Core",
+        "parentGroupId": null,
+        "order": 0
+      },
+      {
+        "id": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "App Mobile Core",
+        "parentGroupId": null,
+        "order": 0
+      },
+      {
+        "id": "40bfbd82-e216-4cbd-a2b7-4485a7398cb0",
+        "name": "Payment Core",
+        "parentGroupId": null,
+        "order": 0
+      },
+      {
+        "id": "75c83c84-15cf-4250-ba18-8bc12d59153b",
+        "name": "External Services",
+        "parentGroupId": null,
+        "order": 0
+      },
+      {
+        "id": "c77f51f5-dac9-4b34-9bc4-7b6e8a5294a5",
+        "name": "Transaction Services",
+        "parentGroupId": null,
+        "order": 0
+      },
+      {
+        "id": "4d8ed2b0-8444-44e0-b3c9-181f9225899d",
+        "name": "Webhooks Service",
+        "parentGroupId": null,
+        "order": 0
+      },
+      {
+        "id": "197c1ace-cb98-4901-a0cf-3426e15d7535",
+        "name": "Market Place Core",
+        "parentGroupId": null,
+        "order": 0
+      }
+    ],
+    "endpoints": [
+      {
+        "id": "8899e7d0-e6c0-4a77-8fc1-b64b046d4dd8",
+        "groupId": "4db2e9f7-1bc8-4650-9236-294e56351a5e",
+        "name": "/auth/sign-in-customer",
+        "method": "POST",
+        "url": "{{AUTH_CORE_BASE}}/auth/sign-in-customer",
+        "description": "Inicia sesión de un cliente registrado con usuario y contraseña, y retorna el access/refresh token.",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "queryParams": [],
+        "body": {
+          "raw": "{\n  \"username\": \"\",\n  \"deviceId\": \"commodo-playground\",\n  \"platformId\": \"ANDROID\",\n  \"password\": \"\"\n}",
+          "runtimeType": "json"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "d7a0deb3-3f11-4e4a-8367-86de6b26908c",
+        "groupId": "4db2e9f7-1bc8-4650-9236-294e56351a5e",
+        "name": "/auth/log-out",
+        "method": "POST",
+        "url": "{{AUTH_CORE_BASE}}/auth/log-out",
+        "description": "Cierra la sesión del usuario autenticado e invalida su token actual.",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "queryParams": [],
+        "body": {
+          "raw": "{\n  \n}",
+          "runtimeType": "json"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "cee45aa8-0651-4340-9c83-31f884d22644",
+        "groupId": "4db2e9f7-1bc8-4650-9236-294e56351a5e",
+        "name": "/auth/refresh",
+        "method": "POST",
+        "url": "{{AUTH_CORE_BASE}}/auth/refresh",
+        "description": "Renueva el access token vencido a partir del refresh token.",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "queryParams": [],
+        "body": {
+          "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}",
+          "runtimeType": "json"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "a749a7c0-39c2-43ce-9645-8d63cda371d7",
+        "groupId": "4db2e9f7-1bc8-4650-9236-294e56351a5e",
+        "name": "/user",
+        "method": "GET",
+        "url": "{{AUTH_CORE_BASE}}/user",
+        "description": "Obtiene los datos del usuario autenticado (Auth Core).",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "4b0310c6-03b4-4dc0-8e2d-0a6cfbeec35b",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/version-app",
+        "method": "POST",
+        "url": "{{APP_MOBILE_CORE_V2_BASE}}/version-app",
+        "description": "Verifica si la versión de la app móvil es la vigente o si se requiere actualizar.",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "queryParams": [],
+        "body": {
+          "raw": "{\n  \n}",
+          "runtimeType": "json"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "de9926df-5b74-43d2-8466-70edab71df91",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/user",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/user",
+        "description": "Obtiene el perfil del usuario autenticado (App Mobile Core).",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "683e1868-8a65-46c8-a770-75ba74be23aa",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/country-catalog",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/country-catalog",
+        "description": "Lista el catálogo de países disponibles.",
+        "headers": [],
+        "queryParams": [
+          {
+            "key": "active",
+            "value": "true",
+            "enabled": true
+          }
+        ],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "4a1b4a46-18cf-4ee1-bdee-8f5c82026180",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/departments/1",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/departments/1",
+        "description": "Lista los departamentos disponibles (ejemplo con id de país fijo en la URL).",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "2cce3ed0-dc12-4a80-853b-fa81216ce9d2",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/cities/{departmentId}",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/cities/{{departmentId}}",
+        "description": "Lista las ciudades de un departamento dado.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "575d9cea-5b24-4286-93f8-acbc7053f835",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/notifications",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/notifications",
+        "description": "Lista las notificaciones del usuario.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "2b69386f-50d6-4205-ac44-308b08bbfca2",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/banner",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/banner",
+        "description": "Obtiene los banners promocionales de la pantalla principal.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "9df32ead-1ec9-44a3-8f3b-636bcf874924",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/slide",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/slide",
+        "description": "Obtiene los slides del carrusel de la pantalla principal.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "e4a04a74-0c05-4873-8c1e-e686da717926",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/business-partners/category/list",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/business-partners/category/list",
+        "description": "Lista las categorías de socios de negocio (business partners).",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "f13ead32-6a1f-48ef-be21-65b67dd44b17",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/microsite",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/microsite",
+        "description": "Obtiene la información del micrositio de un comercio/partner.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "e90b0b34-d52f-4724-9057-7c679837275b",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/stamps/prize-summary",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/stamps/prize-summary",
+        "description": "Obtiene el resumen de premios disponibles por acumulación de sellos (stamps).",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "d3f59853-f960-4650-8295-86fdd3617b8d",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/coupons/redeemed-coupons",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/coupons/redeemed-coupons",
+        "description": "Lista los cupones ya canjeados por el usuario.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "ef4a3a68-8ba2-4781-a985-1f11c3e75da7",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/prizes/by-user",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/prizes/by-user",
+        "description": "Lista los premios obtenidos por el usuario.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "8803b898-89cc-424c-8a85-c4fb487e5672",
+        "groupId": "4b28a179-91c5-47d1-9696-6dc200f68038",
+        "name": "/purchases/list",
+        "method": "GET",
+        "url": "{{APP_MOBILE_CORE_BASE}}/purchases/list",
+        "description": "Lista las compras realizadas por el usuario.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "d3e7ae42-527c-4f80-97bb-03fb919dc25c",
+        "groupId": "40bfbd82-e216-4cbd-a2b7-4485a7398cb0",
+        "name": "/methods-pay",
+        "method": "GET",
+        "url": "{{PAYMENT_CORE_BASE}}/methods-pay",
+        "description": "Lista los métodos de pago disponibles.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "13aaa16b-d435-4037-82ce-446222c9244c",
+        "groupId": "75c83c84-15cf-4250-ba18-8bc12d59153b",
+        "name": "/insurance-payments/departments",
+        "method": "GET",
+        "url": "{{EXTERNAL_SERVICES_BASE}}/insurance-payments/departments",
+        "description": "Lista los departamentos disponibles para cotizar seguros.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "9c4ea5dc-6417-4d01-a2c5-a24ef49dd1e6",
+        "groupId": "75c83c84-15cf-4250-ba18-8bc12d59153b",
+        "name": "/services",
+        "method": "GET",
+        "url": "{{EXTERNAL_SERVICES_BASE}}/services",
+        "description": "Lista los servicios externos disponibles para pago.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "020b96b6-e190-439d-9e01-3c599cd9f555",
+        "groupId": "75c83c84-15cf-4250-ba18-8bc12d59153b",
+        "name": "/services/{category}",
+        "method": "GET",
+        "url": "{{EXTERNAL_SERVICES_BASE}}/services/{{category}}",
+        "description": "Lista los servicios externos disponibles de una categoría específica.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "256bfadd-3376-4df9-b25d-99a2c065c73e",
+        "groupId": "c77f51f5-dac9-4b34-9bc4-7b6e8a5294a5",
+        "name": "/transaction-manager/user-wallet/get-transactions",
+        "method": "GET",
+        "url": "{{TRANSACTION_SERVICES_BASE}}/transaction-manager/user-wallet/get-transactions",
+        "description": "Obtiene el historial de transacciones de la billetera del usuario.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "04903252-ea8f-4c4d-8cdf-80a18e0ed0c9",
+        "groupId": "4d8ed2b0-8444-44e0-b3c9-181f9225899d",
+        "name": "/purchases",
+        "method": "GET",
+        "url": "{{WEBHOOKS_SERVICE_BASE}}/purchases",
+        "description": "Consulta el estado de una compra/pago a partir de su id (usado como callback/confirmación).",
+        "headers": [],
+        "queryParams": [
+          {
+            "key": "id",
+            "value": "{{paymentId}}",
+            "enabled": true
+          }
+        ],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      },
+      {
+        "id": "493d1271-9881-4d6b-8a93-924db4de78b5",
+        "groupId": "197c1ace-cb98-4901-a0cf-3426e15d7535",
+        "name": "/generated-vouchers/user",
+        "method": "GET",
+        "url": "{{MARKET_PLACE_CORE_BASE}}/generated-vouchers/user",
+        "description": "Lista los vouchers/cupones generados para el usuario en el marketplace.",
+        "headers": [],
+        "queryParams": [],
+        "body": {
+          "runtimeType": "none"
+        },
+        "authConfig": {
+          "token": "{{access_token}}",
+          "runtimeType": "bearer"
+        }
+      }
+    ]
+  }
+}

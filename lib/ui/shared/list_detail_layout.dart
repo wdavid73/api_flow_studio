@@ -58,12 +58,16 @@ class ListPanelHeader extends StatelessWidget {
     required this.actionLabel,
     required this.actionKey,
     required this.onAction,
+    this.trailing = const [],
   });
 
   final String title;
   final String actionLabel;
   final Key actionKey;
   final VoidCallback onAction;
+
+  /// Extra controls after the action (icon buttons, for example).
+  final List<Widget> trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +77,7 @@ class ListPanelHeader extends StatelessWidget {
         children: [
           Expanded(child: Text(title, style: AppTypography.kicker.copyWith(color: AppColors.outline))),
           HeaderGhostButton(key: actionKey, label: actionLabel, onPressed: onAction),
+          ...trailing,
         ],
       ),
     );

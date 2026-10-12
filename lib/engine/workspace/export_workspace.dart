@@ -25,7 +25,7 @@ Future<WorkspaceFile> exportWorkspace(
     colorIndex: project.colorIndex,
     environments: [for (final env in environments) _withoutSecrets(env)],
     groups: collections.groups,
-    endpoints: [for (final endpoint in collections.endpoints) withoutFilePaths(_withoutCredentials(endpoint))],
+    endpoints: [for (final endpoint in collections.endpoints) withoutFilePaths(withoutCredentials(endpoint))],
     flows: await store.readFlows(),
     hostNotes: await store.readHostNotes(),
     exportedAt: (now ?? DateTime.now)(),
@@ -37,7 +37,8 @@ Environment _withoutSecrets(Environment env) => env.copyWith(variables: {
         entry.key: entry.value.secret ? entry.value.copyWith(value: '') : entry.value,
     });
 
-Endpoint _withoutCredentials(Endpoint endpoint) {
+/// [endpoint] without the literal credentials of its authentication (see [exportWorkspace]).
+Endpoint withoutCredentials(Endpoint endpoint) {
   final auth = endpoint.authConfig;
   final cleaned = switch (auth) {
     AuthConfigBearer(:final token) when _isLiteral(token) => const AuthConfig.bearer(token: ''),

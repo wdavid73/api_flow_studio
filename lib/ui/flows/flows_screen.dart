@@ -11,6 +11,7 @@ import '../theme/app_typography.dart';
 import 'add_step_picker.dart';
 import 'flow_run_view_screen.dart';
 import 'flows_provider.dart';
+import 'flows_transfer_actions.dart';
 import 'step_card.dart';
 import '../projects/projects_provider.dart';
 
@@ -54,6 +55,20 @@ class FlowsScreen extends ConsumerWidget {
             final flow = await ref.read(flowsProvider.notifier).createFlow('New Flow');
             ref.read(selectedFlowIdProvider.notifier).state = flow.id;
           },
+          trailing: [
+            IconButton(
+              key: const Key('import-flows-button'),
+              tooltip: 'Import flows',
+              icon: const Icon(Icons.file_download_outlined, size: 18),
+              onPressed: () => importFlows(context, ref),
+            ),
+            IconButton(
+              key: const Key('export-flows-button'),
+              tooltip: 'Export flows',
+              icon: const Icon(Icons.file_upload_outlined, size: 18),
+              onPressed: () => exportFlows(context, ref),
+            ),
+          ],
         ),
       ),
       list: _FlowList(flows: flows),

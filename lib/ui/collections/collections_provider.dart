@@ -198,6 +198,12 @@ class CollectionsNotifier extends AsyncNotifier<CollectionsState> {
   /// through the same queue as every other change.
   Future<void> restore(CollectionsState previous) => _mutate((_) => _persist(previous));
 
+  /// Adds [groups] and [endpoints] as they are (their ids and links already fit this
+  /// project), after everything that is there.
+  Future<void> append({required List<Group> groups, required List<Endpoint> endpoints}) => _mutate((current) async {
+        await _persist(current.copyWith(groups: [...current.groups, ...groups], endpoints: [...current.endpoints, ...endpoints]));
+      });
+
   /// Imports groups/endpoints from another JSON file (see
   /// [mergeImportedCollections]) and returns how many of each were added,
   /// for the caller to report back to the user.

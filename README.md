@@ -291,6 +291,18 @@ folder between versions.
 
 Design and acceptance criteria: [SPEC-workspaces.md](SPEC-workspaces.md).
 
+## Exporting and importing flows
+
+The Flows screen has an import and an export button. Each asks which flows to use (one checkbox
+per flow and an *All flows* box). The file (`*.flows.json`) carries the chosen flows and the
+requests and folders their steps use, so it works in any project. Literal credentials and file
+paths are left out, as in a workspace file.
+
+On import a request the project already has (same method and URL) is reused; only the missing
+ones are added, in folders matched by name. Flows are always added as new ones (a taken name gets
+a number); nothing that exists is changed. `sample-flows.json` holds five example flows built from
+a real workspace: import it into a project that has the matching `{{..._BASE}}` variables.
+
 ## Running flows from the terminal
 
 The flows of a workspace file (see [Projects and workspaces](#projects-and-workspaces))

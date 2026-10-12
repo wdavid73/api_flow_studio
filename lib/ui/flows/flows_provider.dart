@@ -35,6 +35,11 @@ class FlowsNotifier extends AsyncNotifier<List<Flow>> {
         return flow;
       });
 
+  /// Adds [flows] after the ones there are; their ids are already new.
+  Future<void> addAll(List<Flow> flows) => _mutate((current) async {
+        await _persist([...current, ...flows]);
+      });
+
   Future<void> renameFlow(String flowId, String name) => _mutate((current) async {
         await _persist([
           for (final f in current) if (f.id == flowId) f.copyWith(name: name) else f,
