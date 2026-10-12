@@ -25,6 +25,7 @@ class StepCard extends StatelessWidget {
     required this.onMoveDown,
     required this.onRemove,
     required this.onUpdateStep,
+    this.onChangeRequest,
   });
 
   final int index;
@@ -37,6 +38,10 @@ class StepCard extends StatelessWidget {
   final VoidCallback onRemove;
   final ValueChanged<FlowStep> onUpdateStep;
 
+  /// Points this step at another saved request, keeping its extracts, assertions and
+  /// stop-on-failure. Without it the button is not shown.
+  final VoidCallback? onChangeRequest;
+
   @override
   Widget build(BuildContext context) {
     final extractEntries = step.extract.entries.toList();
@@ -44,6 +49,8 @@ class StepCard extends StatelessWidget {
     return Card(
       key: ValueKey('step-card-$index'),
       margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      elevation: 8,
+      shadowColor: Colors.black,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
@@ -82,6 +89,13 @@ class StepCard extends StatelessWidget {
                       context.l10n.stepTerminal,
                       style: AppTypography.badgeMono.copyWith(color: AppColors.onSurfaceVariant),
                     ),
+                  ),
+                if (onChangeRequest != null)
+                  IconButton(
+                    key: ValueKey('change-request-$index'),
+                    tooltip: context.l10n.stepChangeRequest,
+                    icon: const Icon(Icons.swap_horiz, size: 16),
+                    onPressed: onChangeRequest,
                   ),
                 IconButton(
                   key: ValueKey('move-step-up-$index'),

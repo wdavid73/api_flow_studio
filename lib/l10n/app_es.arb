@@ -273,5 +273,6 @@
   "multipartNameHint": "nombre",
   "multipartAutoHint": "auto",
   "multipartValueHint": "valor",
-  "assertionExpectedHint": "esperado"
+  "assertionExpectedHint": "esperado",
+  "stepChangeRequest": "Cambiar petición"
 }

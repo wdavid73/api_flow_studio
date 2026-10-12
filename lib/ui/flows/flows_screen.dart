@@ -254,6 +254,16 @@ class _FlowBuilder extends ConsumerWidget {
                                 onRemove: () => notifier.removeStep(flow.id, index),
                                 onUpdateStep: (updated) =>
                                     notifier.updateStep(flow.id, index, updated),
+                                onChangeRequest: () async {
+                                  final picked = await showAddStepPicker(context, ref);
+                                  if (picked != null) {
+                                    await notifier.updateStep(
+                                      flow.id,
+                                      index,
+                                      flow.steps[index].copyWith(endpointId: picked.id),
+                                    );
+                                  }
+                                },
                               ),
                             ],
                           ],

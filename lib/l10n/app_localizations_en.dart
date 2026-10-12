@@ -1046,4 +1046,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assertionExpectedHint => 'expected';
+
+  @override
+  String get stepChangeRequest => 'Change request';
 }

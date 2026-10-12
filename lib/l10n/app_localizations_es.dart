@@ -1052,4 +1052,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get assertionExpectedHint => 'esperado';
+
+  @override
+  String get stepChangeRequest => 'Cambiar petición';
 }

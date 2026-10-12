@@ -82,6 +82,28 @@ void main() {
     expect(persisted.steps.map((s) => s.endpointId), ['e-1', 'e-2', 'e-3']);
   });
 
+  testWidgets('Change request points the step at another request and keeps its settings', (tester) async {
+    final store = await pumpScreen(tester);
+    await tester.tap(find.byKey(const Key('new-flow-button')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('add-step-button')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('add-step-picker-item-e-1')));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('stop-on-failure-0')));
+    await settle(tester);
+
+    await tester.tap(find.byKey(const ValueKey('change-request-0')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('add-step-picker-item-e-2')));
+    await settle(tester);
+
+    final step = (await store.readFlows()).single.steps.single;
+    expect(step.endpointId, 'e-2');
+    expect(step.stopOnFailure, isFalse);
+    expect(find.text('Send OTP'), findsOneWidget);
+  });
+
   testWidgets('removing a step drops it from the pipeline and persists', (tester) async {
     final store = await pumpScreen(tester);
     await tester.tap(find.byKey(const Key('new-flow-button')));

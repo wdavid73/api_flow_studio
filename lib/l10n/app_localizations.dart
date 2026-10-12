@@ -1741,6 +1741,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'expected'**
   String get assertionExpectedHint;
+
+  /// No description provided for @stepChangeRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Change request'**
+  String get stepChangeRequest;
 }
 
 class _AppLocalizationsDelegate
