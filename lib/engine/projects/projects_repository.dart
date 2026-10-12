@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:uuid/uuid.dart';
 
 import '../storage/json_store.dart';
+import '../storage/key_value_backend.dart';
 import 'project.dart';
 
 /// The files a version without projects kept in the data folder.
@@ -88,7 +89,25 @@ class ProjectsRepository {
     );
   }
 
-  /// Keeps everything in memory (tests, and the web where there are no files).
+  /// Keeps everything in [backend] (the browser's localStorage on the web): the project list
+  /// under `index:` and each project's files under `p:<id>:`. A new repository over the same
+  /// backend finds the same projects, so the data survives a reload.
+  factory ProjectsRepository.web(KeyValueBackend backend, {DateTime Function()? now, String Function()? newId}) {
+    String prefix(String id) => 'p:$id:';
+    return ProjectsRepository._(
+      JsonStore.backed(backend, prefix: 'index:'),
+      (id) => JsonStore.backed(backend, prefix: prefix(id)),
+      (id) async {
+        for (final key in await backend.keysWithPrefix(prefix(id))) {
+          await backend.remove(key);
+        }
+      },
+      now ?? DateTime.now,
+      newId ?? _randomId,
+    );
+  }
+
+  /// Keeps everything in memory (tests).
   /// [defaultStore], when given, is the store the project created by
   /// [ensureDefaultProject] uses, so existing data can be wrapped as a project.
   factory ProjectsRepository.inMemory({DateTime Function()? now, JsonStore? defaultStore, String Function()? newId}) =>

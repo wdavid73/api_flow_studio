@@ -4,6 +4,7 @@ import 'dart:io';
 import '../models/models.dart';
 import '../projects/project.dart';
 import 'history_limits.dart';
+import 'key_value_backend.dart';
 
 /// Reads and writes the app's collections/environments/flows as plain JSON
 /// files on disk (inject [directory] to point at a different location, e.g.
@@ -16,25 +17,39 @@ import 'history_limits.dart';
 /// `<file>.corrupt-<timestamp>` and fall back to an empty default rather
 /// than throwing.
 ///
-/// On the web there is no filesystem (`Platform.resolvedExecutable` throws),
-/// so the default store keeps everything in memory for the session instead;
-/// [JsonStore.inMemory] gives the same backend explicitly (used by tests).
+/// On the web there is no filesystem (`Platform.resolvedExecutable` throws), so a store can
+/// instead keep each file's text under a key of a [KeyValueBackend] ([JsonStore.backed]): the
+/// browser's localStorage in the app, [MemoryBackend] in tests ([JsonStore.inMemory]). A bare
+/// `JsonStore()` on the web keeps everything in memory for the session.
 class JsonStore {
   JsonStore({Directory? directory})
       : _directoryOverride = directory,
-        _memory = directory == null && _isWeb ? {} : null;
+        _backend = directory == null && _isWeb ? MemoryBackend() : null,
+        _prefix = '';
 
   JsonStore.inMemory()
       : _directoryOverride = null,
-        _memory = {};
+        _backend = MemoryBackend(),
+        _prefix = '';
+
+  /// Keeps each file as the text under `prefix + filename` in [backend] (no files on disk).
+  /// Stores that share a backend must use different prefixes.
+  JsonStore.backed(KeyValueBackend backend, {String prefix = ''})
+      : _directoryOverride = null,
+        _backend = backend,
+        // ignore: prefer_initializing_formals
+        _prefix = prefix;
 
   /// `true` when compiled to JavaScript (a JS `0.0` is identical to `0`).
   static const bool _isWeb = identical(0, 0.0);
 
   final Directory? _directoryOverride;
 
-  /// Filename -> raw JSON when running without a filesystem, otherwise null.
-  final Map<String, String>? _memory;
+  /// Where the texts live when running without a filesystem, otherwise null.
+  final KeyValueBackend? _backend;
+
+  /// Put before every file name in [_backend].
+  final String _prefix;
 
   /// Serializes operations per filename: without this, two overlapping
   /// writes to the same file (e.g. two keystrokes' worth of state changes
@@ -96,9 +111,9 @@ class JsonStore {
       _serialized(filename, () => _writeAtomicUnqueued(filename, jsonValue));
 
   Future<void> _writeAtomicUnqueued(String filename, Object jsonValue) async {
-    final memory = _memory;
-    if (memory != null) {
-      memory[filename] = jsonEncode(jsonValue);
+    final backend = _backend;
+    if (backend != null) {
+      await backend.write('$_prefix$filename', jsonEncode(jsonValue));
       return;
     }
     final target = await _file(filename);
@@ -126,10 +141,17 @@ class JsonStore {
   }
 
   Future<T> _readOrDefault<T>(String filename, T Function(dynamic decoded) parse, T fallback) async {
-    final memory = _memory;
-    if (memory != null) {
-      final stored = memory[filename];
-      return stored == null ? fallback : parse(jsonDecode(stored));
+    final backend = _backend;
+    if (backend != null) {
+      final stored = await backend.read('$_prefix$filename');
+      if (stored == null) return fallback;
+      try {
+        return parse(jsonDecode(stored));
+      } catch (_) {
+        // Damaged text: start over from the default rather than failing every read. The text
+        // is left in place until the next write replaces it.
+        return fallback;
+      }
     }
     final file = await _file(filename);
     if (!await file.exists()) return fallback;
