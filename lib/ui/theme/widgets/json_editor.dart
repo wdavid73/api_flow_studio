@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_colors.dart';
 import '../app_spacing.dart';
+import '../../request_builder/variable_hover.dart';
 import 'json_syntax.dart';
 
 /// A [TextEditingController] that paints its text through
@@ -72,16 +73,18 @@ class _JsonEditorFieldState extends State<JsonEditorField> {
           ),
         ),
         Expanded(
-          child: TextField(
-            key: const Key('json-body-field'),
-            controller: _controller,
-            style: baseStyle,
-            maxLines: null,
-            decoration: const InputDecoration(isDense: true, border: InputBorder.none),
-            onChanged: (value) {
-              setState(() => _lineCount = value.split('\n').length);
-              widget.onChanged(value);
-            },
+          child: VariableHover(
+            child: TextField(
+              key: const Key('json-body-field'),
+              controller: _controller,
+              style: baseStyle,
+              maxLines: null,
+              decoration: const InputDecoration(isDense: true, border: InputBorder.none),
+              onChanged: (value) {
+                setState(() => _lineCount = value.split('\n').length);
+                widget.onChanged(value);
+              },
+            ),
           ),
         ),
       ],

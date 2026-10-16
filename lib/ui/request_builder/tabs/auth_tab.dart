@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../engine/models/models.dart';
 import '../request_draft_provider.dart';
+import '../variable_hover.dart';
 import '../../../l10n/l10n.dart';
 
 enum AuthKind { none, basic, bearer }
@@ -51,25 +52,31 @@ class AuthTab extends ConsumerWidget {
             none: (_) => const SizedBox.shrink(),
             basic: (b) => Column(
               children: [
-                TextFormField(
-                  key: const Key('auth-username-field'),
-                  initialValue: b.username,
-                  decoration: InputDecoration(labelText: context.l10n.authUsername),
-                  onChanged: (v) => notifier.setAuthConfig(b.copyWith(username: v)),
+                VariableHover(
+                  child: TextFormField(
+                    key: const Key('auth-username-field'),
+                    initialValue: b.username,
+                    decoration: InputDecoration(labelText: context.l10n.authUsername),
+                    onChanged: (v) => notifier.setAuthConfig(b.copyWith(username: v)),
+                  ),
                 ),
-                TextFormField(
-                  key: const Key('auth-password-field'),
-                  initialValue: b.password,
-                  decoration: InputDecoration(labelText: context.l10n.authPassword),
-                  onChanged: (v) => notifier.setAuthConfig(b.copyWith(password: v)),
+                VariableHover(
+                  child: TextFormField(
+                    key: const Key('auth-password-field'),
+                    initialValue: b.password,
+                    decoration: InputDecoration(labelText: context.l10n.authPassword),
+                    onChanged: (v) => notifier.setAuthConfig(b.copyWith(password: v)),
+                  ),
                 ),
               ],
             ),
-            bearer: (b) => TextFormField(
-              key: const Key('auth-token-field'),
-              initialValue: b.token,
-              decoration: InputDecoration(labelText: context.l10n.authToken),
-              onChanged: (v) => notifier.setAuthConfig(b.copyWith(token: v)),
+            bearer: (b) => VariableHover(
+              child: TextFormField(
+                key: const Key('auth-token-field'),
+                initialValue: b.token,
+                decoration: InputDecoration(labelText: context.l10n.authToken),
+                onChanged: (v) => notifier.setAuthConfig(b.copyWith(token: v)),
+              ),
             ),
           ),
         ],

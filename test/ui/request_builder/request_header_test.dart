@@ -6,6 +6,7 @@ import 'package:api_flow_studio/ui/request_builder/request_draft_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/request_header.dart';
 import 'package:api_flow_studio/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -72,5 +73,59 @@ void main() {
 
     expect(textOf(tester, 'request-header-kicker'), 'NO FOLDER');
     expect(textOf(tester, 'request-header-title'), 'Orphan');
+  });
+
+  group('renaming', () {
+    const saved = Endpoint(id: 'e-1', groupId: 'g-1', name: 'Sign in', method: 'POST', url: '/auth');
+
+    testWidgets('clicking the title turns it into an input; Enter saves the new name', (tester) async {
+      await pumpHeader(tester);
+      await container.read(collectionsProvider.notifier).createEndpoint(saved);
+      container.read(requestDraftProvider.notifier).loadEndpoint(saved);
+      await tester.pump();
+
+      await tester.tap(find.byKey(const Key('request-header-title')));
+      await tester.pump();
+      await tester.enterText(find.byKey(const Key('request-header-title-field')), 'Log in');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      expect(find.byKey(const Key('request-header-title-field')), findsNothing);
+      expect(textOf(tester, 'request-header-title'), 'Log in');
+      expect(container.read(requestDraftProvider).name, 'Log in');
+      // A saved request is renamed in the collections too (the sidebar shows it).
+      expect(container.read(collectionsProvider).value!.endpoints.single.name, 'Log in');
+    });
+
+    testWidgets('an unsaved draft is renamed in the draft only', (tester) async {
+      await pumpHeader(tester);
+
+      await tester.tap(find.byKey(const Key('request-header-title')));
+      await tester.pump();
+      await tester.enterText(find.byKey(const Key('request-header-title-field')), 'Pasted call');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      expect(container.read(requestDraftProvider).name, 'Pasted call');
+      expect(container.read(collectionsProvider).value!.endpoints, isEmpty);
+    });
+
+    testWidgets('Escape cancels and an empty name is ignored', (tester) async {
+      await pumpHeader(tester);
+
+      await tester.tap(find.byKey(const Key('request-header-title')));
+      await tester.pump();
+      await tester.enterText(find.byKey(const Key('request-header-title-field')), 'Discarded');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      expect(textOf(tester, 'request-header-title'), 'Untitled Request');
+
+      await tester.tap(find.byKey(const Key('request-header-title')));
+      await tester.pump();
+      await tester.enterText(find.byKey(const Key('request-header-title-field')), '   ');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(textOf(tester, 'request-header-title'), 'Untitled Request');
+    });
   });
 }

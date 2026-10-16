@@ -6,6 +6,7 @@ import '../theme/widgets/pill_tab_bar.dart';
 import 'method_selector.dart';
 import 'request_draft_provider.dart';
 import 'request_header.dart';
+import 'save_draft_dialog.dart';
 import 'send_provider.dart';
 import 'tabs/auth_tab.dart';
 import 'tabs/body_tab.dart';
@@ -42,12 +43,10 @@ class RequestBar extends ConsumerWidget {
               const SizedBox(width: 12),
               OutlinedButton(
                 key: const Key('save-request-button'),
-                // Only a draft that already came from a saved Endpoint (via
-                // the sidebar's "+ Add request", which creates-then-loads
-                // it) can be saved -- there's no group to save an
-                // unassociated blank draft into. See sidebar_tree.dart.
+                // A saved request is updated in place; an unsaved draft (a
+                // pasted curl) asks for the folder to go in first.
                 onPressed: draft.id == draftEndpointId
-                    ? null
+                    ? () => saveDraftToFolder(context, ref)
                     : () => ref.read(collectionsProvider.notifier).updateEndpoint(draft),
                 child: Text(context.l10n.commonSave),
               ),

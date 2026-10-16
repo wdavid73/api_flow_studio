@@ -279,5 +279,13 @@
   "browserHintCors": "En una página web un error de red suele ser CORS: la API debe permitir el origen de esta página. La app de escritorio no tiene este límite.",
   "browserHintMixedContent": "Esta página se sirve por https, así que el navegador bloquea las llamadas a una dirección http:// (salvo localhost). Usa https:// o la app de escritorio.",
   "responseCookiesHiddenInBrowser": "Una página web no puede leer Set-Cookie: el navegador lo oculta. Usa la app de escritorio para ver las cookies.",
-  "storageFull": "El navegador no tiene más espacio, así que el último cambio no se guardó. Exporta tu espacio de trabajo y borra parte del historial."
+  "storageFull": "El navegador no tiene más espacio, así que el último cambio no se guardó. Exporta tu espacio de trabajo y borra parte del historial.",
+  "saveRequestTitle": "Guardar request",
+  "saveRequestFolderLabel": "Carpeta",
+  "saveRequestNewFolder": "Nueva carpeta…",
+  "saveRequestNewFolderHint": "Nombre de la nueva carpeta",
+  "requestRenameTooltip": "Clic para renombrar",
+  "variableTooltipHint": "Valor de esta variable",
+  "variableTooltipUnresolved": "Aún sin definir — escribe un valor para crearla",
+  "variableTooltipNoEnvironment": "Elige un ambiente para editar variables"
 }

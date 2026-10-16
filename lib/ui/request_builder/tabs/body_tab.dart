@@ -30,16 +30,12 @@ class BodyTab extends ConsumerWidget {
     );
 
     void setKind(BodyKind newKind) {
-      switch (newKind) {
-        case BodyKind.none:
-          notifier.setBody(const RequestBody.none());
-        case BodyKind.json:
-          notifier.setBody(const RequestBody.json(''));
-        case BodyKind.formUrlEncoded:
-          notifier.setBody(const RequestBody.formUrlEncoded([]));
-        case BodyKind.multipart:
-          notifier.setBody(const RequestBody.multipart([]));
-      }
+      notifier.switchBodyKind(switch (newKind) {
+        BodyKind.none => const RequestBody.none(),
+        BodyKind.json => const RequestBody.json(''),
+        BodyKind.formUrlEncoded => const RequestBody.formUrlEncoded([]),
+        BodyKind.multipart => const RequestBody.multipart([]),
+      });
     }
 
     return Column(

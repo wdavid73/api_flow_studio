@@ -1069,4 +1069,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get storageFull =>
       'The browser has no room left, so the last change was not saved. Export your workspace and clear some history.';
+
+  @override
+  String get saveRequestTitle => 'Save request';
+
+  @override
+  String get saveRequestFolderLabel => 'Folder';
+
+  @override
+  String get saveRequestNewFolder => 'New folder…';
+
+  @override
+  String get saveRequestNewFolderHint => 'Name of the new folder';
+
+  @override
+  String get requestRenameTooltip => 'Click to rename';
+
+  @override
+  String get variableTooltipHint => 'Value of this variable';
+
+  @override
+  String get variableTooltipUnresolved =>
+      'Not defined yet — type a value to create it';
+
+  @override
+  String get variableTooltipNoEnvironment =>
+      'Select an environment to edit variables';
 }

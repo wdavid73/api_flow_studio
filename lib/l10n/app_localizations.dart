@@ -1777,6 +1777,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The browser has no room left, so the last change was not saved. Export your workspace and clear some history.'**
   String get storageFull;
+
+  /// No description provided for @saveRequestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save request'**
+  String get saveRequestTitle;
+
+  /// No description provided for @saveRequestFolderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder'**
+  String get saveRequestFolderLabel;
+
+  /// No description provided for @saveRequestNewFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'New folder…'**
+  String get saveRequestNewFolder;
+
+  /// No description provided for @saveRequestNewFolderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name of the new folder'**
+  String get saveRequestNewFolderHint;
+
+  /// No description provided for @requestRenameTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Click to rename'**
+  String get requestRenameTooltip;
+
+  /// No description provided for @variableTooltipHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Value of this variable'**
+  String get variableTooltipHint;
+
+  /// No description provided for @variableTooltipUnresolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Not defined yet — type a value to create it'**
+  String get variableTooltipUnresolved;
+
+  /// No description provided for @variableTooltipNoEnvironment.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an environment to edit variables'**
+  String get variableTooltipNoEnvironment;
 }
 
 class _AppLocalizationsDelegate

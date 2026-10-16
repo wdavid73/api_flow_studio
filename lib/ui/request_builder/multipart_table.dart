@@ -8,6 +8,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'file_picker_service.dart';
 import '../../l10n/l10n.dart';
+import 'variable_hover.dart';
 import '../platform/platform_capabilities.dart';
 
 /// The Form Data body editor: one row per field (enabled, name, Text/File, then a
@@ -213,11 +214,13 @@ class _FieldRow extends StatelessWidget {
               ] else
                 Expanded(
                   flex: 5,
-                  child: TextFormField(
-                    key: ValueKey('multipart-value-$row'),
-                    initialValue: field.value,
-                    decoration: InputDecoration(hintText: context.l10n.multipartValueHint, isDense: true),
-                    onChanged: (value) => onEdit(field.copyWith(value: value)),
+                  child: VariableHover(
+                    child: TextFormField(
+                      key: ValueKey('multipart-value-$row'),
+                      initialValue: field.value,
+                      decoration: InputDecoration(hintText: context.l10n.multipartValueHint, isDense: true),
+                      onChanged: (value) => onEdit(field.copyWith(value: value)),
+                    ),
                   ),
                 ),
               IconButton(

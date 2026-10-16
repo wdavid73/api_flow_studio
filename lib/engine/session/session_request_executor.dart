@@ -35,7 +35,7 @@ class SessionRequestExecutor implements RequestExecutor {
     final sessionVars = sessionVariables(session);
 
     final response = await _inner.execute(
-      applySession(endpoint, session),
+      applySession(endpoint, session, fallbackToken: accessTokenFromVariables(variables)),
       // Environment variables win over session variables of the same name.
       variables: sessionVars.isEmpty ? variables : {...sessionVars, ...variables},
     );

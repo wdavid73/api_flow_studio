@@ -5,6 +5,7 @@ import '../../engine/models/models.dart';
 import '../session/session_provider.dart';
 import 'request_draft_provider.dart';
 import 'variable_highlighting_controller.dart';
+import 'variable_hover.dart';
 
 /// The request builder's URL field. Highlights `{{variable}}` occurrences
 /// against the active environment (cyan resolved / amber unresolved) --
@@ -52,11 +53,13 @@ class _UrlFieldState extends ConsumerState<UrlField> {
     final activeVariables = ref.watch(effectiveVariablesProvider);
     _controller.updateResolvedVariables(activeVariables);
 
-    return TextField(
-      key: const Key('request-url-field'),
-      controller: _controller,
-      decoration: const InputDecoration(hintText: 'https://api.example.com/users'),
-      onChanged: (value) => ref.read(requestDraftProvider.notifier).setUrl(value),
+    return VariableHover(
+      child: TextField(
+        key: const Key('request-url-field'),
+        controller: _controller,
+        decoration: const InputDecoration(hintText: 'https://api.example.com/users'),
+        onChanged: (value) => ref.read(requestDraftProvider.notifier).setUrl(value),
+      ),
     );
   }
 }

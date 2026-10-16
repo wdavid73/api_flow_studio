@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../engine/models/models.dart';
 import '../theme/app_spacing.dart';
 import '../../l10n/l10n.dart';
+import 'variable_hover.dart';
 
 /// Editable key/value/enabled table shared by the Params and Headers tabs
 /// (and, from Task 2.4 onward, the formUrlEncoded body editor).
@@ -77,20 +78,24 @@ class _KeyValueRow extends StatelessWidget {
             onChanged: (v) => onToggle(v ?? true),
           ),
           Expanded(
-            child: TextFormField(
-              key: const Key('kv-key-field'),
-              initialValue: entry.key,
-              decoration: InputDecoration(hintText: context.l10n.commonKey, isDense: true),
-              onChanged: onKeyChanged,
+            child: VariableHover(
+              child: TextFormField(
+                key: const Key('kv-key-field'),
+                initialValue: entry.key,
+                decoration: InputDecoration(hintText: context.l10n.commonKey, isDense: true),
+                onChanged: onKeyChanged,
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
-            child: TextFormField(
-              key: const Key('kv-value-field'),
-              initialValue: entry.value,
-              decoration: InputDecoration(hintText: context.l10n.commonValue, isDense: true),
-              onChanged: onValueChanged,
+            child: VariableHover(
+              child: TextFormField(
+                key: const Key('kv-value-field'),
+                initialValue: entry.value,
+                decoration: InputDecoration(hintText: context.l10n.commonValue, isDense: true),
+                onChanged: onValueChanged,
+              ),
             ),
           ),
           IconButton(

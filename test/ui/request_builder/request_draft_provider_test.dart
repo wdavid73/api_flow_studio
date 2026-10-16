@@ -50,4 +50,35 @@ void main() {
 
     expect(container.read(requestDraftProvider).authConfig, auth);
   });
+
+  group('switchBodyKind', () {
+    test('brings back what was typed under a body type after visiting another one', () {
+      final notifier = container.read(requestDraftProvider.notifier);
+      notifier.setBody(const RequestBody.json('{"a":1}'));
+
+      notifier.switchBodyKind(const RequestBody.formUrlEncoded([]));
+      expect(container.read(requestDraftProvider).body, const RequestBody.formUrlEncoded([]));
+      notifier.setBody(const RequestBody.formUrlEncoded([KeyValueEntry(key: 'k', value: 'v')]));
+
+      notifier.switchBodyKind(const RequestBody.json(''));
+      expect(container.read(requestDraftProvider).body, const RequestBody.json('{"a":1}'));
+
+      notifier.switchBodyKind(const RequestBody.formUrlEncoded([]));
+      expect(
+        container.read(requestDraftProvider).body,
+        const RequestBody.formUrlEncoded([KeyValueEntry(key: 'k', value: 'v')]),
+      );
+    });
+
+    test('forgets the stash when another request is loaded', () {
+      final notifier = container.read(requestDraftProvider.notifier);
+      notifier.setBody(const RequestBody.json('{"a":1}'));
+      notifier.switchBodyKind(const RequestBody.none());
+
+      notifier.loadEndpoint(const Endpoint(id: 'e-9', groupId: 'g', name: 'Other', method: 'GET', url: '/'));
+      notifier.switchBodyKind(const RequestBody.json(''));
+
+      expect(container.read(requestDraftProvider).body, const RequestBody.json(''));
+    });
+  });
 }

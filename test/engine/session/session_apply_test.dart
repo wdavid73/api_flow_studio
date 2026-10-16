@@ -71,4 +71,33 @@ void main() {
 
     expect(result.headers.single.value, 'Bearer tok');
   });
+
+  group('fallback token (an access_token variable of the environment)', () {
+    test('is sent as the Bearer when the session has no token', () {
+      final result = applySession(endpoint(), const Session(), fallbackToken: ' env-tok ');
+
+      expect(result.headers, [const KeyValueEntry(key: 'Authorization', value: 'Bearer env-tok')]);
+    });
+
+    test('loses to the session token', () {
+      final result = applySession(endpoint(), session, fallbackToken: 'env-tok');
+
+      expect(result.headers.single.value, 'Bearer tok');
+    });
+
+    test('is not sent when attachAuth is off, the token is blank, or the request sets its own auth', () {
+      final plain = endpoint();
+      final bearer = endpoint(auth: const AuthConfig.bearer(token: 'mine'));
+
+      expect(identical(applySession(plain, const Session(attachAuth: false), fallbackToken: 'x'), plain), isTrue);
+      expect(identical(applySession(plain, const Session(), fallbackToken: '  '), plain), isTrue);
+      expect(identical(applySession(bearer, const Session(), fallbackToken: 'x'), bearer), isTrue);
+    });
+
+    test('accessTokenFromVariables reads access_token, then accessToken, skipping blanks', () {
+      expect(accessTokenFromVariables({'access_token': ' a '}), 'a');
+      expect(accessTokenFromVariables({'access_token': ' ', 'accessToken': 'b'}), 'b');
+      expect(accessTokenFromVariables({'other': 'c'}), isNull);
+    });
+  });
 }

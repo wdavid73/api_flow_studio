@@ -1075,4 +1075,30 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get storageFull =>
       'El navegador no tiene más espacio, así que el último cambio no se guardó. Exporta tu espacio de trabajo y borra parte del historial.';
+
+  @override
+  String get saveRequestTitle => 'Guardar request';
+
+  @override
+  String get saveRequestFolderLabel => 'Carpeta';
+
+  @override
+  String get saveRequestNewFolder => 'Nueva carpeta…';
+
+  @override
+  String get saveRequestNewFolderHint => 'Nombre de la nueva carpeta';
+
+  @override
+  String get requestRenameTooltip => 'Clic para renombrar';
+
+  @override
+  String get variableTooltipHint => 'Valor de esta variable';
+
+  @override
+  String get variableTooltipUnresolved =>
+      'Aún sin definir — escribe un valor para crearla';
+
+  @override
+  String get variableTooltipNoEnvironment =>
+      'Elige un ambiente para editar variables';
 }

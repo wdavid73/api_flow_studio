@@ -45,6 +45,12 @@ void main() {
   }
 
   group('before sending', () {
+    test('an access_token variable of the environment is sent as the Bearer when the session has none', () async {
+      await executor.execute(_endpoint, variables: const {'access_token': 'env-tok'});
+
+      expect(sentToInner().endpoint.headers.single.value, 'Bearer env-tok');
+    });
+
     test('with an empty session the inner executor gets the endpoint and variables untouched', () async {
       await executor.execute(_endpoint, variables: const {'base': 'x'});
 
