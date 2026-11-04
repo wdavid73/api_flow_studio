@@ -2,8 +2,11 @@ import '../models/key_value_entry.dart';
 import '../models/request_body.dart';
 import 'dynamic_values.dart';
 
-final RegExp _variablePattern = RegExp(r'\{\{(\w+)\}\}');
-final RegExp _dynamicPattern = RegExp(r'\{\{\$(\w+)\}\}');
+/// A `{{name}}` token; group 1 is the name.
+final RegExp variableTokenPattern = RegExp(r'\{\{(\w+)\}\}');
+
+/// A generated-value token such as `{{$uuid}}`; group 1 is the name without `$`.
+final RegExp generatedTokenPattern = RegExp(r'\{\{\$(\w+)\}\}');
 
 /// Replaces every `{{variable}}` token in [template] with its value from
 /// [variables]. A token whose name isn't in [variables] is left literal
@@ -22,12 +25,12 @@ String interpolate(
   DynamicValues? dynamicValues,
 }) {
   final resolved = template.replaceAllMapped(
-    _variablePattern,
+    variableTokenPattern,
     (match) => variables[match.group(1)] ?? match.group(0)!,
   );
   if (dynamicValues == null) return resolved;
   return resolved.replaceAllMapped(
-    _dynamicPattern,
+    generatedTokenPattern,
     (match) => dynamicValues.generate(match.group(1)!) ?? match.group(0)!,
   );
 }
