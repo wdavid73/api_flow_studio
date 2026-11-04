@@ -1229,4 +1229,24 @@ class AppLocalizationsEs extends AppLocalizations {
   String wireShadowed(String step, String variable) {
     return 'El paso $step ya define $variable y lo sobrescribe';
   }
+
+  @override
+  String get fieldUseAsVariable => 'Usar como variable…';
+
+  @override
+  String get fieldCopyPath => 'Copiar ruta';
+
+  @override
+  String get fieldPathCopied => 'Ruta copiada';
+
+  @override
+  String get variableNameTitle => 'Nombre de la variable';
+
+  @override
+  String get variableNameInvalid => 'Usa solo letras, números y _';
+
+  @override
+  String suggestionConnect(String variable) {
+    return '¿Conectar $variable?';
+  }
 }

@@ -7,6 +7,7 @@ import '../shared/list_detail_layout.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import 'canvas/field_menu.dart';
 import 'canvas/flow_canvas.dart';
 import 'canvas/flow_toolbar.dart';
 import 'canvas/step_panel.dart';
@@ -212,6 +213,8 @@ class _FlowDetail extends ConsumerWidget {
                     index: selectedStep,
                     endpoints: endpoints,
                     initialTab: ref.watch(stepPanelTabProvider),
+                    onFieldTap: (path, position) =>
+                        showFieldMenu(context, ref, flow: flow, stepIndex: selectedStep, path: path, position: position),
                     onClose: () => ref.read(selectedStepIndexProvider.notifier).state = null,
                   ),
                 ),

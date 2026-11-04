@@ -27,7 +27,7 @@ class WirePainter extends CustomPainter {
     final from = ghostFrom;
     final to = ghostTo;
     if (from != null && to != null) {
-      final ghost = Wire(fromStep: 0, toStep: 0, variable: '', from: from, to: to);
+      final ghost = Wire(fromStep: 0, toStep: 0, variable: '', path: '', from: from, to: to);
       canvas.drawPath(
         _dashed(_curve(from, to, ghost.bend)),
         Paint()

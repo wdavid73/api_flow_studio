@@ -81,4 +81,34 @@ void main() {
 
     expect(computeWires(nodes(flow)), isEmpty);
   });
+
+  test('computeWires adds one dashed suggestion per missing input, from the nearest match', () {
+    const lookup = Endpoint(id: 'e-look', groupId: 'g', name: 'Look', method: 'GET', url: '/look');
+    const home = Endpoint(id: 'e-home', groupId: 'g', name: 'Home', method: 'GET', url: '/home?r={{region}}&p={{plan}}');
+    const flow = Flow(id: 'f', name: 'F', steps: [
+      FlowStep(endpointId: 'e-look'),
+      FlowStep(endpointId: 'e-look'),
+      FlowStep(endpointId: 'e-home'),
+    ]);
+    NodeModel node(int index, Endpoint endpoint, StepResponse? response) => buildNodeModel(
+          flow: flow,
+          index: index,
+          endpoint: endpoint,
+          response: response,
+          environmentVariables: const {},
+          sessionAttachAuth: false,
+        );
+    final models = [
+      node(0, lookup, json({'region': 'far'})),
+      node(1, lookup, json({'data': {'region': 'near'}})),
+      node(2, home, null),
+    ];
+
+    final suggestions = computeWires(models).where((w) => w.suggestion).toList();
+
+    expect(suggestions, hasLength(1));
+    expect((suggestions.single.fromStep, suggestions.single.toStep, suggestions.single.variable), (1, 2, 'region'));
+    expect(suggestions.single.path, 'response.body.data.region');
+    expect(suggestions.single.from, fieldPinOffset(models[1], 0));
+  });
 }

@@ -1223,4 +1223,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String wireShadowed(String step, String variable) {
     return 'Step $step already sets $variable and overrides it';
   }
+
+  @override
+  String get fieldUseAsVariable => 'Use as variable…';
+
+  @override
+  String get fieldCopyPath => 'Copy path';
+
+  @override
+  String get fieldPathCopied => 'Path copied';
+
+  @override
+  String get variableNameTitle => 'Variable name';
+
+  @override
+  String get variableNameInvalid => 'Use only letters, numbers and _';
+
+  @override
+  String suggestionConnect(String variable) {
+    return 'Connect $variable?';
+  }
 }

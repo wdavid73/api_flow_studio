@@ -24,6 +24,7 @@ import '../flows_provider.dart';
 import '../flows_screen.dart' show selectedStepIndexProvider, stepPanelTabProvider;
 import '../step_response.dart';
 import 'canvas_metrics.dart';
+import 'field_menu.dart';
 import 'node_model.dart';
 import 'run_actions.dart';
 import 'step_node.dart';
@@ -224,7 +225,7 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
                   ),
                 ),
               ),
-              for (final wire in wires)
+              for (final wire in wires.where((w) => !w.suggestion))
                 Positioned(
                   key: ValueKey('wire-${wire.fromStep}-${wire.toStep}-${wire.variable}'),
                   left: wire.midpoint.dx - 6,
@@ -235,6 +236,27 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
                     behavior: HitTestBehavior.opaque,
                     onTapUp: (details) => _showDisconnect(wire.toStep, wire.variable, details.globalPosition),
                     child: const MouseRegion(cursor: SystemMouseCursors.click),
+                  ),
+                ),
+              for (final wire in wires.where((w) => w.suggestion))
+                Positioned(
+                  left: wire.midpoint.dx,
+                  top: wire.midpoint.dy,
+                  child: FractionalTranslation(
+                    translation: const Offset(-0.5, -0.5),
+                    child: ActionChip(
+                      key: ValueKey('suggestion-${wire.toStep}-${wire.variable}'),
+                      visualDensity: VisualDensity.compact,
+                      backgroundColor: AppColors.surfaceContainerHighest,
+                      side: const BorderSide(color: AppColors.warning),
+                      label: Text(
+                        context.l10n.suggestionConnect(wire.variable),
+                        style: AppTypography.bodySm.copyWith(color: AppColors.warning),
+                      ),
+                      onPressed: running
+                          ? null
+                          : () => _connect(FieldDrag(wire.fromStep, wire.path), wire.toStep, wire.variable),
+                    ),
                   ),
                 ),
               for (var i = 0; i + 1 < count; i++)
@@ -263,6 +285,12 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
                     onFieldDragEnd: _dragEnd,
                     onConnect: (variable, fieldDrag) => _connect(fieldDrag, model.index, variable),
                     onOriginTap: (variable, position) => _showDisconnect(model.index, variable, position),
+                    onFieldTap: (path, position) =>
+                        showFieldMenu(context, ref, flow: flow, stepIndex: model.index, path: path, position: position),
+                    onShowMoreFields: () {
+                      ref.read(stepPanelTabProvider.notifier).state = StepPanelTab.response;
+                      _selection.state = model.index;
+                    },
                   ),
                 ),
               Positioned(

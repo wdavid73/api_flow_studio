@@ -778,5 +778,18 @@
         "type": "String"
       }
     }
+  },
+  "fieldUseAsVariable": "Use as variable…",
+  "fieldCopyPath": "Copy path",
+  "fieldPathCopied": "Path copied",
+  "variableNameTitle": "Variable name",
+  "variableNameInvalid": "Use only letters, numbers and _",
+  "suggestionConnect": "Connect {variable}?",
+  "@suggestionConnect": {
+    "placeholders": {
+      "variable": {
+        "type": "String"
+      }
+    }
   }
 }

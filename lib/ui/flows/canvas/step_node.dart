@@ -53,6 +53,8 @@ class StepNode extends StatelessWidget {
     this.onFieldDragEnd,
     this.onConnect,
     this.onOriginTap,
+    this.onFieldTap,
+    this.onShowMoreFields,
   });
 
   final NodeModel model;
@@ -87,6 +89,12 @@ class StepNode extends StatelessWidget {
 
   /// The origin label of the input named `variable` was tapped, at a global position.
   final void Function(String variable, Offset globalPosition)? onOriginTap;
+
+  /// A response field was tapped: its full path, and where.
+  final void Function(String path, Offset globalPosition)? onFieldTap;
+
+  /// "+N more" was tapped: the rest of the fields are in the panel.
+  final VoidCallback? onShowMoreFields;
 
   int get _index => model.index;
 
@@ -348,10 +356,13 @@ class StepNode extends StatelessWidget {
       if (model.hiddenFieldCount > 0)
         SizedBox(
           height: rowHeight,
-          child: _padded(Text(
-            context.l10n.canvasMoreFields(model.hiddenFieldCount),
-            style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant),
-          )),
+          child: InkWell(
+            onTap: onShowMoreFields,
+            child: _padded(Text(
+              context.l10n.canvasMoreFields(model.hiddenFieldCount),
+              style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant),
+            )),
+          ),
         ),
     ];
   }
@@ -366,28 +377,32 @@ class StepNode extends StatelessWidget {
     return SizedBox(
       key: ValueKey('step-field-$_index-$k'),
       height: rowHeight,
-      child: _padded(Row(
-        children: [
-          Flexible(
-            child: Text(
-              displayPath(field.path),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.codeSm.copyWith(color: AppColors.onSurface),
+      child: InkWell(
+        onTap: onFieldTap == null ? null : () {},
+        onTapUp: onFieldTap == null ? null : (details) => onFieldTap!(field.path, details.globalPosition),
+        child: _padded(Row(
+          children: [
+            Flexible(
+              child: Text(
+                displayPath(field.path),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.codeSm.copyWith(color: AppColors.onSurface),
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              tag,
-              maxLines: 1,
-              textAlign: TextAlign.end,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.codeSm.copyWith(color: color),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                tag,
+                maxLines: 1,
+                textAlign: TextAlign.end,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.codeSm.copyWith(color: color),
+              ),
             ),
-          ),
-        ],
-      )),
+          ],
+        )),
+      ),
     );
   }
 

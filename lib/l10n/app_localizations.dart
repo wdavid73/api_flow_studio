@@ -2023,6 +2023,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Step {step} already sets {variable} and overrides it'**
   String wireShadowed(String step, String variable);
+
+  /// No description provided for @fieldUseAsVariable.
+  ///
+  /// In en, this message translates to:
+  /// **'Use as variable…'**
+  String get fieldUseAsVariable;
+
+  /// No description provided for @fieldCopyPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy path'**
+  String get fieldCopyPath;
+
+  /// No description provided for @fieldPathCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Path copied'**
+  String get fieldPathCopied;
+
+  /// No description provided for @variableNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable name'**
+  String get variableNameTitle;
+
+  /// No description provided for @variableNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use only letters, numbers and _'**
+  String get variableNameInvalid;
+
+  /// No description provided for @suggestionConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect {variable}?'**
+  String suggestionConnect(String variable);
 }
 
 class _AppLocalizationsDelegate

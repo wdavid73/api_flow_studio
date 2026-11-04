@@ -320,5 +320,11 @@
   "canvasRerunFromHere": "Volver a ejecutar desde aquí",
   "wireDisconnect": "Desconectar",
   "wireUsedBy": "{count, plural, =1{la usa 1 paso} other{la usan {count} pasos}}",
-  "wireShadowed": "El paso {step} ya define {variable} y lo sobrescribe"
+  "wireShadowed": "El paso {step} ya define {variable} y lo sobrescribe",
+  "fieldUseAsVariable": "Usar como variable…",
+  "fieldCopyPath": "Copiar ruta",
+  "fieldPathCopied": "Ruta copiada",
+  "variableNameTitle": "Nombre de la variable",
+  "variableNameInvalid": "Usa solo letras, números y _",
+  "suggestionConnect": "¿Conectar {variable}?"
 }
