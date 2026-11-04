@@ -326,5 +326,6 @@
   "fieldPathCopied": "Ruta copiada",
   "variableNameTitle": "Nombre de la variable",
   "variableNameInvalid": "Usa solo letras, números y _",
-  "suggestionConnect": "¿Conectar {variable}?"
+  "suggestionConnect": "¿Conectar {variable}?",
+  "flowListToggle": "Mostrar u ocultar flujos"
 }

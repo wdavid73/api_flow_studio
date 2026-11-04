@@ -23,6 +23,10 @@ final selectedFlowIdProvider = StateProvider<String?>((ref) {
   return null;
 });
 
+/// Whether the list of flows is shown next to the canvas; folding it gives the
+/// canvas the whole width. Always shown while no flow is open.
+final flowListVisibleProvider = StateProvider<bool>((ref) => true);
+
 /// Which step of the selected flow is open in the side panel, if any. Starts
 /// over when another flow is selected.
 final selectedStepIndexProvider = StateProvider<int?>((ref) {
@@ -61,6 +65,7 @@ class FlowsScreen extends ConsumerWidget {
     };
 
     return ListDetailLayout(
+      listVisible: ref.watch(flowListVisibleProvider) || ref.watch(selectedFlowIdProvider) == null,
       header: Consumer(
         builder: (context, ref, _) => ListPanelHeader(
           title: context.l10n.flowsKicker,

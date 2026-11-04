@@ -11,38 +11,42 @@ const double listPanelWidth = 300;
 
 /// A 300px list panel (header on top, then the list) with an `outlineVariant`
 /// right border, next to a detail area that fills the remaining width. Used by
-/// Environments and Flows.
+/// Environments and Flows. With [listVisible] false the list is left out and
+/// the detail takes the whole width.
 class ListDetailLayout extends StatelessWidget {
   const ListDetailLayout({
     super.key,
     required this.header,
     required this.list,
     required this.detail,
+    this.listVisible = true,
   });
 
   final Widget header;
   final Widget list;
   final Widget detail;
+  final bool listVisible;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          key: const Key('list-detail-list-panel'),
-          width: listPanelWidth,
-          decoration: const BoxDecoration(
-            border: Border(right: BorderSide(color: AppColors.outlineVariant)),
+        if (listVisible)
+          Container(
+            key: const Key('list-detail-list-panel'),
+            width: listPanelWidth,
+            decoration: const BoxDecoration(
+              border: Border(right: BorderSide(color: AppColors.outlineVariant)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                header,
+                Expanded(child: list),
+              ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              header,
-              Expanded(child: list),
-            ],
-          ),
-        ),
         Expanded(key: const Key('list-detail-detail-panel'), child: detail),
       ],
     );

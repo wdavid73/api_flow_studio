@@ -2059,6 +2059,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connect {variable}?'**
   String suggestionConnect(String variable);
+
+  /// No description provided for @flowListToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show or hide flows'**
+  String get flowListToggle;
 }
 
 class _AppLocalizationsDelegate

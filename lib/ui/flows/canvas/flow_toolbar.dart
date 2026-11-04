@@ -9,6 +9,7 @@ import '../../theme/app_spacing.dart';
 import '../../theme/app_typography.dart';
 import '../flow_run_provider.dart';
 import '../flows_provider.dart';
+import '../flows_screen.dart' show flowListVisibleProvider;
 import 'run_actions.dart';
 
 /// Above the canvas: the flow's name (edited in place, saved as typed), the
@@ -30,6 +31,12 @@ class FlowToolbar extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
       child: Row(
         children: [
+          IconButton(
+            key: const Key('toggle-flow-list'),
+            tooltip: context.l10n.flowListToggle,
+            icon: Icon(ref.watch(flowListVisibleProvider) ? Icons.menu_open : Icons.menu, size: 18),
+            onPressed: () => ref.read(flowListVisibleProvider.notifier).update((visible) => !visible),
+          ),
           Expanded(
             child: TextFormField(
               key: const Key('flow-name-field'),

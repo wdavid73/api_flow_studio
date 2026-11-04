@@ -328,4 +328,18 @@ void main() {
 
     expect(find.byKey(const Key('save-flow-button')), findsNothing);
   });
+
+  testWidgets('the flow list folds away and comes back', (tester) async {
+    await pumpScreen(tester, flows: const [signIn], select: 'f-1');
+    expect(find.byKey(const Key('list-detail-list-panel')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('toggle-flow-list')));
+    await settle(tester);
+    expect(find.byKey(const Key('list-detail-list-panel')), findsNothing);
+    expect(find.byKey(const Key('flow-canvas')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('toggle-flow-list')));
+    await settle(tester);
+    expect(find.byKey(const Key('list-detail-list-panel')), findsOneWidget);
+  });
 }

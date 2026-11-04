@@ -1243,4 +1243,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String suggestionConnect(String variable) {
     return 'Connect $variable?';
   }
+
+  @override
+  String get flowListToggle => 'Show or hide flows';
 }

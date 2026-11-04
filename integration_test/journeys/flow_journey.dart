@@ -148,6 +148,39 @@ void defineFlowJourney(JourneyHarness Function() harness) {
       expect(find.text('1/1 assertions'), findsOneWidget);
     });
 
+    journeyTest('connecting a field by dragging sends the extracted value', (tester) async {
+      final app = await launchWith(
+        tester,
+        endpoints: const [
+          Endpoint(id: 'e-owner', groupId: 'g-demo', name: 'Owner items', method: 'GET', url: '{{base_url}}/items?owner={{owner_id}}'),
+        ],
+        flows: const [
+          Flow(
+            id: 'f-drag',
+            name: 'Drag',
+            steps: [FlowStep(endpointId: 'e-login'), FlowStep(endpointId: 'e-me'), FlowStep(endpointId: 'e-owner')],
+          ),
+        ],
+      );
+      await app.openFlow('f-drag');
+
+      // Send login and profile once, so the profile node lists its response fields (user, id).
+      await app.tapKey(const ValueKey('run-until-1'));
+      await app.tapKey(const Key('step-panel-close'));
+      final gesture = await tester.startGesture(tester.getCenter(find.byKey(const ValueKey('step-field-pin-1-1'))));
+      await gesture.moveBy(const Offset(20, 0));
+      await tester.pump();
+      await gesture.moveTo(tester.getCenter(find.byKey(const ValueKey('step-input-2-owner_id'))));
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      await app.runOpenFlow();
+
+      expect(find.text('3 passed'), findsOneWidget);
+      expect(app.backend.calls.last.url, 'https://dev.api.test/items?owner=42');
+    });
+
     journeyTest('a value extracted from one step is used in the next one', (tester) async {
       final app = await launchWith(
         tester,
