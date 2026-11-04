@@ -93,4 +93,13 @@ void main() {
     expect(() => findTokens(deep), returnsNormally);
     expect(findTokens(deep).accessToken, isNull);
   });
+
+  test('isSessionTokenKey knows the four keys the session captures', () {
+    for (final key in ['accessToken', 'access_token', 'refreshToken', 'refresh_token']) {
+      expect(isSessionTokenKey(key), isTrue, reason: key);
+    }
+    for (final key in ['token', 'Access_Token', 'id_token', '']) {
+      expect(isSessionTokenKey(key), isFalse, reason: key);
+    }
+  });
 }
