@@ -1095,4 +1095,52 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get variableTooltipNoEnvironment =>
       'Select an environment to edit variables';
+
+  @override
+  String get panelStep => 'Step';
+
+  @override
+  String get panelResponse => 'Response';
+
+  @override
+  String get panelRun => 'Run';
+
+  @override
+  String get panelClose => 'Close';
+
+  @override
+  String get panelInputs => 'Inputs';
+
+  @override
+  String get panelExtractNotInResponse => 'not in the last response';
+
+  @override
+  String get canvasOriginEnv => 'env';
+
+  @override
+  String get canvasOriginGenerated => 'generated';
+
+  @override
+  String get canvasOriginSession => '🔑 session';
+
+  @override
+  String canvasOriginStep(String step) {
+    return '← $step';
+  }
+
+  @override
+  String get canvasOriginMissing => '⚠ no source';
+
+  @override
+  String get canvasNotSent => 'Not sent yet';
+
+  @override
+  String get canvasTruncated =>
+      'Response was cut: run the step to see all of it';
+
+  @override
+  String get canvasNotJson => 'The response is not JSON';
+
+  @override
+  String get canvasDeleteStep => 'Delete step';
 }

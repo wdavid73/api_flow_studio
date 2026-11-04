@@ -287,5 +287,20 @@
   "requestRenameTooltip": "Clic para renombrar",
   "variableTooltipHint": "Valor de esta variable",
   "variableTooltipUnresolved": "Aún sin definir — escribe un valor para crearla",
-  "variableTooltipNoEnvironment": "Elige un ambiente para editar variables"
+  "variableTooltipNoEnvironment": "Elige un ambiente para editar variables",
+  "panelStep": "Paso",
+  "panelResponse": "Respuesta",
+  "panelRun": "Ejecución",
+  "panelClose": "Cerrar",
+  "panelInputs": "Entradas",
+  "panelExtractNotInResponse": "no aparece en la última respuesta",
+  "canvasOriginEnv": "env",
+  "canvasOriginGenerated": "generado",
+  "canvasOriginSession": "🔑 sesión",
+  "canvasOriginStep": "← {step}",
+  "canvasOriginMissing": "⚠ sin origen",
+  "canvasNotSent": "Aún no se ha enviado",
+  "canvasTruncated": "Respuesta recortada: ejecuta el paso para verla completa",
+  "canvasNotJson": "La respuesta no es JSON",
+  "canvasDeleteStep": "Eliminar paso"
 }

@@ -1825,6 +1825,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select an environment to edit variables'**
   String get variableTooltipNoEnvironment;
+
+  /// No description provided for @panelStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step'**
+  String get panelStep;
+
+  /// No description provided for @panelResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Response'**
+  String get panelResponse;
+
+  /// No description provided for @panelRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get panelRun;
+
+  /// No description provided for @panelClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get panelClose;
+
+  /// No description provided for @panelInputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Inputs'**
+  String get panelInputs;
+
+  /// No description provided for @panelExtractNotInResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'not in the last response'**
+  String get panelExtractNotInResponse;
+
+  /// No description provided for @canvasOriginEnv.
+  ///
+  /// In en, this message translates to:
+  /// **'env'**
+  String get canvasOriginEnv;
+
+  /// No description provided for @canvasOriginGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'generated'**
+  String get canvasOriginGenerated;
+
+  /// No description provided for @canvasOriginSession.
+  ///
+  /// In en, this message translates to:
+  /// **'🔑 session'**
+  String get canvasOriginSession;
+
+  /// No description provided for @canvasOriginStep.
+  ///
+  /// In en, this message translates to:
+  /// **'← {step}'**
+  String canvasOriginStep(String step);
+
+  /// No description provided for @canvasOriginMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠ no source'**
+  String get canvasOriginMissing;
+
+  /// No description provided for @canvasNotSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent yet'**
+  String get canvasNotSent;
+
+  /// No description provided for @canvasTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Response was cut: run the step to see all of it'**
+  String get canvasTruncated;
+
+  /// No description provided for @canvasNotJson.
+  ///
+  /// In en, this message translates to:
+  /// **'The response is not JSON'**
+  String get canvasNotJson;
+
+  /// No description provided for @canvasDeleteStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete step'**
+  String get canvasDeleteStep;
 }
 
 class _AppLocalizationsDelegate

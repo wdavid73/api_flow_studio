@@ -56,7 +56,7 @@ ResponseFields responseFields(Object? body, {int limit = 200}) {
       add(path, '[${value.length}]', listLength: value.length);
       if (value.isNotEmpty) visit('$path.0', value.first);
     } else {
-      add(path, _preview(value));
+      add(path, previewValue(value));
     }
   }
 
@@ -71,7 +71,8 @@ String displayPath(String path) {
   return path.startsWith(prefix) ? path.substring(prefix.length) : path;
 }
 
-String _preview(Object? value) {
+/// A short, one-line rendering of [value]: strings quoted, long text cut with `…`.
+String previewValue(Object? value) {
   if (value == null) return 'null';
   if (value is String) {
     final cut = value.length > _previewChars ? '${value.substring(0, _previewChars)}…' : value;

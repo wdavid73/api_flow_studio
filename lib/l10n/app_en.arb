@@ -686,5 +686,27 @@
   "requestRenameTooltip": "Click to rename",
   "variableTooltipHint": "Value of this variable",
   "variableTooltipUnresolved": "Not defined yet — type a value to create it",
-  "variableTooltipNoEnvironment": "Select an environment to edit variables"
+  "variableTooltipNoEnvironment": "Select an environment to edit variables",
+  "panelStep": "Step",
+  "panelResponse": "Response",
+  "panelRun": "Run",
+  "panelClose": "Close",
+  "panelInputs": "Inputs",
+  "panelExtractNotInResponse": "not in the last response",
+  "canvasOriginEnv": "env",
+  "canvasOriginGenerated": "generated",
+  "canvasOriginSession": "🔑 session",
+  "canvasOriginStep": "← {step}",
+  "@canvasOriginStep": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "canvasOriginMissing": "⚠ no source",
+  "canvasNotSent": "Not sent yet",
+  "canvasTruncated": "Response was cut: run the step to see all of it",
+  "canvasNotJson": "The response is not JSON",
+  "canvasDeleteStep": "Delete step"
 }

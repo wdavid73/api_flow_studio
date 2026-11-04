@@ -7,6 +7,7 @@ import '../theme/app_typography.dart';
 import '../theme/widgets/json_view.dart';
 import '../theme/widgets/method_badge.dart';
 import 'assertions_editor.dart';
+import 'extracts_editor.dart';
 import '../../l10n/l10n.dart';
 
 /// One step in the flow builder's vertical pipeline. [endpoint] is null
@@ -44,8 +45,6 @@ class StepCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final extractEntries = step.extract.entries.toList();
-
     return Card(
       key: ValueKey('step-card-$index'),
       margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
@@ -148,70 +147,10 @@ class StepCard extends StatelessWidget {
                 ),
               ),
             const Divider(height: AppSpacing.lg * 2),
-            Text(context.l10n.stepExtractTitle, style: Theme.of(context).textTheme.labelMedium),
-            for (var i = 0; i < extractEntries.length; i++)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        key: ValueKey('extract-name-$index-$i'),
-                        initialValue: extractEntries[i].key,
-                        decoration: const InputDecoration(hintText: 'variable_name', isDense: true),
-                        onChanged: (name) {
-                          final next = <String, String>{};
-                          for (final e in extractEntries) {
-                            next[e.key == extractEntries[i].key ? name : e.key] = e.value;
-                          }
-                          onUpdateStep(step.copyWith(extract: next));
-                        },
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-                      child: Text('←'),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: TextFormField(
-                        key: ValueKey('extract-path-$index-$i'),
-                        initialValue: extractEntries[i].value,
-                        decoration:
-                            const InputDecoration(hintText: 'response.body.x.y', isDense: true),
-                        onChanged: (path) {
-                          final next = <String, String>{};
-                          for (final e in extractEntries) {
-                            next[e.key] = e.key == extractEntries[i].key ? path : e.value;
-                          }
-                          onUpdateStep(step.copyWith(extract: next));
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      key: ValueKey('remove-extract-$index-$i'),
-                      icon: const Icon(Icons.close, size: 14),
-                      onPressed: () {
-                        final next = {...step.extract}..remove(extractEntries[i].key);
-                        onUpdateStep(step.copyWith(extract: next));
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            TextButton.icon(
-              key: ValueKey('add-extract-$index'),
-              onPressed: () {
-                var name = 'variable';
-                var suffix = 1;
-                while (step.extract.containsKey(name)) {
-                  name = 'variable_$suffix';
-                  suffix++;
-                }
-                onUpdateStep(step.copyWith(extract: {...step.extract, name: ''}));
-              },
-              icon: const Icon(Icons.add, size: 14),
-              label: Text(context.l10n.stepAddExtracted),
+            ExtractsEditor(
+              stepIndex: index,
+              extract: step.extract,
+              onChanged: (extract) => onUpdateStep(step.copyWith(extract: extract)),
             ),
             const Divider(height: AppSpacing.lg * 2),
             AssertionsEditor(
