@@ -21,6 +21,7 @@ import '../response_tree.dart';
 import '../run_step_inspector.dart';
 import '../step_response.dart';
 import 'origin_label.dart';
+import 'run_actions.dart';
 
 /// Width of the side panel next to the canvas.
 const double stepPanelWidth = 400;
@@ -145,6 +146,9 @@ class _StepPanelState extends ConsumerState<StepPanel> {
 
   void _select(StepPanelTab tab) => setState(() => _tab = tab);
 
+  /// A run of this flow is in progress: the step cannot be swapped or removed.
+  bool get _locked => ref.watch(flowRunProvider(widget.flow.id).select((s) => s.running));
+
   Widget _stepTab(BuildContext context, FlowStep step, Endpoint? endpoint, StepResponse? response) {
     final flow = widget.flow;
     final index = widget.index;
@@ -159,7 +163,7 @@ class _StepPanelState extends ConsumerState<StepPanel> {
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
             key: const Key('step-panel-change-request'),
-            onPressed: () => _changeRequest(step),
+            onPressed: _locked ? null : () => _changeRequest(step),
             icon: const Icon(Icons.swap_horiz, size: 16),
             label: Text(context.l10n.stepChangeRequest),
           ),
@@ -208,7 +212,7 @@ class _StepPanelState extends ConsumerState<StepPanel> {
           child: TextButton.icon(
             key: const Key('step-panel-delete'),
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            onPressed: _delete,
+            onPressed: _locked ? null : _delete,
             icon: const Icon(Icons.delete_outline, size: 16),
             label: Text(context.l10n.canvasDeleteStep),
           ),
@@ -250,12 +254,32 @@ class _StepPanelState extends ConsumerState<StepPanel> {
   Widget _runTab(BuildContext context, Endpoint? endpoint, FlowStepResult result) {
     if (result.status == FlowStepStatus.skipped) return Center(child: Text(context.l10n.runSkippedStep));
     final notifier = ref.read(flowRunProvider(widget.flow.id).notifier);
-    return RunStepInspector(
-      index: widget.index,
-      endpoint: endpoint,
-      result: result,
-      requestUrl: notifier.requestUrlFor(widget.index, endpoint),
-      onRerunFromHere: () => notifier.rerunFrom(widget.flow, widget.endpoints, widget.index),
+    final checks = result.assertionResults;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (checks.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: Text(
+              context.l10n.assertionsSummary(checks.where((c) => c.passed).length, checks.length),
+              key: ValueKey('run-step-assertions-${widget.index}'),
+              style: AppTypography.codeSm.copyWith(
+                color: checks.every((c) => c.passed) ? AppColors.tertiary : AppColors.error,
+              ),
+            ),
+          ),
+        Expanded(
+          child: RunStepInspector(
+            index: widget.index,
+            endpoint: endpoint,
+            result: result,
+            requestUrl: notifier.requestUrlFor(widget.index, endpoint),
+            onRerunFromHere: () =>
+                runAndShow(ref, widget.flow.id, (run) => run.rerunFrom(widget.flow, widget.endpoints, widget.index)),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -613,7 +613,6 @@
   "errorAssertionFailure": "Assertion Failure",
   "errorConfiguration": "Configuration Error",
   "errorNetwork": "Network Error",
-  "runReRunFlow": "Re-run Flow",
   "runPassed": "{count} passed",
   "@runPassed": {
     "placeholders": {
@@ -638,7 +637,6 @@
       }
     }
   },
-  "runSelectStep": "Select a step to see its details",
   "runMissingEndpoint": "Missing endpoint",
   "runSkippedStep": "Skipped",
   "inspectorErrorDetails": "Error Details",
@@ -758,5 +756,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "canvasRunUntilHere": "Run up to here",
+  "canvasRerunFromHere": "Run again from here"
 }

@@ -7,7 +7,7 @@ import 'package:api_flow_studio/engine/models/models.dart';
 import 'package:api_flow_studio/engine/session/session.dart';
 import 'package:api_flow_studio/engine/storage/json_store.dart';
 import 'package:api_flow_studio/ui/environments/environments_provider.dart';
-import 'package:api_flow_studio/ui/flows/flow_run_view_screen.dart';
+import 'package:api_flow_studio/ui/flows/flows_screen.dart';
 import 'package:api_flow_studio/ui/request_builder/request_draft_provider.dart';
 import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
 import 'package:api_flow_studio/ui/session/session_provider.dart';
@@ -226,21 +226,25 @@ void main() {
     const meStep = Endpoint(id: 'e-me', groupId: 'g', name: 'Profile', method: 'GET', url: 'https://x.test/me');
 
     await tester.runAsync(() async {
+      await store.writeCollections(groups: const [Group(id: 'g', name: 'Auth')], endpoints: const [loginStep, meStep]);
+      await store.writeFlows(const [
+        Flow(
+          id: 'f',
+          name: 'Login then profile',
+          steps: [FlowStep(endpointId: 'e-login'), FlowStep(endpointId: 'e-me')],
+        ),
+      ]);
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(
-            home: FlowRunViewScreen(
-              flow: Flow(
-                id: 'f',
-                name: 'Login then profile',
-                steps: [FlowStep(endpointId: 'e-login'), FlowStep(endpointId: 'e-me')],
-              ),
-              endpoints: {'e-login': loginStep, 'e-me': meStep},
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: FlowsScreen())),
         ),
       );
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      await tester.pump();
+      container.read(selectedFlowIdProvider.notifier).state = 'f';
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('run-flow-button')));
       await Future<void>.delayed(const Duration(milliseconds: 300));
       await tester.pump();
     });

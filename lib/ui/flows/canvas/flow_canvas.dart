@@ -16,11 +16,15 @@ import '../../theme/app_typography.dart';
 import '../add_step_picker.dart';
 import '../flow_run_provider.dart';
 import '../flows_provider.dart';
-import '../flows_screen.dart' show selectedStepIndexProvider;
+import '../../../engine/flows/flow_step_result.dart';
+import '../../theme/widgets/status_badge.dart';
+import '../flows_screen.dart' show selectedStepIndexProvider, stepPanelTabProvider;
 import '../step_response.dart';
 import 'canvas_metrics.dart';
 import 'node_model.dart';
+import 'run_actions.dart';
 import 'step_node.dart';
+import 'step_panel.dart';
 
 /// The flow's steps as nodes in one row, left to right in run order, on a
 /// dotted canvas that scrolls both ways and zooms (buttons, or Ctrl + wheel).
@@ -63,8 +67,17 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
     if (endpoint != null) await _flows.addStep(_flow.id, FlowStep(endpointId: endpoint.id));
   }
 
+  void _select(int index) {
+    ref.read(stepPanelTabProvider.notifier).state = StepPanelTab.step;
+    _selection.state = index;
+  }
+
   Future<void> _onAction(int index, StepNodeAction action) async {
     switch (action) {
+      case StepNodeAction.runUntil:
+        await runAndShow(ref, _flow.id, (run) => run.runUntil(_flow, widget.endpoints, index));
+      case StepNodeAction.rerunFrom:
+        await runAndShow(ref, _flow.id, (run) => run.rerunFrom(_flow, widget.endpoints, index));
       case StepNodeAction.changeRequest:
         final picked = await showAddStepPicker(context, ref);
         if (picked == null) return;
@@ -103,7 +116,8 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
     final environment = ref.watch(environmentsProvider).value?.active?.resolvedVariables ?? const <String, String>{};
     final session = ref.watch(activeSessionProvider);
     final selected = ref.watch(selectedStepIndexProvider);
-    final running = ref.watch(flowRunProvider(flow.id).select((s) => s.running));
+    final run = ref.watch(flowRunProvider(flow.id));
+    final running = run.running;
 
     final models = [
       for (var i = 0; i < flow.steps.length; i++)
@@ -149,7 +163,9 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
                 selected: selected == model.index,
                 captureTokens: session.captureTokens,
                 locked: running,
-                onSelect: () => _selection.state = model.index,
+                hasRunResults: run.results.any((r) => r != null),
+                status: _status(context, run, model),
+                onSelect: () => _select(model.index),
                 onAction: (action) => _onAction(model.index, action),
               ),
             ),
@@ -228,6 +244,33 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
       ),
     );
   }
+}
+
+/// The right of a node's header: a spinner while its result is on the way,
+/// then the status code (or a mark for a failure without one, or "Skipped"),
+/// or "not sent" when there is nothing to show at all.
+Widget? _status(BuildContext context, FlowRunState run, NodeModel model) {
+  final index = model.index;
+  final result = index < run.results.length ? run.results[index] : null;
+  final Widget? child;
+  if (run.isPending(index)) {
+    child = const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2));
+  } else if (result?.status == FlowStepStatus.skipped) {
+    child = Text(context.l10n.runSkippedStep, style: AppTypography.bodySm.copyWith(color: AppColors.outline));
+  } else if (result?.response?.status != null) {
+    child = StatusBadge(statusCode: result!.response!.status!);
+  } else if (result?.status == FlowStepStatus.failure) {
+    child = const Icon(Icons.error_outline, size: 16, color: AppColors.error);
+  } else if (!model.hasResponse) {
+    child = Text(context.l10n.canvasNotRun, style: AppTypography.bodySm.copyWith(color: AppColors.outline));
+  } else {
+    child = null;
+  }
+  if (child == null) return null;
+  return Padding(
+    padding: const EdgeInsets.only(left: AppSpacing.xs),
+    child: KeyedSubtree(key: ValueKey('step-node-status-$index'), child: child),
+  );
 }
 
 class _ZoomControls extends StatelessWidget {

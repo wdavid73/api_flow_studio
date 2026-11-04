@@ -16,6 +16,8 @@ class FlowRunState {
     this.resultAt = const [],
     this.initialVariables = const {},
     this.running = false,
+    this.runningFrom,
+    this.runningTo,
     this.focusIndex,
   });
 
@@ -30,6 +32,18 @@ class FlowRunState {
 
   final bool running;
 
+  /// The steps the run in progress covers, inclusive (null when idle).
+  final int? runningFrom;
+  final int? runningTo;
+
+  /// Whether step [index] is part of the run in progress and has no result yet.
+  bool isPending(int index) =>
+      running &&
+      runningFrom != null &&
+      index >= runningFrom! &&
+      index <= runningTo! &&
+      (index >= results.length || results[index] == null);
+
   /// The step to show after a run: the first that failed, else the last that ran.
   final int? focusIndex;
 
@@ -38,15 +52,20 @@ class FlowRunState {
     List<DateTime?>? resultAt,
     Map<String, String>? initialVariables,
     bool? running,
+    (int, int)? Function()? runningRange,
     int? Function()? focusIndex,
-  }) =>
-      FlowRunState(
-        results: results ?? this.results,
-        resultAt: resultAt ?? this.resultAt,
-        initialVariables: initialVariables ?? this.initialVariables,
-        running: running ?? this.running,
-        focusIndex: focusIndex == null ? this.focusIndex : focusIndex(),
-      );
+  }) {
+    final range = runningRange == null ? (runningFrom, runningTo) : runningRange();
+    return FlowRunState(
+      results: results ?? this.results,
+      resultAt: resultAt ?? this.resultAt,
+      initialVariables: initialVariables ?? this.initialVariables,
+      running: running ?? this.running,
+      runningFrom: range?.$1,
+      runningTo: range?.$2,
+      focusIndex: focusIndex == null ? this.focusIndex : focusIndex(),
+    );
+  }
 }
 
 /// The first step at or before [upTo] without a successful result -- a step
@@ -80,7 +99,8 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
     return const FlowRunState();
   }
 
-  Future<void> runAll(Flow flow, Map<String, Endpoint> endpoints) async {
+  /// Runs every step. Returns the step to show afterwards ([FlowRunState.focusIndex]).
+  Future<int?> runAll(Flow flow, Map<String, Endpoint> endpoints) async {
     final variables = await _environmentVariables();
     final count = flow.steps.length;
     state = FlowRunState(
@@ -88,13 +108,13 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
       resultAt: List<DateTime?>.filled(count, null),
       initialVariables: variables,
     );
-    await _run(flow, endpoints, startIndex: 0);
+    return _run(flow, endpoints, startIndex: 0);
   }
 
   /// Runs what [index] needs: from the first step before it that has not
   /// succeeded, up to [index]. Results after [index] are dropped, since they
   /// were computed from values this run may change.
-  Future<void> runUntil(Flow flow, Map<String, Endpoint> endpoints, int index) async {
+  Future<int?> runUntil(Flow flow, Map<String, Endpoint> endpoints, int index) async {
     final variables = await _environmentVariables();
     final results = _sized(state.results, flow.steps.length);
     final start = firstPendingStep(results, index);
@@ -103,11 +123,11 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
       resultAt: _clearedTimes(flow.steps.length, start),
       initialVariables: variables,
     );
-    await _run(flow, endpoints, startIndex: start, endIndex: index);
+    return _run(flow, endpoints, startIndex: start, endIndex: index);
   }
 
   /// Runs again from [index] to the end, keeping what came before.
-  Future<void> rerunFrom(Flow flow, Map<String, Endpoint> endpoints, int index) async {
+  Future<int?> rerunFrom(Flow flow, Map<String, Endpoint> endpoints, int index) async {
     final variables = await _environmentVariables();
     final results = _sized(state.results, flow.steps.length);
     state = state.copyWith(
@@ -115,7 +135,7 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
       resultAt: _clearedTimes(flow.steps.length, index),
       initialVariables: variables,
     );
-    await _run(flow, endpoints, startIndex: index);
+    return _run(flow, endpoints, startIndex: index);
   }
 
   /// Drops the results of the steps from [index] on (after the flow changed there).
@@ -148,11 +168,15 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
     return result.response?.requestUrl ?? interpolate(endpoint.url, variablesEnteringStep(index));
   }
 
-  Future<void> _run(Flow flow, Map<String, Endpoint> endpoints, {required int startIndex, int? endIndex}) async {
+  Future<int?> _run(Flow flow, Map<String, Endpoint> endpoints, {required int startIndex, int? endIndex}) async {
     final generation = _generation;
     bool stale() => generation != _generation;
 
-    state = state.copyWith(running: true, focusIndex: () => null);
+    state = state.copyWith(
+      running: true,
+      runningRange: () => (startIndex, endIndex ?? flow.steps.length - 1),
+      focusIndex: () => null,
+    );
     final runner = FlowRunner(executor: ref.read(sessionExecutorProvider));
     try {
       await runner.runFrom(
@@ -170,8 +194,11 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
         },
       );
     } finally {
-      if (!stale()) state = state.copyWith(running: false, focusIndex: () => _focus(state.results));
+      if (!stale()) {
+        state = state.copyWith(running: false, runningRange: () => null, focusIndex: () => _focus(state.results));
+      }
     }
+    return stale() ? null : state.focusIndex;
   }
 
   Future<Map<String, String>> _environmentVariables() async {

@@ -1,18 +1,14 @@
-import 'dart:io';
-
 import 'package:api_flow_studio/engine/http/executed_response.dart';
 import 'package:api_flow_studio/engine/http/request_executor.dart';
 import 'package:api_flow_studio/engine/models/models.dart';
-import 'package:api_flow_studio/engine/storage/json_store.dart';
-import 'package:api_flow_studio/ui/environments/environments_provider.dart';
-import 'package:api_flow_studio/ui/flows/flow_run_view_screen.dart';
-import 'package:api_flow_studio/ui/request_builder/send_provider.dart';
 import 'package:flutter/material.dart' hide Flow;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-// Real dart:io I/O (JsonStore) needs tester.runAsync(); see tasks/plan.md.
+import 'canvas_run_harness.dart';
+
+// Ported from flow_run_view_detail_test.dart: the run happens on the canvas and a
+// step's result is read in the side panel's Run tab.
 
 class MockRequestExecutor extends Mock implements RequestExecutor {}
 
@@ -48,28 +44,7 @@ void main() {
     Flow flow, {
     required MockRequestExecutor executor,
   }) async {
-    final tempDir = await Directory.systemTemp.createTemp('flow_run_view_detail_test_');
-    addTearDown(() async {
-      if (await tempDir.exists()) await tempDir.delete(recursive: true);
-    });
-    final store = JsonStore(directory: tempDir);
-    await store.writeEnvironments(const [
-      Environment(id: 'env-1', name: 'Dev', variables: {
-        'base_url': EnvironmentVariable(value: 'https://api.dev'),
-      }),
-    ]);
-    await store.writeActiveEnvironmentId('env-1');
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          jsonStoreProvider.overrideWithValue(store),
-          requestExecutorProvider.overrideWithValue(executor),
-        ],
-        child: MaterialApp(home: FlowRunViewScreen(flow: flow, endpoints: endpoints)),
-      ),
-    );
-    await settle(tester);
+    await pumpCanvasRun(tester, flow: flow, endpoints: endpoints, executor: executor, settle: settle);
     return executor;
   }
 
@@ -93,8 +68,7 @@ void main() {
       // its header again is a harmless re-selection.
       expect(find.byKey(const Key('rerun-from-step-0')), findsOneWidget);
 
-      await tester.tap(find.byKey(const Key('run-step-header-0')));
-      await settle(tester);
+      await openRunTab(tester, 0, settle: settle);
 
       // Request Sent and Response Body are separate tabs now (the inspector
       // panel's tabbed layout) -- each tab's content only exists in the
@@ -127,35 +101,14 @@ void main() {
         ),
       );
 
-      final dir = await Directory.systemTemp.createTemp('flow_run_view_url_test_');
-      addTearDown(() async {
-        if (await dir.exists()) await dir.delete(recursive: true);
-      });
-      final store = JsonStore(directory: dir);
-      await store.writeEnvironments(const [
-        Environment(id: 'env-1', name: 'Dev', variables: {
-          'base_url': EnvironmentVariable(value: 'https://api.dev'),
-        }),
-      ]);
-      await store.writeActiveEnvironmentId('env-1');
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            jsonStoreProvider.overrideWithValue(store),
-            requestExecutorProvider.overrideWithValue(executor),
-          ],
-          child: MaterialApp(
-            home: FlowRunViewScreen(flow: flow, endpoints: {withToken.id: withToken}),
-          ),
-        ),
-      );
-      await settle(tester);
+      await pumpCanvasRun(tester, flow: flow, endpoints: {withToken.id: withToken}, executor: executor, settle: settle);
 
       expect(
         find.textContaining('POST https://api.dev/users/3f2b8c1e-0000-4000-8000-000000000000'),
         findsOneWidget,
       );
-      expect(find.textContaining('{{'), findsNothing);
+      // The node and the panel show the request as written; what was sent has no tokens left.
+      expect(find.descendant(of: find.byKey(const Key('run-inspector-surface')), matching: find.textContaining('{{')), findsNothing);
     });
   });
 
@@ -175,8 +128,7 @@ void main() {
 
       await pumpRunView(tester, flow, executor: executor);
 
-      await tester.tap(find.byKey(const Key('run-step-header-0')));
-      await settle(tester);
+      await openRunTab(tester, 0, settle: settle);
 
       expect(find.text('Assertion Failure'), findsOneWidget);
       expect(find.textContaining('Assertion failed'), findsWidgets);
@@ -322,8 +274,7 @@ void main() {
 
       await pumpRunView(tester, flow, executor: executor);
 
-      await tester.tap(find.byKey(const Key('run-step-header-1')));
-      await settle(tester);
+      await openRunTab(tester, 1, settle: settle);
 
       expect(find.byKey(const Key('rerun-from-step-1')), findsNothing);
     });
@@ -353,8 +304,7 @@ void main() {
       when(() => executor.execute(createUser, variables: captureAny(named: 'variables')))
           .thenAnswer((_) async => const ExecutedResponse(status: 201));
 
-      await tester.tap(find.byKey(const Key('run-step-header-1')));
-      await settle(tester);
+      await openRunTab(tester, 1, settle: settle);
       await tester.tap(find.byKey(const Key('rerun-from-step-1')));
       await settle(tester);
 

@@ -15,12 +15,11 @@ import 'assertions_tab.dart';
 import 'error_detail_panel.dart';
 import '../../l10n/l10n.dart';
 
-/// The right-hand detail panel for whichever step is selected in the run
-/// view's timeline: a tabbed inspector (Error Details -- only for a failed
-/// step -- / Request Sent / Response Body / Headers), matching
-/// design/flow_run_view/code.html's 2-panel layout. [result] is always a
-/// completed, non-skipped step's result -- the screen only lets a
-/// selectable ([RunStepCard._isSelectable]) step become the selection.
+/// The result of one step's last run, shown in the canvas side panel's Run
+/// tab: a tabbed inspector (Error Details -- only for a failed step -- /
+/// Assertions / Request Sent / Response Body / Headers). [result] is always a
+/// completed, non-skipped step's result: the panel shows a skipped step as
+/// such instead.
 class RunStepInspector extends StatelessWidget {
   const RunStepInspector({
     super.key,

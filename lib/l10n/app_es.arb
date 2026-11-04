@@ -249,11 +249,9 @@
   "errorAssertionFailure": "Aserción fallida",
   "errorConfiguration": "Error de configuración",
   "errorNetwork": "Error de red",
-  "runReRunFlow": "Volver a ejecutar flujo",
   "runPassed": "{count} correctos",
   "runFailed": "{count} fallidos",
   "runSkipped": "{count} omitidos",
-  "runSelectStep": "Selecciona un paso para ver sus detalles",
   "runMissingEndpoint": "Endpoint no encontrado",
   "runSkippedStep": "Omitido",
   "inspectorErrorDetails": "Detalles del error",
@@ -317,5 +315,7 @@
   "ageJustNow": "justo ahora",
   "ageMinutes": "hace {count} min",
   "ageHours": "hace {count} h",
-  "ageDays": "{count, plural, =1{hace 1 día} other{hace {count} días}}"
+  "ageDays": "{count, plural, =1{hace 1 día} other{hace {count} días}}",
+  "canvasRunUntilHere": "Ejecutar hasta aquí",
+  "canvasRerunFromHere": "Volver a ejecutar desde aquí"
 }

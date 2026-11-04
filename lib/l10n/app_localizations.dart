@@ -1592,12 +1592,6 @@ abstract class AppLocalizations {
   /// **'Network Error'**
   String get errorNetwork;
 
-  /// No description provided for @runReRunFlow.
-  ///
-  /// In en, this message translates to:
-  /// **'Re-run Flow'**
-  String get runReRunFlow;
-
   /// No description provided for @runPassed.
   ///
   /// In en, this message translates to:
@@ -1615,12 +1609,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} skipped'**
   String runSkipped(int count);
-
-  /// No description provided for @runSelectStep.
-  ///
-  /// In en, this message translates to:
-  /// **'Select a step to see its details'**
-  String get runSelectStep;
 
   /// No description provided for @runMissingEndpoint.
   ///
@@ -2005,6 +1993,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 day ago} other{{count} days ago}}'**
   String ageDays(int count);
+
+  /// No description provided for @canvasRunUntilHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Run up to here'**
+  String get canvasRunUntilHere;
+
+  /// No description provided for @canvasRerunFromHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Run again from here'**
+  String get canvasRerunFromHere;
 }
 
 class _AppLocalizationsDelegate

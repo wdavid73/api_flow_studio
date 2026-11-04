@@ -59,8 +59,7 @@ void defineFlowJourney(JourneyHarness Function() harness) {
       expect(app.backend.calls[1].header('Authorization'), 'Bearer $fakeAccessToken');
       expect(app.backend.calls[2].header('Authorization'), 'Bearer $fakeAccessToken');
 
-      // The run view covers the header; back in the builder it shows the session.
-      await app.tapKey(const Key('run-view-back-button'));
+      // The flow runs on the canvas, so the header (and its session button) stays in view.
       expect(find.descendant(of: find.byKey(const Key('session-button')), matching: find.text('Expires in 12 min')), findsOneWidget);
     });
 
@@ -123,7 +122,7 @@ void defineFlowJourney(JourneyHarness Function() harness) {
       expect(find.text('1 failed'), findsOneWidget);
       expect(find.text('Assertion Failure'), findsOneWidget);
       expect(find.text('2/3 assertions'), findsOneWidget);
-      await app.tapKey(const Key('run-step-header-0'));
+      // The failed step is already selected, its Run tab open in the side panel.
       await tester.tap(find.text('Assertions'));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('assertion-passed-0')), findsOneWidget);
@@ -180,21 +179,20 @@ void defineFlowJourney(JourneyHarness Function() harness) {
       await app.runOpenFlow();
       expect(app.backend.calls, hasLength(3));
 
-      await app.tapKey(const Key('re-run-flow-button'));
+      await app.tapKey(const Key('run-flow-button'));
 
       expect(app.backend.calls, hasLength(6));
       expect(find.text('3 passed'), findsOneWidget);
     });
 
-    journeyTest('Back from the run view returns to the flow builder', (tester) async {
+    journeyTest('running a flow keeps the builder on screen', (tester) async {
       final app = await harness().launchApp(tester);
       await app.openFlow('f-signup');
       await app.runOpenFlow();
 
-      await app.tapKey(const Key('run-view-back-button'));
-
       expect(find.byKey(const Key('flow-name-field')), findsOneWidget);
       expect(find.byKey(const Key('run-flow-button')), findsOneWidget);
+      expect(find.byKey(const ValueKey('step-node-0')), findsOneWidget);
     });
 
     journeyTest('a flow built from scratch with the step picker runs', (tester) async {

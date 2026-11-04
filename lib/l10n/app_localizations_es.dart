@@ -969,9 +969,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get errorNetwork => 'Error de red';
 
   @override
-  String get runReRunFlow => 'Volver a ejecutar flujo';
-
-  @override
   String runPassed(int count) {
     return '$count correctos';
   }
@@ -985,9 +982,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String runSkipped(int count) {
     return '$count omitidos';
   }
-
-  @override
-  String get runSelectStep => 'Selecciona un paso para ver sus detalles';
 
   @override
   String get runMissingEndpoint => 'Endpoint no encontrado';
@@ -1210,4 +1204,10 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get canvasRunUntilHere => 'Ejecutar hasta aquí';
+
+  @override
+  String get canvasRerunFromHere => 'Volver a ejecutar desde aquí';
 }

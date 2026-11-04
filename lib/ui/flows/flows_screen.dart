@@ -29,6 +29,13 @@ final selectedStepIndexProvider = StateProvider<int?>((ref) {
   return null;
 });
 
+/// The tab the side panel opens on: Step when a node is picked by hand, Run
+/// after a run selected the step to look at.
+final stepPanelTabProvider = StateProvider<StepPanelTab>((ref) {
+  ref.watch(selectedFlowIdProvider);
+  return StepPanelTab.step;
+});
+
 /// The "Flows" nav destination: a list of saved flows on the left; on the
 /// right the selected flow's toolbar, its canvas of step nodes and, when a
 /// step is selected, that step's side panel.
@@ -204,6 +211,7 @@ class _FlowDetail extends ConsumerWidget {
                     flow: flow,
                     index: selectedStep,
                     endpoints: endpoints,
+                    initialTab: ref.watch(stepPanelTabProvider),
                     onClose: () => ref.read(selectedStepIndexProvider.notifier).state = null,
                   ),
                 ),

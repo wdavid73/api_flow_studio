@@ -14,7 +14,7 @@ import 'node_model.dart';
 import 'origin_label.dart';
 import 'relative_age.dart';
 
-enum StepNodeAction { changeRequest, moveLeft, moveRight, delete }
+enum StepNodeAction { runUntil, rerunFrom, changeRequest, moveLeft, moveRight, delete }
 
 const double _pinSize = 10;
 
@@ -34,6 +34,7 @@ class StepNode extends StatelessWidget {
     required this.onAction,
     this.status,
     this.locked = false,
+    this.hasRunResults = false,
   });
 
   final NodeModel model;
@@ -51,6 +52,9 @@ class StepNode extends StatelessWidget {
 
   /// A run is in progress: actions that change the flow are disabled.
   final bool locked;
+
+  /// The flow has results in this session, so it can be run again from here.
+  final bool hasRunResults;
 
   int get _index => model.index;
 
@@ -157,6 +161,9 @@ class StepNode extends StatelessWidget {
                 icon: const Icon(Icons.more_vert),
                 onSelected: onAction,
                 itemBuilder: (context) => [
+                  _item(StepNodeAction.runUntil, 'run-until', context.l10n.canvasRunUntilHere),
+                  if (hasRunResults)
+                    _item(StepNodeAction.rerunFrom, 'rerun-from', context.l10n.canvasRerunFromHere),
                   _item(StepNodeAction.changeRequest, 'change-request', context.l10n.stepChangeRequest),
                   _item(StepNodeAction.moveLeft, 'move-left', context.l10n.canvasMoveLeft, enabled: index > 0),
                   _item(
@@ -249,8 +256,21 @@ class StepNode extends StatelessWidget {
       return [
         SizedBox(
           height: emptyResponseHeight,
-          child: Center(
-            child: Text(context.l10n.canvasNotSent, style: AppTypography.bodySm.copyWith(color: AppColors.outline)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(context.l10n.canvasNotSent, style: AppTypography.bodySm.copyWith(color: AppColors.outline)),
+              TextButton(
+                key: ValueKey('run-until-$_index'),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  minimumSize: const Size(0, 28),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                ),
+                onPressed: locked || model.endpoint == null ? null : () => onAction(StepNodeAction.runUntil),
+                child: Text('▶ ${context.l10n.canvasRunUntilHere}', style: AppTypography.bodySm),
+              ),
+            ],
           ),
         ),
       ];

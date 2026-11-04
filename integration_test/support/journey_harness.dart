@@ -277,7 +277,7 @@ class AppDriver {
     await tapKey(ValueKey('flow-list-item-$flowId'));
   }
 
-  /// Presses Run on the open flow and waits for the run view to finish.
+  /// Presses Run on the open flow and waits for the run on the canvas to finish.
   Future<void> runOpenFlow() => tapKey(const Key('run-flow-button'));
 
   /// Opens the Hosts & notes dialog from the header.
