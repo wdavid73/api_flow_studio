@@ -172,6 +172,23 @@ void main() {
     expect(tester.widget<FilledButton>(find.byKey(const Key('run-flow-button'))).onPressed, isNotNull);
   });
 
+  testWidgets('a finished step offers no re-run while the rest of the flow is still running', (tester) async {
+    final gate = Completer<ExecutedResponse>();
+    when(() => executor.execute(sendOtp, variables: any(named: 'variables'))).thenAnswer((_) => gate.future);
+
+    await pumpCanvasRun(tester, flow: flow, endpoints: endpoints, executor: executor, settle: (t) => t.pump());
+    await tester.pump();
+    await openRunTab(tester, 0, settle: (t) => t.pump());
+
+    expect(find.text('Request Sent'), findsOneWidget); // the Run tab of the finished step is open
+    expect(find.byKey(const ValueKey('rerun-from-step-0')), findsNothing);
+
+    gate.complete(const ExecutedResponse(status: 200));
+    await tester.pumpAndSettle();
+    await openRunTab(tester, 0);
+    expect(find.byKey(const ValueKey('rerun-from-step-0')), findsOneWidget);
+  });
+
   testWidgets('running never adds history entries', (tester) async {
     final app = await pumpCanvasRun(tester, flow: flow, endpoints: endpoints, executor: executor);
 

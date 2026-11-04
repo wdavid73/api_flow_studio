@@ -169,15 +169,18 @@ class RunStepInspector extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
-            Align(
-              alignment: Alignment.centerRight,
-              child: HeaderGhostButton(
-                key: ValueKey('rerun-from-step-$index'),
-                label: context.l10n.inspectorRerunFrom(index + 1),
-                onPressed: onRerunFromHere ?? () {},
+            // Without a callback (a run is in progress) the step cannot be re-run.
+            if (onRerunFromHere case final rerun?) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Align(
+                alignment: Alignment.centerRight,
+                child: HeaderGhostButton(
+                  key: ValueKey('rerun-from-step-$index'),
+                  label: context.l10n.inspectorRerunFrom(index + 1),
+                  onPressed: rerun,
+                ),
               ),
-            ),
+            ],
           ],
       ),
       ),

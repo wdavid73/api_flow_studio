@@ -127,6 +127,43 @@ void main() {
     expect(variables['base_url'], 'https://api.dev');
   });
 
+  test('runUntil re-sends an earlier step whose extract changed since it ran', () async {
+    final unconnected = flow.copyWith(steps: [const FlowStep(endpointId: 'e-0'), ...flow.steps.skip(1)]);
+    await notifier().runUntil(unconnected, endpoints, 0);
+
+    // The user connects register's id to {{user_id}} after seeing the response.
+    await notifier().runUntil(flow, endpoints, 1);
+
+    verify(() => executor.execute(register, variables: any(named: 'variables'))).called(2);
+    final variables = verify(() => executor.execute(me, variables: captureAny(named: 'variables'))).captured.single
+        as Map<String, String>;
+    expect(variables['user_id'], 'u-e-0');
+  });
+
+  test('rerunFrom first runs the earlier steps that never ran', () async {
+    await notifier().runUntil(flow, endpoints, 0);
+    clearInteractions(executor);
+
+    await notifier().rerunFrom(flow, endpoints, 2);
+
+    verifyNever(() => executor.execute(register, variables: any(named: 'variables')));
+    verify(() => executor.execute(me, variables: any(named: 'variables'))).called(1);
+    verify(() => executor.execute(home, variables: any(named: 'variables'))).called(1);
+  });
+
+  test('rerunFrom re-sends an earlier step whose extract changed since it ran', () async {
+    final unconnected = flow.copyWith(steps: [const FlowStep(endpointId: 'e-0'), ...flow.steps.skip(1)]);
+    await notifier().runAll(unconnected, endpoints);
+    clearInteractions(executor);
+
+    await notifier().rerunFrom(flow, endpoints, 1);
+
+    verify(() => executor.execute(register, variables: any(named: 'variables'))).called(1);
+    final variables = verify(() => executor.execute(me, variables: captureAny(named: 'variables'))).captured.single
+        as Map<String, String>;
+    expect(variables['user_id'], 'u-e-0');
+  });
+
   test('rerunFrom re-sends from that step to the end', () async {
     await notifier().runAll(flow, endpoints);
     clearInteractions(executor);
@@ -136,6 +173,24 @@ void main() {
     verifyNever(() => executor.execute(register, variables: any(named: 'variables')));
     verify(() => executor.execute(me, variables: any(named: 'variables'))).called(1);
     verify(() => executor.execute(home, variables: any(named: 'variables'))).called(1);
+  });
+
+  test('a second run is ignored while one is in flight', () async {
+    final gate = Completer<ExecutedResponse>();
+    when(() => executor.execute(register, variables: any(named: 'variables'))).thenAnswer((_) => gate.future);
+
+    final first = notifier().runAll(flow, endpoints);
+    await Future<void>.delayed(Duration.zero);
+    expect(await notifier().rerunFrom(flow, endpoints, 0), isNull);
+    expect(await notifier().runAll(flow, endpoints), isNull);
+    expect(state().running, isTrue);
+
+    gate.complete(const ExecutedResponse(status: 200, body: {'id': 'u-e-0'}));
+    await first;
+
+    verify(() => executor.execute(register, variables: any(named: 'variables'))).called(1);
+    expect(state().running, isFalse);
+    expect(state().results.map((r) => r?.status), everyElement(FlowStepStatus.success));
   });
 
   test('requestUrlFor resolves the url with the variables entering the step', () async {

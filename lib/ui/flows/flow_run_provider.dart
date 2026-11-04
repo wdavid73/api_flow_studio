@@ -14,6 +14,7 @@ class FlowRunState {
   const FlowRunState({
     this.results = const [],
     this.resultAt = const [],
+    this.ranWith = const [],
     this.initialVariables = const {},
     this.running = false,
     this.runningFrom,
@@ -26,6 +27,10 @@ class FlowRunState {
 
   /// When each entry of [results] arrived.
   final List<DateTime?> resultAt;
+
+  /// The step as it was when each entry of [results] was produced: a step
+  /// edited since (a new extract, assertion…) has to run again.
+  final List<FlowStep?> ranWith;
 
   /// The environment variables the last run started from.
   final Map<String, String> initialVariables;
@@ -50,6 +55,7 @@ class FlowRunState {
   FlowRunState copyWith({
     List<FlowStepResult?>? results,
     List<DateTime?>? resultAt,
+    List<FlowStep?>? ranWith,
     Map<String, String>? initialVariables,
     bool? running,
     (int, int)? Function()? runningRange,
@@ -59,6 +65,7 @@ class FlowRunState {
     return FlowRunState(
       results: results ?? this.results,
       resultAt: resultAt ?? this.resultAt,
+      ranWith: ranWith ?? this.ranWith,
       initialVariables: initialVariables ?? this.initialVariables,
       running: running ?? this.running,
       runningFrom: range?.$1,
@@ -68,13 +75,20 @@ class FlowRunState {
   }
 }
 
-/// The first step at or before [upTo] without a successful result -- a step
-/// with no result, a failed one or a skipped one still has to run -- or
-/// [upTo] itself when every earlier step succeeded.
-int firstPendingStep(List<FlowStepResult?> results, int upTo) {
+/// The first step before [upTo] that still has to run -- no result, a failed
+/// or skipped one, or (given [ranWith] and the [current] steps) a step edited
+/// since its result was produced, whose extracts may now differ -- or [upTo]
+/// itself when every earlier step is done and up to date.
+int firstPendingStep(
+  List<FlowStepResult?> results,
+  int upTo, {
+  List<FlowStep?> ranWith = const [],
+  List<FlowStep> current = const [],
+}) {
   for (var i = 0; i < upTo; i++) {
     final result = i < results.length ? results[i] : null;
     if (result?.status != FlowStepStatus.success) return i;
+    if (current.isNotEmpty && (i >= ranWith.length || i >= current.length || ranWith[i] != current[i])) return i;
   }
   return upTo;
 }
@@ -100,50 +114,61 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
   }
 
   /// Runs every step. Returns the step to show afterwards ([FlowRunState.focusIndex]).
-  Future<int?> runAll(Flow flow, Map<String, Endpoint> endpoints) async {
-    final variables = await _environmentVariables();
-    final count = flow.steps.length;
-    state = FlowRunState(
-      results: List<FlowStepResult?>.filled(count, null),
-      resultAt: List<DateTime?>.filled(count, null),
-      initialVariables: variables,
-    );
-    return _run(flow, endpoints, startIndex: 0);
-  }
+  Future<int?> runAll(Flow flow, Map<String, Endpoint> endpoints) => _guarded(flow, endpoints, (variables) {
+        final count = flow.steps.length;
+        state = FlowRunState(
+          results: List<FlowStepResult?>.filled(count, null),
+          resultAt: List<DateTime?>.filled(count, null),
+          ranWith: List<FlowStep?>.filled(count, null),
+          initialVariables: variables,
+          running: true,
+        );
+        return (start: 0, end: null);
+      });
 
   /// Runs what [index] needs: from the first step before it that has not
   /// succeeded, up to [index]. Results after [index] are dropped, since they
   /// were computed from values this run may change.
-  Future<int?> runUntil(Flow flow, Map<String, Endpoint> endpoints, int index) async {
-    final variables = await _environmentVariables();
-    final results = _sized(state.results, flow.steps.length);
-    final start = firstPendingStep(results, index);
-    state = state.copyWith(
-      results: [for (var i = 0; i < results.length; i++) i < start ? results[i] : null],
-      resultAt: _clearedTimes(flow.steps.length, start),
-      initialVariables: variables,
-    );
-    return _run(flow, endpoints, startIndex: start, endIndex: index);
-  }
+  Future<int?> runUntil(Flow flow, Map<String, Endpoint> endpoints, int index) =>
+      _guarded(flow, endpoints, (variables) {
+        final start = _firstPending(flow, index);
+        _keepBefore(flow, start, variables);
+        return (start: start, end: index);
+      });
 
-  /// Runs again from [index] to the end, keeping what came before.
-  Future<int?> rerunFrom(Flow flow, Map<String, Endpoint> endpoints, int index) async {
-    final variables = await _environmentVariables();
-    final results = _sized(state.results, flow.steps.length);
-    state = state.copyWith(
-      results: [for (var i = 0; i < results.length; i++) i < index ? results[i] : null],
-      resultAt: _clearedTimes(flow.steps.length, index),
-      initialVariables: variables,
-    );
-    return _run(flow, endpoints, startIndex: index);
-  }
+  /// Runs again from [index] to the end, keeping what came before -- except
+  /// earlier steps that never ran or were edited since, which run first so
+  /// [index] gets the values they extract now.
+  Future<int?> rerunFrom(Flow flow, Map<String, Endpoint> endpoints, int index) =>
+      _guarded(flow, endpoints, (variables) {
+        final start = _firstPending(flow, index);
+        _keepBefore(flow, start, variables);
+        return (start: start, end: null);
+      });
 
   /// Drops the results of the steps from [index] on (after the flow changed there).
   void clearFrom(int index) {
     state = state.copyWith(
       results: [for (var i = 0; i < state.results.length; i++) i < index ? state.results[i] : null],
       resultAt: [for (var i = 0; i < state.resultAt.length; i++) i < index ? state.resultAt[i] : null],
+      ranWith: [for (var i = 0; i < state.ranWith.length; i++) i < index ? state.ranWith[i] : null],
       focusIndex: () => null,
+    );
+  }
+
+  int _firstPending(Flow flow, int index) =>
+      firstPendingStep(state.results, index, ranWith: state.ranWith, current: flow.steps);
+
+  /// Keeps what the steps before [start] produced, drops the rest (it is about
+  /// to be recomputed, or depends on values that are).
+  void _keepBefore(Flow flow, int start, Map<String, String> variables) {
+    final count = flow.steps.length;
+    T? kept<T>(List<T?> list, int i) => i < start && i < list.length ? list[i] : null;
+    state = state.copyWith(
+      results: [for (var i = 0; i < count; i++) kept(state.results, i)],
+      resultAt: [for (var i = 0; i < count; i++) kept(state.resultAt, i)],
+      ranWith: [for (var i = 0; i < count; i++) kept(state.ranWith, i)],
+      initialVariables: variables,
     );
   }
 
@@ -168,8 +193,38 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
     return result.response?.requestUrl ?? interpolate(endpoint.url, variablesEnteringStep(index));
   }
 
-  Future<int?> _run(Flow flow, Map<String, Endpoint> endpoints, {required int startIndex, int? endIndex}) async {
+  /// Starts a run unless one of this flow is already in progress (then it
+  /// returns null at once): marks it running before anything is awaited, so a
+  /// double click cannot start two, reads the environment, lets [prepare] set
+  /// the state up and say which steps to run, and runs them. A change of
+  /// project at any point leaves the new project's state alone.
+  Future<int?> _guarded(
+    Flow flow,
+    Map<String, Endpoint> endpoints,
+    ({int start, int? end}) Function(Map<String, String> variables) prepare,
+  ) async {
+    if (state.running) return null;
     final generation = _generation;
+    state = state.copyWith(running: true);
+    try {
+      final variables = await _environmentVariables();
+      if (generation != _generation) return null;
+      final range = prepare(variables);
+      return await _run(flow, endpoints, generation: generation, startIndex: range.start, endIndex: range.end);
+    } finally {
+      if (generation == _generation && state.running) {
+        state = state.copyWith(running: false, runningRange: () => null);
+      }
+    }
+  }
+
+  Future<int?> _run(
+    Flow flow,
+    Map<String, Endpoint> endpoints, {
+    required int generation,
+    required int startIndex,
+    int? endIndex,
+  }) async {
     bool stale() => generation != _generation;
 
     state = state.copyWith(
@@ -190,6 +245,7 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
           state = state.copyWith(
             results: [...state.results]..[index] = result,
             resultAt: [...state.resultAt]..[index] = DateTime.now(),
+            ranWith: [...state.ranWith]..[index] = flow.steps[index],
           );
         },
       );
@@ -207,12 +263,6 @@ class FlowRunNotifier extends FamilyNotifier<FlowRunState, String> {
     final environments = await ref.read(environmentsProvider.future);
     return environments.active?.resolvedVariables ?? const {};
   }
-
-  List<FlowStepResult?> _sized(List<FlowStepResult?> results, int count) =>
-      [for (var i = 0; i < count; i++) i < results.length ? results[i] : null];
-
-  List<DateTime?> _clearedTimes(int count, int from) =>
-      [for (var i = 0; i < count; i++) i < from && i < state.resultAt.length ? state.resultAt[i] : null];
 
   int? _focus(List<FlowStepResult?> results) {
     int? candidate;

@@ -275,8 +275,9 @@ class _StepPanelState extends ConsumerState<StepPanel> {
             endpoint: endpoint,
             result: result,
             requestUrl: notifier.requestUrlFor(widget.index, endpoint),
-            onRerunFromHere: () =>
-                runAndShow(ref, widget.flow.id, (run) => run.rerunFrom(widget.flow, widget.endpoints, widget.index)),
+            onRerunFromHere: _locked
+                ? null
+                : () => runAndShow(ref, widget.flow.id, (run) => run.rerunFrom(widget.flow, widget.endpoints, widget.index)),
           ),
         ),
       ],
