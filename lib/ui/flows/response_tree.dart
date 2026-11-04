@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../engine/flows/response_fields.dart' show previewValue;
+import '../../engine/flows/response_fields.dart' show maxFieldDepth, previewValue;
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
 /// The most items of a list the tree lists before cutting it with `…`.
 const int _maxListItems = 20;
+
+/// The most entries of an object the tree lists before cutting it with `…`.
+const int _maxMapEntries = 200;
 
 /// A step's whole response -- status, headers and body -- as an indented tree
 /// whose every value can be tapped. [onValueTap] gets the value's full path
@@ -51,6 +54,8 @@ class ResponseTree extends StatelessWidget {
   }
 
   List<Widget> _children(Object? value, String path, int depth) {
+    // Same depth limit as the node's fields: deeper levels are cut, never walked.
+    if (depth > maxFieldDepth) return [_label('…', depth)];
     final rows = <Widget>[];
     void add(String key, Object? child, String childPath) {
       if (child is Map && child.isNotEmpty || child is List && child.isNotEmpty) {
@@ -63,9 +68,10 @@ class ResponseTree extends StatelessWidget {
     }
 
     if (value is Map) {
-      for (final entry in value.entries) {
+      for (final entry in value.entries.take(_maxMapEntries)) {
         add('${entry.key}', entry.value, '$path.${entry.key}');
       }
+      if (value.length > _maxMapEntries) rows.add(_label('…', depth));
     } else if (value is List) {
       for (var i = 0; i < value.length && i < _maxListItems; i++) {
         add('$i', value[i], '$path.$i');

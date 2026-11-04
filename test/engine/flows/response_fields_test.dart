@@ -85,4 +85,29 @@ void main() {
     expect(displayPath('response.body'), 'body');
     expect(displayPath('response.status'), 'response.status');
   });
+
+  test('a very deep body does not overflow: containers past the depth limit are leaves', () {
+    Object? body = 'bottom';
+    for (var i = 0; i < 10000; i++) {
+      body = {'a': body};
+    }
+
+    final r = responseFields(body);
+
+    expect(r.fields, hasLength(1));
+    expect(r.fields.single.path.split('.'), hasLength(maxFieldDepth + 2)); // response.body + the levels walked
+    expect(r.fields.single.preview, '{…}');
+  });
+
+  test('a very deep body past the limit is only counted, without overflowing', () {
+    Object? deep = 'bottom';
+    for (var i = 0; i < 10000; i++) {
+      deep = [deep];
+    }
+
+    final r = responseFields({'first': 1, 'deep': deep}, limit: 1);
+
+    expect(r.fields.single.path, 'response.body.first');
+    expect(r.omitted, greaterThan(0));
+  });
 }

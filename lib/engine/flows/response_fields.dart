@@ -3,6 +3,11 @@ import 'dart:convert';
 /// The most characters of a value a preview shows before cutting it with `…`.
 const int _previewChars = 24;
 
+/// How deep a response is walked. A container further down is one leaf
+/// (`{…}` or `[n]`): real payloads are nowhere near this deep, and a
+/// pathological one must not overflow the stack while the canvas builds.
+const int maxFieldDepth = 32;
+
 /// One value of a response a step can extract: its full dot path
 /// (`response.body.user.id`) and a short preview of what it held.
 class ResponseField {
@@ -31,37 +36,51 @@ class ResponseFields {
 /// body) has no fields.
 ///
 /// Past [limit] leaves no more fields are built; the rest are only counted
-/// into [ResponseFields.omitted].
+/// into [ResponseFields.omitted], without building their paths or previews.
+/// Containers deeper than [maxFieldDepth] are leaves.
 ResponseFields responseFields(Object? body, {int limit = 200}) {
   if (body is! Map && body is! List) return const ResponseFields([]);
 
   final fields = <ResponseField>[];
   var omitted = 0;
 
-  void add(String path, String preview, {int? listLength}) {
-    if (fields.length < limit) {
-      fields.add(ResponseField(path: path, preview: preview, listLength: listLength));
-    } else {
-      omitted++;
+  void visit(String path, Object? value, int depth) {
+    if (fields.length >= limit) {
+      omitted += _leafCount(value, depth);
+      return;
     }
-  }
-
-  void visit(String path, Object? value, {bool isRoot = false}) {
-    if (value is Map) {
-      if (value.isEmpty && !isRoot) add(path, '{}');
+    if ((value is Map || value is List) && depth >= maxFieldDepth) {
+      fields.add(ResponseField(path: path, preview: value is List ? '[${value.length}]' : '{…}'));
+    } else if (value is Map) {
+      if (value.isEmpty && depth > 0) fields.add(ResponseField(path: path, preview: '{}'));
       for (final entry in value.entries) {
-        visit('$path.${entry.key}', entry.value);
+        visit('$path.${entry.key}', entry.value, depth + 1);
       }
     } else if (value is List) {
-      add(path, '[${value.length}]', listLength: value.length);
-      if (value.isNotEmpty) visit('$path.0', value.first);
+      fields.add(ResponseField(path: path, preview: '[${value.length}]', listLength: value.length));
+      if (value.isNotEmpty) visit('$path.0', value.first, depth + 1);
     } else {
-      add(path, previewValue(value));
+      fields.add(ResponseField(path: path, preview: previewValue(value)));
     }
   }
 
-  visit('response.body', body, isRoot: true);
+  visit('response.body', body, 0);
   return ResponseFields(fields, omitted: omitted);
+}
+
+/// How many fields [responseFields] would list for [value] at [depth], had it
+/// no limit -- the same walk, counting only.
+int _leafCount(Object? value, int depth) {
+  if ((value is Map || value is List) && depth >= maxFieldDepth) return 1;
+  if (value is Map) {
+    var count = value.isEmpty && depth > 0 ? 1 : 0;
+    for (final child in value.values) {
+      count += _leafCount(child, depth + 1);
+    }
+    return count;
+  }
+  if (value is List) return 1 + (value.isEmpty ? 0 : _leafCount(value.first, depth + 1));
+  return 1;
 }
 
 /// [path] as a step shows it: without the `response.body.` prefix.
