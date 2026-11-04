@@ -225,40 +225,6 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
                   ),
                 ),
               ),
-              for (final wire in wires.where((w) => !w.suggestion))
-                Positioned(
-                  key: ValueKey('wire-${wire.fromStep}-${wire.toStep}-${wire.variable}'),
-                  left: wire.midpoint.dx - 6,
-                  top: wire.midpoint.dy - 6,
-                  width: 12,
-                  height: 12,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTapUp: (details) => _showDisconnect(wire.toStep, wire.variable, details.globalPosition),
-                    child: const MouseRegion(cursor: SystemMouseCursors.click),
-                  ),
-                ),
-              for (final wire in wires.where((w) => w.suggestion))
-                Positioned(
-                  left: wire.midpoint.dx,
-                  top: wire.midpoint.dy,
-                  child: FractionalTranslation(
-                    translation: const Offset(-0.5, -0.5),
-                    child: ActionChip(
-                      key: ValueKey('suggestion-${wire.toStep}-${wire.variable}'),
-                      visualDensity: VisualDensity.compact,
-                      backgroundColor: AppColors.surfaceContainerHighest,
-                      side: const BorderSide(color: AppColors.warning),
-                      label: Text(
-                        context.l10n.suggestionConnect(wire.variable),
-                        style: AppTypography.bodySm.copyWith(color: AppColors.warning),
-                      ),
-                      onPressed: running
-                          ? null
-                          : () => _connect(FieldDrag(wire.fromStep, wire.path), wire.toStep, wire.variable),
-                    ),
-                  ),
-                ),
               for (var i = 0; i + 1 < count; i++)
                 Positioned(
                   left: nodeLeft(i) + nodeWidth + (nodeGap - 20) / 2,
@@ -291,6 +257,43 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
                       ref.read(stepPanelTabProvider.notifier).state = StepPanelTab.response;
                       _selection.state = model.index;
                     },
+                  ),
+                ),
+              // Above the nodes: the wires' tap targets, and the suggestion chips (a suggestion
+              // from two or more steps back crosses the nodes between).
+              for (final wire in wires.where((w) => !w.suggestion))
+                // In the free gap just before the input's pin, where no node can cover it.
+                Positioned(
+                  key: ValueKey('wire-${wire.fromStep}-${wire.toStep}-${wire.variable}'),
+                  left: wire.to.dx - pinOverhang - _wireTargetSize - 6,
+                  top: wire.to.dy - _wireTargetSize / 2,
+                  width: _wireTargetSize,
+                  height: _wireTargetSize,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTapUp: (details) => _showDisconnect(wire.toStep, wire.variable, details.globalPosition),
+                    child: const MouseRegion(cursor: SystemMouseCursors.click),
+                  ),
+                ),
+              for (final wire in wires.where((w) => w.suggestion))
+                Positioned(
+                  left: wire.midpoint.dx,
+                  top: wire.midpoint.dy,
+                  child: FractionalTranslation(
+                    translation: const Offset(-0.5, -0.5),
+                    child: ActionChip(
+                      key: ValueKey('suggestion-${wire.toStep}-${wire.variable}'),
+                      visualDensity: VisualDensity.compact,
+                      backgroundColor: AppColors.surfaceContainerHighest,
+                      side: const BorderSide(color: AppColors.warning),
+                      label: Text(
+                        context.l10n.suggestionConnect(wire.variable),
+                        style: AppTypography.bodySm.copyWith(color: AppColors.warning),
+                      ),
+                      onPressed: running
+                          ? null
+                          : () => _connect(FieldDrag(wire.fromStep, wire.path), wire.toStep, wire.variable),
+                    ),
                   ),
                 ),
               Positioned(
@@ -386,6 +389,9 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
     return fieldPinOffset(model, drag.field);
   }
 }
+
+/// The side of the square that takes a tap on a wire (to disconnect it).
+const double _wireTargetSize = 12;
 
 /// The right of a node's header: a spinner while its result is on the way,
 /// then the status code (or a mark for a failure without one, or "Skipped"),

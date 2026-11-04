@@ -12,6 +12,7 @@ void main() {
   const login = Endpoint(id: 'e-login', groupId: 'g', name: 'Log in', method: 'POST', url: '/login');
   const me = Endpoint(id: 'e-me', groupId: 'g', name: 'Get user', method: 'GET', url: '/users/me');
   const home = Endpoint(id: 'e-home', groupId: 'g', name: 'Home', method: 'GET', url: '/home?r={{region}}');
+  const orders = Endpoint(id: 'e-orders', groupId: 'g', name: 'Orders', method: 'GET', url: '/orders?u={{user_id}}');
 
   late JsonStore store;
   late ProviderContainer container;
@@ -23,7 +24,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     store = JsonStore.inMemory();
-    await store.writeCollections(groups: const [Group(id: 'g', name: 'G')], endpoints: const [login, me, home]);
+    await store.writeCollections(groups: const [Group(id: 'g', name: 'G')], endpoints: const [login, me, home, orders]);
     await store.writeFlows([flow]);
     await store.appendHistoryEntry(
       'e-login',
@@ -149,5 +150,19 @@ void main() {
     expect((await saved(1)).extract, {'region': 'response.body.data.region'});
     expect(find.byKey(const ValueKey('suggestion-2-region')), findsNothing);
     expect(find.byKey(const ValueKey('wire-1-2-region')), findsOneWidget);
+  });
+
+  testWidgets('a suggestion from two steps back can be tapped over the node in between', (tester) async {
+    await pumpCanvas(tester, const Flow(id: 'f', name: 'F', steps: [
+      FlowStep(endpointId: 'e-login'),
+      FlowStep(endpointId: 'e-me'),
+      FlowStep(endpointId: 'e-orders'),
+    ]));
+
+    expect(find.byKey(const ValueKey('suggestion-2-user_id')).hitTestable(), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('suggestion-2-user_id')));
+    await tester.pumpAndSettle();
+
+    expect((await saved(0)).extract, {'user_id': 'response.body.user.id'});
   });
 }

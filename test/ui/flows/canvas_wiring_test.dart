@@ -131,4 +131,21 @@ void main() {
     expect((await saved(0)).extract, isEmpty);
     expect(find.byKey(const ValueKey('wire-0-1-user_id')), findsNothing);
   });
+
+  testWidgets('a wire from two steps back can be tapped to disconnect', (tester) async {
+    await pumpCanvas(tester, const Flow(id: 'f', name: 'F', steps: [
+      FlowStep(endpointId: 'e-login', extract: {'user_id': 'response.body.user.id'}),
+      FlowStep(endpointId: 'e-mid'),
+      FlowStep(endpointId: 'e-me'),
+    ]));
+
+    final wire = find.byKey(const ValueKey('wire-0-2-user_id'));
+    expect(wire.hitTestable(), findsOneWidget);
+    await tester.tap(wire);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('disconnect-2-user_id')));
+    await tester.pumpAndSettle();
+
+    expect((await saved(0)).extract, isEmpty);
+  });
 }
