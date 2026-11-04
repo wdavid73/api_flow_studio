@@ -18,11 +18,19 @@ Beyond a basic request/response cycle, it supports:
   (`bin/api_flow_runner.dart`), with JUnit and JSON reports and exit codes for CI;
   see [Running flows from the terminal](#running-flows-from-the-terminal).
 - **Collections** of saved requests, grouped into nested folders.
-- **Flows** — ordered sequences of saved requests where each step can
-  extract a value from its response (dot-notation, e.g.
-  `response.body.data.otp`) into a variable the next step consumes, with
-  per-step assertions and "stop on failure" — e.g. a registration flow:
-  check if a user exists → send OTP → validate OTP → create user.
+- **Flows** — ordered sequences of saved requests, laid out as a row of nodes
+  on a canvas — e.g. a registration flow: register → log in → get user → home.
+  Each node lists the `{{variables}}` its request uses and where each one comes
+  from (an earlier step, the environment, a generated value, the login session)
+  or flags it with no source, and below them the fields of its last response
+  (from the last run, else from the request's history). Drag a field's pin onto
+  an input of a later step to connect them (it becomes an extract such as
+  `user_id ← response.body.user.id`), or click a field to use it as a variable,
+  add an assertion or copy its path; inputs whose name matches an earlier field
+  get a one-click suggestion. Run the whole flow, up to a step or again from a
+  step right on the canvas: each node shows its status, and the side panel holds
+  the step's assertions, "stop on failure", hand-written extracts, full response
+  and run details. Canvas runs are kept in memory, not in the history.
 - **Assertions** on every flow step: any number of checks on the response, each a
   field, an operator and an expected value — `==`, `!=`, `contains`,
   `not contains`, `exists`, `not exists`, `matches` (regex), `>` and `<`. Fields

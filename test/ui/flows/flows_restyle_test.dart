@@ -75,7 +75,7 @@ void main() {
     expect(fill(tester, 'f-1'), Colors.transparent);
   });
 
-  testWidgets('the builder titles the flow in the title style, with an accent Run and an outlined Save', (tester) async {
+  testWidgets('the toolbar titles the flow in the title style, with an accent Run and no Save', (tester) async {
     await pumpFlows(tester);
     container.read(selectedFlowIdProvider.notifier).state = 'f-1';
     await tester.pump();
@@ -83,24 +83,24 @@ void main() {
     final name = tester.widget<EditableText>(find.descendant(of: find.byKey(const Key('flow-name-field')), matching: find.byType(EditableText)));
     expect(name.style.fontSize, AppTypography.title.fontSize);
     expect(tester.widget(find.byKey(const Key('run-flow-button'))), isA<FilledButton>());
-    expect(tester.widget(find.byKey(const Key('save-flow-button'))), isA<OutlinedButton>());
+    expect(find.byKey(const Key('save-flow-button')), findsNothing);
   });
 
-  testWidgets('Add step is a ghost button at the end of the pipeline', (tester) async {
+  testWidgets('Add step is a ghost button at the end of the canvas row', (tester) async {
     await pumpFlows(tester);
     container.read(selectedFlowIdProvider.notifier).state = 'f-1';
     await tester.pump();
 
     expect(tester.widget(find.byKey(const Key('add-step-button'))), isA<HeaderGhostButton>());
-    expect(find.text('Add Next Step to Pipeline'), findsOneWidget);
+    expect(find.text('Add step'), findsOneWidget);
   });
 
-  testWidgets('step cards show the method, name and a monospace url', (tester) async {
+  testWidgets('step nodes show the method, name and a monospace url', (tester) async {
     await pumpFlows(tester);
     container.read(selectedFlowIdProvider.notifier).state = 'f-1';
     await tester.pump();
 
-    final card = find.byKey(const ValueKey('step-card-0'));
+    final card = find.byKey(const ValueKey('step-node-0'));
     expect(find.descendant(of: card, matching: find.byType(MethodBadge)), findsOneWidget);
     expect(find.descendant(of: card, matching: find.text('Check user')), findsOneWidget);
     final url = tester.widget<Text>(find.descendant(of: card, matching: find.text('https://x.test/exists')));

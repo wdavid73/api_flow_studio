@@ -485,10 +485,8 @@
     }
   },
   "flowsDelete": "Delete flow",
-  "flowsSave": "Save Flow",
   "flowsRun": "Run Flow",
   "flowsNoSteps": "No steps yet — add a saved endpoint to get started",
-  "flowsAddNextStep": "Add Next Step to Pipeline",
   "flowsLoadWhat": "flows",
   "flowsSelectAll": "All flows",
   "flowsNothingToExport": "There are no flows to export yet",
@@ -615,7 +613,6 @@
   "errorAssertionFailure": "Assertion Failure",
   "errorConfiguration": "Configuration Error",
   "errorNetwork": "Network Error",
-  "runReRunFlow": "Re-run Flow",
   "runPassed": "{count} passed",
   "@runPassed": {
     "placeholders": {
@@ -640,7 +637,6 @@
       }
     }
   },
-  "runSelectStep": "Select a step to see its details",
   "runMissingEndpoint": "Missing endpoint",
   "runSkippedStep": "Skipped",
   "inspectorErrorDetails": "Error Details",
@@ -656,16 +652,6 @@
       }
     }
   },
-  "stepMissingEndpoint": "Missing endpoint ({id})",
-  "@stepMissingEndpoint": {
-    "placeholders": {
-      "id": {
-        "type": "String"
-      }
-    }
-  },
-  "stepTerminal": "TERMINAL",
-  "stepPayloadTemplate": "PAYLOAD TEMPLATE",
   "stepExtractTitle": "Extract Output Variables",
   "stepAddExtracted": "Add extracted variable",
   "stepStopOnFailure": "Stop on failure",
@@ -686,5 +672,125 @@
   "requestRenameTooltip": "Click to rename",
   "variableTooltipHint": "Value of this variable",
   "variableTooltipUnresolved": "Not defined yet — type a value to create it",
-  "variableTooltipNoEnvironment": "Select an environment to edit variables"
+  "variableTooltipNoEnvironment": "Select an environment to edit variables",
+  "panelStep": "Step",
+  "panelResponse": "Response",
+  "panelRun": "Run",
+  "panelClose": "Close",
+  "panelInputs": "Inputs",
+  "panelExtractNotInResponse": "not in the last response",
+  "canvasOriginEnv": "env",
+  "canvasOriginGenerated": "generated",
+  "canvasOriginSession": "🔑 session",
+  "canvasOriginStep": "← {step}",
+  "@canvasOriginStep": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "canvasOriginMissing": "⚠ no source",
+  "canvasNotSent": "Not sent yet",
+  "canvasTruncated": "Response was cut: run the step to see all of it",
+  "canvasNotJson": "The response is not JSON",
+  "canvasDeleteStep": "Delete step",
+  "canvasInputs": "INPUTS",
+  "canvasNoInputs": "No variables",
+  "canvasResponse": "RESPONSE",
+  "canvasSourceRun": "last run · {age}",
+  "@canvasSourceRun": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "canvasSourceHistory": "history · {age}",
+  "@canvasSourceHistory": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "canvasMoreFields": "+{count} more",
+  "@canvasMoreFields": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "canvasTokenToSession": "🔑 → session",
+  "canvasMissingRequest": "Request not found",
+  "canvasAddStep": "Add step",
+  "canvasAddFirstStep": "Add first step",
+  "canvasMoveLeft": "Move left",
+  "canvasMoveRight": "Move right",
+  "canvasNotRun": "not sent",
+  "canvasZoomIn": "Zoom in",
+  "canvasZoomOut": "Zoom out",
+  "canvasZoomFit": "Fit",
+  "ageJustNow": "just now",
+  "ageMinutes": "{count} min ago",
+  "@ageMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageHours": "{count} h ago",
+  "@ageHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageDays": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@ageDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "canvasRunUntilHere": "Run up to here",
+  "canvasRerunFromHere": "Run again from here",
+  "wireDisconnect": "Disconnect",
+  "wireUsedBy": "{count, plural, =1{used by 1 step} other{used by {count} steps}}",
+  "@wireUsedBy": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wireShadowed": "Step {step} already sets {variable} and overrides it",
+  "@wireShadowed": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      },
+      "variable": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldUseAsVariable": "Use as variable…",
+  "fieldCopyPath": "Copy path",
+  "fieldPathCopied": "Path copied",
+  "variableNameTitle": "Variable name",
+  "variableNameInvalid": "Use only letters, numbers and _",
+  "suggestionConnect": "Connect {variable}?",
+  "@suggestionConnect": {
+    "placeholders": {
+      "variable": {
+        "type": "String"
+      }
+    }
+  },
+  "flowListToggle": "Show or hide flows"
 }

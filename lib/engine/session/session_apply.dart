@@ -28,13 +28,18 @@ Endpoint applySession(Endpoint endpoint, Session session, {String? fallbackToken
   if (!session.attachAuth) return endpoint;
   final token = session.hasToken ? session.accessToken.trim() : fallbackToken?.trim();
   if (token == null || token.isEmpty) return endpoint;
-  if (endpoint.authConfig is! AuthConfigNone) return endpoint;
-  final hasAuthorizationHeader =
-      endpoint.headers.any((h) => h.enabled && h.key.trim().toLowerCase() == 'authorization');
-  if (hasAuthorizationHeader) return endpoint;
+  if (!acceptsSessionToken(endpoint)) return endpoint;
 
   return endpoint.copyWith(headers: [
     ...endpoint.headers,
     KeyValueEntry(key: 'Authorization', value: 'Bearer $token'),
   ]);
+}
+
+/// Whether [endpoint] would take the session's token: it has no
+/// authentication of its own and no enabled `Authorization` header. What a
+/// request says explicitly always wins over the session.
+bool acceptsSessionToken(Endpoint endpoint) {
+  if (endpoint.authConfig is! AuthConfigNone) return false;
+  return !endpoint.headers.any((h) => h.enabled && h.key.trim().toLowerCase() == 'authorization');
 }

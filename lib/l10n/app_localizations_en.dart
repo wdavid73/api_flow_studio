@@ -785,17 +785,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get flowsDelete => 'Delete flow';
 
   @override
-  String get flowsSave => 'Save Flow';
-
-  @override
   String get flowsRun => 'Run Flow';
 
   @override
   String get flowsNoSteps =>
       'No steps yet — add a saved endpoint to get started';
-
-  @override
-  String get flowsAddNextStep => 'Add Next Step to Pipeline';
 
   @override
   String get flowsLoadWhat => 'flows';
@@ -969,9 +963,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorNetwork => 'Network Error';
 
   @override
-  String get runReRunFlow => 'Re-run Flow';
-
-  @override
   String runPassed(int count) {
     return '$count passed';
   }
@@ -985,9 +976,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String runSkipped(int count) {
     return '$count skipped';
   }
-
-  @override
-  String get runSelectStep => 'Select a step to see its details';
 
   @override
   String get runMissingEndpoint => 'Missing endpoint';
@@ -1014,17 +1002,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String inspectorRerunFrom(int step) {
     return 'Re-run From Step $step';
   }
-
-  @override
-  String stepMissingEndpoint(String id) {
-    return 'Missing endpoint ($id)';
-  }
-
-  @override
-  String get stepTerminal => 'TERMINAL';
-
-  @override
-  String get stepPayloadTemplate => 'PAYLOAD TEMPLATE';
 
   @override
   String get stepExtractTitle => 'Extract Output Variables';
@@ -1095,4 +1072,178 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get variableTooltipNoEnvironment =>
       'Select an environment to edit variables';
+
+  @override
+  String get panelStep => 'Step';
+
+  @override
+  String get panelResponse => 'Response';
+
+  @override
+  String get panelRun => 'Run';
+
+  @override
+  String get panelClose => 'Close';
+
+  @override
+  String get panelInputs => 'Inputs';
+
+  @override
+  String get panelExtractNotInResponse => 'not in the last response';
+
+  @override
+  String get canvasOriginEnv => 'env';
+
+  @override
+  String get canvasOriginGenerated => 'generated';
+
+  @override
+  String get canvasOriginSession => '🔑 session';
+
+  @override
+  String canvasOriginStep(String step) {
+    return '← $step';
+  }
+
+  @override
+  String get canvasOriginMissing => '⚠ no source';
+
+  @override
+  String get canvasNotSent => 'Not sent yet';
+
+  @override
+  String get canvasTruncated =>
+      'Response was cut: run the step to see all of it';
+
+  @override
+  String get canvasNotJson => 'The response is not JSON';
+
+  @override
+  String get canvasDeleteStep => 'Delete step';
+
+  @override
+  String get canvasInputs => 'INPUTS';
+
+  @override
+  String get canvasNoInputs => 'No variables';
+
+  @override
+  String get canvasResponse => 'RESPONSE';
+
+  @override
+  String canvasSourceRun(String age) {
+    return 'last run · $age';
+  }
+
+  @override
+  String canvasSourceHistory(String age) {
+    return 'history · $age';
+  }
+
+  @override
+  String canvasMoreFields(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String get canvasTokenToSession => '🔑 → session';
+
+  @override
+  String get canvasMissingRequest => 'Request not found';
+
+  @override
+  String get canvasAddStep => 'Add step';
+
+  @override
+  String get canvasAddFirstStep => 'Add first step';
+
+  @override
+  String get canvasMoveLeft => 'Move left';
+
+  @override
+  String get canvasMoveRight => 'Move right';
+
+  @override
+  String get canvasNotRun => 'not sent';
+
+  @override
+  String get canvasZoomIn => 'Zoom in';
+
+  @override
+  String get canvasZoomOut => 'Zoom out';
+
+  @override
+  String get canvasZoomFit => 'Fit';
+
+  @override
+  String get ageJustNow => 'just now';
+
+  @override
+  String ageMinutes(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String ageHours(int count) {
+    return '$count h ago';
+  }
+
+  @override
+  String ageDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get canvasRunUntilHere => 'Run up to here';
+
+  @override
+  String get canvasRerunFromHere => 'Run again from here';
+
+  @override
+  String get wireDisconnect => 'Disconnect';
+
+  @override
+  String wireUsedBy(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'used by $count steps',
+      one: 'used by 1 step',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wireShadowed(String step, String variable) {
+    return 'Step $step already sets $variable and overrides it';
+  }
+
+  @override
+  String get fieldUseAsVariable => 'Use as variable…';
+
+  @override
+  String get fieldCopyPath => 'Copy path';
+
+  @override
+  String get fieldPathCopied => 'Path copied';
+
+  @override
+  String get variableNameTitle => 'Variable name';
+
+  @override
+  String get variableNameInvalid => 'Use only letters, numbers and _';
+
+  @override
+  String suggestionConnect(String variable) {
+    return 'Connect $variable?';
+  }
+
+  @override
+  String get flowListToggle => 'Show or hide flows';
 }

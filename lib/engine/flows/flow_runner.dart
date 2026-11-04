@@ -45,9 +45,13 @@ class FlowRunner {
   /// [startIndex] are not touched or re-executed; [onStepResult] still
   /// reports real step indices (offset by [startIndex]), so callers can
   /// write results straight back into a full-flow results list.
+  ///
+  /// With [endIndex] (inclusive) the run stops after that step: later steps
+  /// are neither executed nor reported.
   Future<FlowRunResult> runFrom(
     Flow flow, {
     required int startIndex,
+    int? endIndex,
     required Map<String, Endpoint> endpoints,
     required Map<String, String> seedVariables,
     void Function(int index, FlowStepResult result)? onStepResult,
@@ -61,7 +65,8 @@ class FlowRunner {
       onStepResult?.call(startIndex + results.length - 1, result);
     }
 
-    for (final step in flow.steps.skip(startIndex)) {
+    final steps = flow.steps.skip(startIndex);
+    for (final step in endIndex == null ? steps : steps.take(endIndex - startIndex + 1)) {
       if (stopped) {
         record(const FlowStepResult(status: FlowStepStatus.skipped));
         continue;

@@ -1364,12 +1364,6 @@ abstract class AppLocalizations {
   /// **'Delete flow'**
   String get flowsDelete;
 
-  /// No description provided for @flowsSave.
-  ///
-  /// In en, this message translates to:
-  /// **'Save Flow'**
-  String get flowsSave;
-
   /// No description provided for @flowsRun.
   ///
   /// In en, this message translates to:
@@ -1381,12 +1375,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No steps yet — add a saved endpoint to get started'**
   String get flowsNoSteps;
-
-  /// No description provided for @flowsAddNextStep.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Next Step to Pipeline'**
-  String get flowsAddNextStep;
 
   /// No description provided for @flowsLoadWhat.
   ///
@@ -1604,12 +1592,6 @@ abstract class AppLocalizations {
   /// **'Network Error'**
   String get errorNetwork;
 
-  /// No description provided for @runReRunFlow.
-  ///
-  /// In en, this message translates to:
-  /// **'Re-run Flow'**
-  String get runReRunFlow;
-
   /// No description provided for @runPassed.
   ///
   /// In en, this message translates to:
@@ -1627,12 +1609,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} skipped'**
   String runSkipped(int count);
-
-  /// No description provided for @runSelectStep.
-  ///
-  /// In en, this message translates to:
-  /// **'Select a step to see its details'**
-  String get runSelectStep;
 
   /// No description provided for @runMissingEndpoint.
   ///
@@ -1681,24 +1657,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Re-run From Step {step}'**
   String inspectorRerunFrom(int step);
-
-  /// No description provided for @stepMissingEndpoint.
-  ///
-  /// In en, this message translates to:
-  /// **'Missing endpoint ({id})'**
-  String stepMissingEndpoint(String id);
-
-  /// No description provided for @stepTerminal.
-  ///
-  /// In en, this message translates to:
-  /// **'TERMINAL'**
-  String get stepTerminal;
-
-  /// No description provided for @stepPayloadTemplate.
-  ///
-  /// In en, this message translates to:
-  /// **'PAYLOAD TEMPLATE'**
-  String get stepPayloadTemplate;
 
   /// No description provided for @stepExtractTitle.
   ///
@@ -1825,6 +1783,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select an environment to edit variables'**
   String get variableTooltipNoEnvironment;
+
+  /// No description provided for @panelStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step'**
+  String get panelStep;
+
+  /// No description provided for @panelResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Response'**
+  String get panelResponse;
+
+  /// No description provided for @panelRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get panelRun;
+
+  /// No description provided for @panelClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get panelClose;
+
+  /// No description provided for @panelInputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Inputs'**
+  String get panelInputs;
+
+  /// No description provided for @panelExtractNotInResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'not in the last response'**
+  String get panelExtractNotInResponse;
+
+  /// No description provided for @canvasOriginEnv.
+  ///
+  /// In en, this message translates to:
+  /// **'env'**
+  String get canvasOriginEnv;
+
+  /// No description provided for @canvasOriginGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'generated'**
+  String get canvasOriginGenerated;
+
+  /// No description provided for @canvasOriginSession.
+  ///
+  /// In en, this message translates to:
+  /// **'🔑 session'**
+  String get canvasOriginSession;
+
+  /// No description provided for @canvasOriginStep.
+  ///
+  /// In en, this message translates to:
+  /// **'← {step}'**
+  String canvasOriginStep(String step);
+
+  /// No description provided for @canvasOriginMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠ no source'**
+  String get canvasOriginMissing;
+
+  /// No description provided for @canvasNotSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent yet'**
+  String get canvasNotSent;
+
+  /// No description provided for @canvasTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Response was cut: run the step to see all of it'**
+  String get canvasTruncated;
+
+  /// No description provided for @canvasNotJson.
+  ///
+  /// In en, this message translates to:
+  /// **'The response is not JSON'**
+  String get canvasNotJson;
+
+  /// No description provided for @canvasDeleteStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete step'**
+  String get canvasDeleteStep;
+
+  /// No description provided for @canvasInputs.
+  ///
+  /// In en, this message translates to:
+  /// **'INPUTS'**
+  String get canvasInputs;
+
+  /// No description provided for @canvasNoInputs.
+  ///
+  /// In en, this message translates to:
+  /// **'No variables'**
+  String get canvasNoInputs;
+
+  /// No description provided for @canvasResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'RESPONSE'**
+  String get canvasResponse;
+
+  /// No description provided for @canvasSourceRun.
+  ///
+  /// In en, this message translates to:
+  /// **'last run · {age}'**
+  String canvasSourceRun(String age);
+
+  /// No description provided for @canvasSourceHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'history · {age}'**
+  String canvasSourceHistory(String age);
+
+  /// No description provided for @canvasMoreFields.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String canvasMoreFields(int count);
+
+  /// No description provided for @canvasTokenToSession.
+  ///
+  /// In en, this message translates to:
+  /// **'🔑 → session'**
+  String get canvasTokenToSession;
+
+  /// No description provided for @canvasMissingRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Request not found'**
+  String get canvasMissingRequest;
+
+  /// No description provided for @canvasAddStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add step'**
+  String get canvasAddStep;
+
+  /// No description provided for @canvasAddFirstStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add first step'**
+  String get canvasAddFirstStep;
+
+  /// No description provided for @canvasMoveLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Move left'**
+  String get canvasMoveLeft;
+
+  /// No description provided for @canvasMoveRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Move right'**
+  String get canvasMoveRight;
+
+  /// No description provided for @canvasNotRun.
+  ///
+  /// In en, this message translates to:
+  /// **'not sent'**
+  String get canvasNotRun;
+
+  /// No description provided for @canvasZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get canvasZoomIn;
+
+  /// No description provided for @canvasZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get canvasZoomOut;
+
+  /// No description provided for @canvasZoomFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit'**
+  String get canvasZoomFit;
+
+  /// No description provided for @ageJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get ageJustNow;
+
+  /// No description provided for @ageMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String ageMinutes(int count);
+
+  /// No description provided for @ageHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h ago'**
+  String ageHours(int count);
+
+  /// No description provided for @ageDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day ago} other{{count} days ago}}'**
+  String ageDays(int count);
+
+  /// No description provided for @canvasRunUntilHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Run up to here'**
+  String get canvasRunUntilHere;
+
+  /// No description provided for @canvasRerunFromHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Run again from here'**
+  String get canvasRerunFromHere;
+
+  /// No description provided for @wireDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get wireDisconnect;
+
+  /// No description provided for @wireUsedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{used by 1 step} other{used by {count} steps}}'**
+  String wireUsedBy(int count);
+
+  /// No description provided for @wireShadowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} already sets {variable} and overrides it'**
+  String wireShadowed(String step, String variable);
+
+  /// No description provided for @fieldUseAsVariable.
+  ///
+  /// In en, this message translates to:
+  /// **'Use as variable…'**
+  String get fieldUseAsVariable;
+
+  /// No description provided for @fieldCopyPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy path'**
+  String get fieldCopyPath;
+
+  /// No description provided for @fieldPathCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Path copied'**
+  String get fieldPathCopied;
+
+  /// No description provided for @variableNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable name'**
+  String get variableNameTitle;
+
+  /// No description provided for @variableNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use only letters, numbers and _'**
+  String get variableNameInvalid;
+
+  /// No description provided for @suggestionConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect {variable}?'**
+  String suggestionConnect(String variable);
+
+  /// No description provided for @flowListToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show or hide flows'**
+  String get flowListToggle;
 }
 
 class _AppLocalizationsDelegate

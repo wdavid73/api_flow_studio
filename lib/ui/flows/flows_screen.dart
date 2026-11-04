@@ -4,15 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/models/models.dart';
 import '../collections/collections_provider.dart';
 import '../shared/list_detail_layout.dart';
-import '../shell/header_ghost_button.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
-import 'add_step_picker.dart';
-import 'flow_run_view_screen.dart';
+import 'canvas/field_menu.dart';
+import 'canvas/flow_canvas.dart';
+import 'canvas/flow_toolbar.dart';
+import 'canvas/step_panel.dart';
 import 'flows_provider.dart';
 import 'flows_transfer_actions.dart';
-import 'step_card.dart';
 import '../projects/projects_provider.dart';
 import '../../l10n/l10n.dart';
 
@@ -23,9 +23,27 @@ final selectedFlowIdProvider = StateProvider<String?>((ref) {
   return null;
 });
 
-/// The "Flows" nav destination: a list of saved flows on the left, the
-/// selected flow's builder (name, step pipeline, add/remove/reorder) on
-/// the right.
+/// Whether the list of flows is shown next to the canvas; folding it gives the
+/// canvas the whole width. Always shown while no flow is open.
+final flowListVisibleProvider = StateProvider<bool>((ref) => true);
+
+/// Which step of the selected flow is open in the side panel, if any. Starts
+/// over when another flow is selected.
+final selectedStepIndexProvider = StateProvider<int?>((ref) {
+  ref.watch(selectedFlowIdProvider);
+  return null;
+});
+
+/// The tab the side panel opens on: Step when a node is picked by hand, Run
+/// after a run selected the step to look at.
+final stepPanelTabProvider = StateProvider<StepPanelTab>((ref) {
+  ref.watch(selectedFlowIdProvider);
+  return StepPanelTab.step;
+});
+
+/// The "Flows" nav destination: a list of saved flows on the left; on the
+/// right the selected flow's toolbar, its canvas of step nodes and, when a
+/// step is selected, that step's side panel.
 class FlowsScreen extends ConsumerWidget {
   const FlowsScreen({super.key});
 
@@ -47,6 +65,7 @@ class FlowsScreen extends ConsumerWidget {
     };
 
     return ListDetailLayout(
+      listVisible: ref.watch(flowListVisibleProvider) || ref.watch(selectedFlowIdProvider) == null,
       header: Consumer(
         builder: (context, ref, _) => ListPanelHeader(
           title: context.l10n.flowsKicker,
@@ -89,7 +108,7 @@ class FlowsScreen extends ConsumerWidget {
               child: Text(context.l10n.flowsSelectOrCreate),
             );
           }
-          return _FlowBuilder(flow: selected, endpoints: endpoints);
+          return _FlowDetail(flow: selected, endpoints: endpoints);
         },
       ),
     );
@@ -170,123 +189,45 @@ class _FlowList extends ConsumerWidget {
   }
 }
 
-class _FlowBuilder extends ConsumerWidget {
-  const _FlowBuilder({required this.flow, required this.endpoints});
+class _FlowDetail extends ConsumerWidget {
+  const _FlowDetail({required this.flow, required this.endpoints});
 
   final Flow flow;
   final Map<String, Endpoint> endpoints;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.read(flowsProvider.notifier);
+    final selectedStep = ref.watch(selectedStepIndexProvider);
 
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 900),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      key: const Key('flow-name-field'),
-                      initialValue: flow.name,
-                      style: AppTypography.title,
-                      decoration: const InputDecoration(border: InputBorder.none, filled: false),
-                      onChanged: (value) => notifier.renameFlow(flow.id, value),
-                    ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Keyed by flow: the name field takes its initial value only once.
+        FlowToolbar(key: ValueKey('flow-toolbar-${flow.id}'), flow: flow, endpoints: endpoints),
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: FlowCanvas(key: ValueKey('flow-canvas-${flow.id}'), flow: flow, endpoints: endpoints)),
+              if (selectedStep != null && selectedStep < flow.steps.length) ...[
+                const VerticalDivider(width: 1, color: AppColors.outlineVariant),
+                SizedBox(
+                  width: stepPanelWidth,
+                  child: StepPanel(
+                    flow: flow,
+                    index: selectedStep,
+                    endpoints: endpoints,
+                    initialTab: ref.watch(stepPanelTabProvider),
+                    onFieldTap: (path, position) =>
+                        showFieldMenu(context, ref, flow: flow, stepIndex: selectedStep, path: path, position: position),
+                    onClose: () => ref.read(selectedStepIndexProvider.notifier).state = null,
                   ),
-                  OutlinedButton(
-                    key: const Key('save-flow-button'),
-                    onPressed: null, // saving is implicit on every edit; kept as a visual affordance
-                    child: Text(context.l10n.flowsSave),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  FilledButton(
-                    key: const Key('run-flow-button'),
-                    onPressed: flow.steps.isEmpty
-                        ? null
-                        : () => Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) => FlowRunViewScreen(flow: flow, endpoints: endpoints),
-                              ),
-                            ),
-                    child: Text(context.l10n.flowsRun),
-                  ),
-                ],
-              ),
-            ),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          Expanded(
-            child: flow.steps.isEmpty
-                ? Center(
-                    key: Key('empty-flow-state'),
-                    child: Text(context.l10n.flowsNoSteps),
-                  )
-                : SingleChildScrollView(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 900),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            for (var index = 0; index < flow.steps.length; index++) ...[
-                              if (index > 0)
-                                const Center(
-                                  child: Icon(
-                                    Icons.keyboard_arrow_down,
-                                    size: 20,
-                                    color: AppColors.outlineVariant,
-                                  ),
-                                ),
-                              StepCard(
-                                index: index,
-                                step: flow.steps[index],
-                                endpoint: endpoints[flow.steps[index].endpointId],
-                                isFirst: index == 0,
-                                isLast: index == flow.steps.length - 1,
-                                onMoveUp: () => notifier.reorderStep(flow.id, index, index - 1),
-                                onMoveDown: () => notifier.reorderStep(flow.id, index, index + 1),
-                                onRemove: () => notifier.removeStep(flow.id, index),
-                                onUpdateStep: (updated) =>
-                                    notifier.updateStep(flow.id, index, updated),
-                                onChangeRequest: () async {
-                                  final picked = await showAddStepPicker(context, ref);
-                                  if (picked != null) {
-                                    await notifier.updateStep(
-                                      flow.id,
-                                      index,
-                                      flow.steps[index].copyWith(endpointId: picked.id),
-                                    );
-                                  }
-                                },
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: HeaderGhostButton(
-              key: const Key('add-step-button'),
-              label: context.l10n.flowsAddNextStep,
-              onPressed: () async {
-                final endpoint = await showAddStepPicker(context, ref);
-                if (endpoint != null) {
-                  await notifier.addStep(flow.id, FlowStep(endpointId: endpoint.id));
-                }
-              },
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

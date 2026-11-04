@@ -100,4 +100,30 @@ void main() {
       expect(accessTokenFromVariables({'other': 'c'}), isNull);
     });
   });
+
+  group('acceptsSessionToken', () {
+    test('accepts a request with no authentication and no Authorization header', () {
+      expect(acceptsSessionToken(endpoint()), isTrue);
+    });
+
+    test('refuses a request with its own authentication', () {
+      expect(acceptsSessionToken(endpoint(auth: const AuthConfig.bearer(token: 'mine'))), isFalse);
+    });
+
+    test('refuses a request with an enabled Authorization header, whatever its case', () {
+      expect(
+        acceptsSessionToken(endpoint(headers: const [KeyValueEntry(key: 'authorization', value: 'Basic x')])),
+        isFalse,
+      );
+    });
+
+    test('accepts a request whose Authorization header is disabled', () {
+      expect(
+        acceptsSessionToken(
+          endpoint(headers: const [KeyValueEntry(key: 'Authorization', value: 'x', enabled: false)]),
+        ),
+        isTrue,
+      );
+    });
+  });
 }

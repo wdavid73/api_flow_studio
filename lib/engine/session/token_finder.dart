@@ -3,6 +3,15 @@ import 'dart:collection';
 /// The most nodes [findTokens] looks at, so a huge response can't stall it.
 const int _maxNodes = 300;
 
+/// Keys an access token is found under, in order of preference.
+const List<String> accessTokenKeys = ['accessToken', 'access_token'];
+
+/// Keys a refresh token is found under, in order of preference.
+const List<String> refreshTokenKeys = ['refreshToken', 'refresh_token'];
+
+/// Whether a response field named [key] is one the session captures.
+bool isSessionTokenKey(String key) => accessTokenKeys.contains(key) || refreshTokenKeys.contains(key);
+
 /// Looks through a decoded JSON value, breadth-first and at most [_maxNodes]
 /// objects/arrays, for the first non-blank string under `accessToken` or
 /// `access_token` and under `refreshToken` or `refresh_token`. Shallower
@@ -28,8 +37,8 @@ const int _maxNodes = 300;
     seen++;
 
     if (node is Map) {
-      accessToken ??= tokenAt(node, const ['accessToken', 'access_token']);
-      refreshToken ??= tokenAt(node, const ['refreshToken', 'refresh_token']);
+      accessToken ??= tokenAt(node, accessTokenKeys);
+      refreshToken ??= tokenAt(node, refreshTokenKeys);
       if (accessToken != null && refreshToken != null) break;
       queue.addAll(node.values);
     } else if (node is List) {
