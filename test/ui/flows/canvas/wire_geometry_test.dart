@@ -3,7 +3,6 @@ import 'package:api_flow_studio/ui/flows/canvas/canvas_metrics.dart';
 import 'package:api_flow_studio/ui/flows/canvas/node_model.dart';
 import 'package:api_flow_studio/ui/flows/canvas/wire_geometry.dart';
 import 'package:api_flow_studio/ui/flows/step_response.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
