@@ -789,17 +789,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get flowsDelete => 'Eliminar flujo';
 
   @override
-  String get flowsSave => 'Guardar flujo';
-
-  @override
   String get flowsRun => 'Ejecutar flujo';
 
   @override
   String get flowsNoSteps =>
       'Aún no hay pasos: agrega un endpoint guardado para empezar';
-
-  @override
-  String get flowsAddNextStep => 'Agregar siguiente paso al pipeline';
 
   @override
   String get flowsLoadWhat => 'flujos';
@@ -1022,17 +1016,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String stepMissingEndpoint(String id) {
-    return 'Endpoint no encontrado ($id)';
-  }
-
-  @override
-  String get stepTerminal => 'TERMINAL';
-
-  @override
-  String get stepPayloadTemplate => 'PLANTILLA DEL CUERPO';
-
-  @override
   String get stepExtractTitle => 'Extraer variables de salida';
 
   @override
@@ -1149,4 +1132,82 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get canvasDeleteStep => 'Eliminar paso';
+
+  @override
+  String get canvasInputs => 'ENTRADAS';
+
+  @override
+  String get canvasNoInputs => 'Sin variables';
+
+  @override
+  String get canvasResponse => 'RESPUESTA';
+
+  @override
+  String canvasSourceRun(String age) {
+    return 'última ejecución · $age';
+  }
+
+  @override
+  String canvasSourceHistory(String age) {
+    return 'historial · $age';
+  }
+
+  @override
+  String canvasMoreFields(int count) {
+    return '+$count más';
+  }
+
+  @override
+  String get canvasTokenToSession => '🔑 → sesión';
+
+  @override
+  String get canvasMissingRequest => 'Petición no encontrada';
+
+  @override
+  String get canvasAddStep => 'Agregar paso';
+
+  @override
+  String get canvasAddFirstStep => 'Agregar primer paso';
+
+  @override
+  String get canvasMoveLeft => 'Mover a la izquierda';
+
+  @override
+  String get canvasMoveRight => 'Mover a la derecha';
+
+  @override
+  String get canvasNotRun => 'sin enviar';
+
+  @override
+  String get canvasZoomIn => 'Acercar';
+
+  @override
+  String get canvasZoomOut => 'Alejar';
+
+  @override
+  String get canvasZoomFit => 'Ajustar';
+
+  @override
+  String get ageJustNow => 'justo ahora';
+
+  @override
+  String ageMinutes(int count) {
+    return 'hace $count min';
+  }
+
+  @override
+  String ageHours(int count) {
+    return 'hace $count h';
+  }
+
+  @override
+  String ageDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'hace $count días',
+      one: 'hace 1 día',
+    );
+    return '$_temp0';
+  }
 }

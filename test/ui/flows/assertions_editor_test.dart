@@ -1,132 +1,25 @@
 import 'package:api_flow_studio/engine/models/models.dart';
-import 'package:api_flow_studio/ui/flows/step_card.dart';
+import 'package:api_flow_studio/ui/flows/assertions_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+// Moved from step_card_editor_test.dart when the step card gave way to the canvas
+// side panel, which embeds the same AssertionsEditor.
 
 void main() {
   Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
-  testWidgets('adding an extract row and filling it in reports the updated step', (tester) async {
-    FlowStep? updated;
-    const step = FlowStep(endpointId: 'e-1');
-    const endpoint = Endpoint(id: 'e-1', groupId: 'g-1', name: 'Check user', method: 'GET', url: '/exists');
-
-    await tester.pumpWidget(wrap(StepCard(
-      index: 0,
-      step: step,
-      endpoint: endpoint,
-      isFirst: true,
-      isLast: true,
-      onMoveUp: () {},
-      onMoveDown: () {},
-      onRemove: () {},
-      onUpdateStep: (s) => updated = s,
-    )));
-
-    await tester.tap(find.byKey(const Key('add-extract-0')));
-    await tester.pump();
-    expect(updated, isNotNull);
-    expect(updated!.extract, {'variable': ''});
-
-    await tester.pumpWidget(wrap(StepCard(
-      index: 0,
-      step: updated!,
-      endpoint: endpoint,
-      isFirst: true,
-      isLast: true,
-      onMoveUp: () {},
-      onMoveDown: () {},
-      onRemove: () {},
-      onUpdateStep: (s) => updated = s,
-    )));
-
-    await tester.enterText(find.byKey(const Key('extract-name-0-0')), 'user_id');
-    await tester.pump();
-    expect(updated!.extract, {'user_id': ''});
-
-    await tester.pumpWidget(wrap(StepCard(
-      index: 0,
-      step: updated!,
-      endpoint: endpoint,
-      isFirst: true,
-      isLast: true,
-      onMoveUp: () {},
-      onMoveDown: () {},
-      onRemove: () {},
-      onUpdateStep: (s) => updated = s,
-    )));
-
-    await tester.enterText(find.byKey(const Key('extract-path-0-0')), 'response.body.id');
-    await tester.pump();
-    expect(updated!.extract, {'user_id': 'response.body.id'});
-  });
-
-  testWidgets('removing an extract row drops it from the map', (tester) async {
-    FlowStep? updated;
-    const step = FlowStep(endpointId: 'e-1', extract: {'user_id': 'response.body.id'});
-    const endpoint = Endpoint(id: 'e-1', groupId: 'g-1', name: 'Check user', method: 'GET', url: '/exists');
-
-    await tester.pumpWidget(wrap(StepCard(
-      index: 0,
-      step: step,
-      endpoint: endpoint,
-      isFirst: true,
-      isLast: true,
-      onMoveUp: () {},
-      onMoveDown: () {},
-      onRemove: () {},
-      onUpdateStep: (s) => updated = s,
-    )));
-
-    await tester.tap(find.byKey(const Key('remove-extract-0-0')));
-    await tester.pump();
-
-    expect(updated!.extract, isEmpty);
-  });
-
-  testWidgets('toggling stop on failure reports the flipped value', (tester) async {
-    FlowStep? updated;
-    const step = FlowStep(endpointId: 'e-1');
-    const endpoint = Endpoint(id: 'e-1', groupId: 'g-1', name: 'Check user', method: 'GET', url: '/exists');
-
-    await tester.pumpWidget(wrap(StepCard(
-      index: 0,
-      step: step,
-      endpoint: endpoint,
-      isFirst: true,
-      isLast: true,
-      onMoveUp: () {},
-      onMoveDown: () {},
-      onRemove: () {},
-      onUpdateStep: (s) => updated = s,
-    )));
-
-    expect(step.stopOnFailure, isTrue);
-    await tester.tap(find.byKey(const Key('stop-on-failure-0')));
-    await tester.pump();
-
-    expect(updated!.stopOnFailure, isFalse);
-  });
-
   group('assertion editor', () {
-    const endpoint = Endpoint(id: 'e-1', groupId: 'g-1', name: 'Check user', method: 'GET', url: '/exists');
-
-    /// Keeps the step in state like the flow builder does, so edits flow back in.
+    /// Keeps the step in state like the step panel does, so edits flow back in.
     Future<ValueNotifier<FlowStep>> pumpEditor(WidgetTester tester, [FlowStep step = const FlowStep(endpointId: 'e-1')]) async {
       final notifier = ValueNotifier(step);
       await tester.pumpWidget(wrap(ValueListenableBuilder<FlowStep>(
         valueListenable: notifier,
         builder: (context, current, _) => SingleChildScrollView(
-          child: StepCard(
-            index: 0,
-            step: current,
-            endpoint: endpoint,
-            isFirst: true,
-            isLast: true,
-            onMoveUp: () {},
-            onMoveDown: () {},
-            onRemove: () {},
-            onUpdateStep: (s) => notifier.value = s,
+          child: AssertionsEditor(
+            stepIndex: 0,
+            assertions: current.assertions,
+            onChanged: (assertions) => notifier.value = current.copyWith(assertions: assertions),
           ),
         ),
       )));
@@ -218,17 +111,7 @@ void main() {
 
     testWidgets('a different step in the same place shows its own assertions (reorder, switch flow)', (tester) async {
       Widget cardFor(FlowStep s) => wrap(SingleChildScrollView(
-            child: StepCard(
-              index: 0,
-              step: s,
-              endpoint: endpoint,
-              isFirst: true,
-              isLast: true,
-              onMoveUp: () {},
-              onMoveDown: () {},
-              onRemove: () {},
-              onUpdateStep: (_) {},
-            ),
+            child: AssertionsEditor(stepIndex: 0, assertions: s.assertions, onChanged: (_) {}),
           ));
 
       await tester.pumpWidget(cardFor(const FlowStep(endpointId: 'a', assertions: [

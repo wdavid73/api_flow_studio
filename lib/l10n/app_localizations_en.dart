@@ -785,17 +785,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get flowsDelete => 'Delete flow';
 
   @override
-  String get flowsSave => 'Save Flow';
-
-  @override
   String get flowsRun => 'Run Flow';
 
   @override
   String get flowsNoSteps =>
       'No steps yet — add a saved endpoint to get started';
-
-  @override
-  String get flowsAddNextStep => 'Add Next Step to Pipeline';
 
   @override
   String get flowsLoadWhat => 'flows';
@@ -1016,17 +1010,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String stepMissingEndpoint(String id) {
-    return 'Missing endpoint ($id)';
-  }
-
-  @override
-  String get stepTerminal => 'TERMINAL';
-
-  @override
-  String get stepPayloadTemplate => 'PAYLOAD TEMPLATE';
-
-  @override
   String get stepExtractTitle => 'Extract Output Variables';
 
   @override
@@ -1143,4 +1126,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get canvasDeleteStep => 'Delete step';
+
+  @override
+  String get canvasInputs => 'INPUTS';
+
+  @override
+  String get canvasNoInputs => 'No variables';
+
+  @override
+  String get canvasResponse => 'RESPONSE';
+
+  @override
+  String canvasSourceRun(String age) {
+    return 'last run · $age';
+  }
+
+  @override
+  String canvasSourceHistory(String age) {
+    return 'history · $age';
+  }
+
+  @override
+  String canvasMoreFields(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String get canvasTokenToSession => '🔑 → session';
+
+  @override
+  String get canvasMissingRequest => 'Request not found';
+
+  @override
+  String get canvasAddStep => 'Add step';
+
+  @override
+  String get canvasAddFirstStep => 'Add first step';
+
+  @override
+  String get canvasMoveLeft => 'Move left';
+
+  @override
+  String get canvasMoveRight => 'Move right';
+
+  @override
+  String get canvasNotRun => 'not sent';
+
+  @override
+  String get canvasZoomIn => 'Zoom in';
+
+  @override
+  String get canvasZoomOut => 'Zoom out';
+
+  @override
+  String get canvasZoomFit => 'Fit';
+
+  @override
+  String get ageJustNow => 'just now';
+
+  @override
+  String ageMinutes(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String ageHours(int count) {
+    return '$count h ago';
+  }
+
+  @override
+  String ageDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
+  }
 }

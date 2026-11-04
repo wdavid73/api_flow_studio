@@ -485,10 +485,8 @@
     }
   },
   "flowsDelete": "Delete flow",
-  "flowsSave": "Save Flow",
   "flowsRun": "Run Flow",
   "flowsNoSteps": "No steps yet — add a saved endpoint to get started",
-  "flowsAddNextStep": "Add Next Step to Pipeline",
   "flowsLoadWhat": "flows",
   "flowsSelectAll": "All flows",
   "flowsNothingToExport": "There are no flows to export yet",
@@ -656,16 +654,6 @@
       }
     }
   },
-  "stepMissingEndpoint": "Missing endpoint ({id})",
-  "@stepMissingEndpoint": {
-    "placeholders": {
-      "id": {
-        "type": "String"
-      }
-    }
-  },
-  "stepTerminal": "TERMINAL",
-  "stepPayloadTemplate": "PAYLOAD TEMPLATE",
   "stepExtractTitle": "Extract Output Variables",
   "stepAddExtracted": "Add extracted variable",
   "stepStopOnFailure": "Stop on failure",
@@ -708,5 +696,67 @@
   "canvasNotSent": "Not sent yet",
   "canvasTruncated": "Response was cut: run the step to see all of it",
   "canvasNotJson": "The response is not JSON",
-  "canvasDeleteStep": "Delete step"
+  "canvasDeleteStep": "Delete step",
+  "canvasInputs": "INPUTS",
+  "canvasNoInputs": "No variables",
+  "canvasResponse": "RESPONSE",
+  "canvasSourceRun": "last run · {age}",
+  "@canvasSourceRun": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "canvasSourceHistory": "history · {age}",
+  "@canvasSourceHistory": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "canvasMoreFields": "+{count} more",
+  "@canvasMoreFields": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "canvasTokenToSession": "🔑 → session",
+  "canvasMissingRequest": "Request not found",
+  "canvasAddStep": "Add step",
+  "canvasAddFirstStep": "Add first step",
+  "canvasMoveLeft": "Move left",
+  "canvasMoveRight": "Move right",
+  "canvasNotRun": "not sent",
+  "canvasZoomIn": "Zoom in",
+  "canvasZoomOut": "Zoom out",
+  "canvasZoomFit": "Fit",
+  "ageJustNow": "just now",
+  "ageMinutes": "{count} min ago",
+  "@ageMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageHours": "{count} h ago",
+  "@ageHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageDays": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@ageDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

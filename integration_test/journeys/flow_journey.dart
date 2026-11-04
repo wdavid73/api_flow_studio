@@ -31,10 +31,10 @@ void defineFlowJourney(JourneyHarness Function() harness) {
       await app.openFlow('f-signup');
 
       for (final i in [0, 1, 2]) {
-        expect(find.byKey(ValueKey('step-card-$i')), findsOneWidget, reason: 'step $i');
+        expect(find.byKey(ValueKey('step-node-$i')), findsOneWidget, reason: 'step $i');
       }
-      expect(find.descendant(of: find.byKey(const ValueKey('step-card-0')), matching: find.text('Log in')), findsOneWidget);
-      expect(find.descendant(of: find.byKey(const ValueKey('step-card-2')), matching: find.text('List items')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('step-node-0')), matching: find.text('Log in')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('step-node-2')), matching: find.text('List items')), findsOneWidget);
     });
 
     journeyTest('running a flow where every step passes reports 3 passed', (tester) async {
@@ -138,6 +138,9 @@ void defineFlowJourney(JourneyHarness Function() harness) {
       ]);
       await app.openFlow('f-edit');
 
+      // The assertions of a step are in its side panel, opened by selecting the node.
+      await tester.tap(find.descendant(of: find.byKey(const ValueKey('step-node-0')), matching: find.text('List items')));
+      await tester.pumpAndSettle();
       await app.tapKey(const Key('add-assertion-0'));
       await app.runOpenFlow();
 
@@ -203,7 +206,7 @@ void defineFlowJourney(JourneyHarness Function() harness) {
         await app.tapKey(const Key('add-step-button'));
         await app.tapKey(ValueKey('add-step-picker-item-$endpoint'));
       }
-      expect(find.byKey(const ValueKey('step-card-1')), findsOneWidget);
+      expect(find.byKey(const ValueKey('step-node-1')), findsOneWidget);
 
       await app.runOpenFlow();
 

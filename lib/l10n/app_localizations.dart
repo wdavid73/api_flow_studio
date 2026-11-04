@@ -1364,12 +1364,6 @@ abstract class AppLocalizations {
   /// **'Delete flow'**
   String get flowsDelete;
 
-  /// No description provided for @flowsSave.
-  ///
-  /// In en, this message translates to:
-  /// **'Save Flow'**
-  String get flowsSave;
-
   /// No description provided for @flowsRun.
   ///
   /// In en, this message translates to:
@@ -1381,12 +1375,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No steps yet — add a saved endpoint to get started'**
   String get flowsNoSteps;
-
-  /// No description provided for @flowsAddNextStep.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Next Step to Pipeline'**
-  String get flowsAddNextStep;
 
   /// No description provided for @flowsLoadWhat.
   ///
@@ -1682,24 +1670,6 @@ abstract class AppLocalizations {
   /// **'Re-run From Step {step}'**
   String inspectorRerunFrom(int step);
 
-  /// No description provided for @stepMissingEndpoint.
-  ///
-  /// In en, this message translates to:
-  /// **'Missing endpoint ({id})'**
-  String stepMissingEndpoint(String id);
-
-  /// No description provided for @stepTerminal.
-  ///
-  /// In en, this message translates to:
-  /// **'TERMINAL'**
-  String get stepTerminal;
-
-  /// No description provided for @stepPayloadTemplate.
-  ///
-  /// In en, this message translates to:
-  /// **'PAYLOAD TEMPLATE'**
-  String get stepPayloadTemplate;
-
   /// No description provided for @stepExtractTitle.
   ///
   /// In en, this message translates to:
@@ -1915,6 +1885,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete step'**
   String get canvasDeleteStep;
+
+  /// No description provided for @canvasInputs.
+  ///
+  /// In en, this message translates to:
+  /// **'INPUTS'**
+  String get canvasInputs;
+
+  /// No description provided for @canvasNoInputs.
+  ///
+  /// In en, this message translates to:
+  /// **'No variables'**
+  String get canvasNoInputs;
+
+  /// No description provided for @canvasResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'RESPONSE'**
+  String get canvasResponse;
+
+  /// No description provided for @canvasSourceRun.
+  ///
+  /// In en, this message translates to:
+  /// **'last run · {age}'**
+  String canvasSourceRun(String age);
+
+  /// No description provided for @canvasSourceHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'history · {age}'**
+  String canvasSourceHistory(String age);
+
+  /// No description provided for @canvasMoreFields.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String canvasMoreFields(int count);
+
+  /// No description provided for @canvasTokenToSession.
+  ///
+  /// In en, this message translates to:
+  /// **'🔑 → session'**
+  String get canvasTokenToSession;
+
+  /// No description provided for @canvasMissingRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Request not found'**
+  String get canvasMissingRequest;
+
+  /// No description provided for @canvasAddStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add step'**
+  String get canvasAddStep;
+
+  /// No description provided for @canvasAddFirstStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add first step'**
+  String get canvasAddFirstStep;
+
+  /// No description provided for @canvasMoveLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Move left'**
+  String get canvasMoveLeft;
+
+  /// No description provided for @canvasMoveRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Move right'**
+  String get canvasMoveRight;
+
+  /// No description provided for @canvasNotRun.
+  ///
+  /// In en, this message translates to:
+  /// **'not sent'**
+  String get canvasNotRun;
+
+  /// No description provided for @canvasZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get canvasZoomIn;
+
+  /// No description provided for @canvasZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get canvasZoomOut;
+
+  /// No description provided for @canvasZoomFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit'**
+  String get canvasZoomFit;
+
+  /// No description provided for @ageJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get ageJustNow;
+
+  /// No description provided for @ageMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String ageMinutes(int count);
+
+  /// No description provided for @ageHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h ago'**
+  String ageHours(int count);
+
+  /// No description provided for @ageDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day ago} other{{count} days ago}}'**
+  String ageDays(int count);
 }
 
 class _AppLocalizationsDelegate
