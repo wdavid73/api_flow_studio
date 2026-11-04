@@ -292,6 +292,35 @@ void main() {
     expect(variablesAtStep3['user_id'], 'u-1');
   });
 
+  test('runFrom with endIndex stops after that step and reports nothing later', () async {
+    when(() => executor.execute(any(), variables: any(named: 'variables')))
+        .thenAnswer((_) async => const ExecutedResponse(status: 200));
+
+    final flow = Flow(
+      id: 'f-1',
+      name: 'Flow',
+      steps: [
+        FlowStep(endpointId: checkUser.id),
+        FlowStep(endpointId: sendOtp.id),
+        FlowStep(endpointId: createUser.id),
+      ],
+    );
+
+    final reported = <int>[];
+    final result = await runner.runFrom(
+      flow,
+      startIndex: 0,
+      endIndex: 1,
+      endpoints: endpoints,
+      seedVariables: const {},
+      onStepResult: (index, _) => reported.add(index),
+    );
+
+    expect(reported, [0, 1]);
+    expect(result.stepResults, hasLength(2));
+    verifyNever(() => executor.execute(createUser, variables: any(named: 'variables')));
+  });
+
   test('runFrom reports onStepResult with real (offset) step indices', () async {
     when(() => executor.execute(sendOtp, variables: any(named: 'variables')))
         .thenAnswer((_) async => const ExecutedResponse(status: 200));
