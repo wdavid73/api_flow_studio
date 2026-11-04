@@ -2005,6 +2005,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Run again from here'**
   String get canvasRerunFromHere;
+
+  /// No description provided for @wireDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get wireDisconnect;
+
+  /// No description provided for @wireUsedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{used by 1 step} other{used by {count} steps}}'**
+  String wireUsedBy(int count);
+
+  /// No description provided for @wireShadowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} already sets {variable} and overrides it'**
+  String wireShadowed(String step, String variable);
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Flow;
 
+import '../../../engine/flows/input_origin.dart';
 import '../../../engine/flows/response_fields.dart';
 import '../../../engine/models/models.dart';
 import '../../../engine/session/token_finder.dart';
@@ -18,6 +19,18 @@ enum StepNodeAction { runUntil, rerunFrom, changeRequest, moveLeft, moveRight, d
 
 const double _pinSize = 10;
 
+/// The area around a pin that can be grabbed.
+const double _pinHitSize = pinOverhang * 2;
+
+/// A response field being dragged towards an input: the step it belongs to
+/// and its path.
+class FieldDrag {
+  const FieldDrag(this.stepIndex, this.path);
+
+  final int stepIndex;
+  final String path;
+}
+
 /// One step on the canvas: header (method, name, status, menu), the request
 /// path, its INPUTS with where each comes from, and the fields of its last
 /// RESPONSE. Every section has the fixed height [canvas_metrics] gives it, so
@@ -35,6 +48,11 @@ class StepNode extends StatelessWidget {
     this.status,
     this.locked = false,
     this.hasRunResults = false,
+    this.dragFromStep,
+    this.onFieldDragUpdate,
+    this.onFieldDragEnd,
+    this.onConnect,
+    this.onOriginTap,
   });
 
   final NodeModel model;
@@ -56,19 +74,38 @@ class StepNode extends StatelessWidget {
   /// The flow has results in this session, so it can be run again from here.
   final bool hasRunResults;
 
+  /// A field of that step is being dragged: this node's inputs light up as
+  /// drop targets when it comes later.
+  final int? dragFromStep;
+
+  /// The pin of visible field `fieldRow` is being dragged, now at a global position.
+  final void Function(int fieldRow, Offset globalPosition)? onFieldDragUpdate;
+  final VoidCallback? onFieldDragEnd;
+
+  /// A field was dropped on the input named `variable`.
+  final void Function(String variable, FieldDrag drag)? onConnect;
+
+  /// The origin label of the input named `variable` was tapped, at a global position.
+  final void Function(String variable, Offset globalPosition)? onOriginTap;
+
   int get _index => model.index;
 
   @override
   Widget build(BuildContext context) {
     final index = _index;
+    // The card sits [pinOverhang] in from the widget's edges; the pins straddle them.
     return SizedBox(
       key: ValueKey('step-node-$index'),
-      width: nodeWidth,
+      width: nodeWidth + pinOverhang * 2,
       height: model.height,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Positioned.fill(
+          Positioned(
+            left: pinOverhang,
+            top: 0,
+            width: nodeWidth,
+            height: model.height,
             child: Material(
               color: AppColors.surfaceContainer,
               shape: RoundedRectangleBorder(
@@ -107,13 +144,9 @@ class StepNode extends StatelessWidget {
           ),
           for (var row = 0; row < model.inputs.length; row++)
             if (model.inputs[row].kind == InputRowKind.variable)
-              _pin(Offset(0, inputRowCenterY(row)), color: AppColors.primary),
+              _pin(Offset(pinOverhang, inputRowCenterY(row)), color: AppColors.primary),
           for (var k = 0; k < model.visibleFields.length; k++)
-            _pin(
-              Offset(nodeWidth, fieldRowCenterY(model.inputs.length, k)),
-              key: ValueKey('step-field-pin-$index-$k'),
-              color: AppColors.primary,
-            ),
+            _fieldPin(context, k),
         ],
       ),
     );
@@ -223,10 +256,7 @@ class StepNode extends StatelessWidget {
       InputRowKind.none => ('', AppColors.onSurfaceVariant),
     };
     final isVariable = row.kind == InputRowKind.variable;
-    return SizedBox(
-      key: isVariable ? ValueKey('step-input-$index-${row.label}') : null,
-      height: rowHeight,
-      child: _padded(Row(
+    final content = _padded(Row(
         children: [
           Expanded(
             child: Text(
@@ -243,10 +273,36 @@ class StepNode extends StatelessWidget {
           if (origin.isNotEmpty)
             KeyedSubtree(
               key: isVariable ? ValueKey('step-input-origin-$index-${row.label}') : null,
-              child: Text(origin, style: AppTypography.bodySm.copyWith(color: color)),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapUp: isVariable && onOriginTap != null && row.origin is FromStep
+                    ? (details) => onOriginTap!(row.label, details.globalPosition)
+                    : null,
+                child: Text(origin, style: AppTypography.bodySm.copyWith(color: color)),
+              ),
             ),
         ],
-      )),
+      ));
+    if (!isVariable) return SizedBox(height: rowHeight, child: content);
+
+    final target = dragFromStep != null && dragFromStep! < index;
+    return SizedBox(
+      key: ValueKey('step-input-$index-${row.label}'),
+      height: rowHeight,
+      child: DragTarget<FieldDrag>(
+        onWillAcceptWithDetails: (details) => details.data.stepIndex < index,
+        onAcceptWithDetails: (details) => onConnect?.call(row.label, details.data),
+        builder: (context, candidates, _) => !target
+            ? content
+            : DecoratedBox(
+                key: ValueKey('drop-target-$index-${row.label}'),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: candidates.isEmpty ? 0.08 : 0.22),
+                  border: candidates.isEmpty ? null : Border.all(color: AppColors.primary),
+                ),
+                child: content,
+              ),
+      ),
     );
   }
 
@@ -334,6 +390,53 @@ class StepNode extends StatelessWidget {
       )),
     );
   }
+
+  /// A field's pin, which can be dragged onto an input of a later step.
+  Widget _fieldPin(BuildContext context, int k) {
+    final center = Offset(pinOverhang + nodeWidth, fieldRowCenterY(model.inputs.length, k));
+    final field = model.visibleFields[k];
+    final dot = SizedBox(
+      width: _pinHitSize,
+      height: _pinHitSize,
+      child: Center(child: _dot(AppColors.primary)),
+    );
+    return Positioned(
+      key: ValueKey('step-field-pin-$_index-$k'),
+      left: center.dx - _pinHitSize / 2,
+      top: center.dy - _pinHitSize / 2,
+      width: _pinHitSize,
+      height: _pinHitSize,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.grab,
+        child: Draggable<FieldDrag>(
+          data: FieldDrag(_index, field.path),
+          dragAnchorStrategy: pointerDragAnchorStrategy,
+          feedback: Material(
+            color: AppColors.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
+              child: Text(displayPath(field.path), style: AppTypography.codeSm.copyWith(color: AppColors.primary)),
+            ),
+          ),
+          onDragUpdate: (details) => onFieldDragUpdate?.call(k, details.globalPosition),
+          onDragEnd: (_) => onFieldDragEnd?.call(),
+          childWhenDragging: dot,
+          child: dot,
+        ),
+      ),
+    );
+  }
+
+  Widget _dot(Color color) => Container(
+        width: _pinSize,
+        height: _pinSize,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.surfaceContainerLowest, width: 2),
+        ),
+      );
 
   Widget _pin(Offset center, {Key? key, required Color color}) => Positioned(
         key: key,

@@ -317,5 +317,8 @@
   "ageHours": "hace {count} h",
   "ageDays": "{count, plural, =1{hace 1 día} other{hace {count} días}}",
   "canvasRunUntilHere": "Ejecutar hasta aquí",
-  "canvasRerunFromHere": "Volver a ejecutar desde aquí"
+  "canvasRerunFromHere": "Volver a ejecutar desde aquí",
+  "wireDisconnect": "Desconectar",
+  "wireUsedBy": "{count, plural, =1{la usa 1 paso} other{la usan {count} pasos}}",
+  "wireShadowed": "El paso {step} ya define {variable} y lo sobrescribe"
 }

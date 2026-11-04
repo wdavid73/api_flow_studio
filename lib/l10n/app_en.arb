@@ -758,5 +758,25 @@
     }
   },
   "canvasRunUntilHere": "Run up to here",
-  "canvasRerunFromHere": "Run again from here"
+  "canvasRerunFromHere": "Run again from here",
+  "wireDisconnect": "Disconnect",
+  "wireUsedBy": "{count, plural, =1{used by 1 step} other{used by {count} steps}}",
+  "@wireUsedBy": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wireShadowed": "Step {step} already sets {variable} and overrides it",
+  "@wireShadowed": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      },
+      "variable": {
+        "type": "String"
+      }
+    }
+  }
 }

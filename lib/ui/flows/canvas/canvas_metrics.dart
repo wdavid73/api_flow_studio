@@ -16,6 +16,11 @@ const double sectionGap = 8;
 const double emptyResponseHeight = 56;
 const double nodeBottomPadding = 8;
 
+/// How far a node's widget reaches past its card on each side, so the pins
+/// drawn on the card's edges can be grabbed whole (a widget only receives
+/// pointer events inside its own bounds).
+const double pinOverhang = 11;
+
 /// The "+ Add step" node at the end of the row.
 const double addNodeWidth = 160;
 const double addNodeHeight = 56;

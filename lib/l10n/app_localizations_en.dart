@@ -1204,4 +1204,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get canvasRerunFromHere => 'Run again from here';
+
+  @override
+  String get wireDisconnect => 'Disconnect';
+
+  @override
+  String wireUsedBy(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'used by $count steps',
+      one: 'used by 1 step',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wireShadowed(String step, String variable) {
+    return 'Step $step already sets $variable and overrides it';
+  }
 }

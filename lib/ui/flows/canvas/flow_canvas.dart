@@ -5,19 +5,22 @@ import 'package:flutter/material.dart' hide Flow;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../engine/flows/flow_step_result.dart';
+import '../../../engine/flows/flow_wiring.dart';
+import '../../../engine/flows/input_origin.dart';
 import '../../../engine/models/models.dart';
 import '../../../l10n/l10n.dart';
 import '../../environments/environments_provider.dart';
 import '../../session/session_provider.dart';
+import '../../shell/app_toast.dart';
 import '../../shell/header_ghost_button.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_typography.dart';
+import '../../theme/widgets/status_badge.dart';
 import '../add_step_picker.dart';
 import '../flow_run_provider.dart';
 import '../flows_provider.dart';
-import '../../../engine/flows/flow_step_result.dart';
-import '../../theme/widgets/status_badge.dart';
 import '../flows_screen.dart' show selectedStepIndexProvider, stepPanelTabProvider;
 import '../step_response.dart';
 import 'canvas_metrics.dart';
@@ -25,11 +28,14 @@ import 'node_model.dart';
 import 'run_actions.dart';
 import 'step_node.dart';
 import 'step_panel.dart';
+import 'wire_geometry.dart';
+import 'wire_painter.dart';
 
 /// The flow's steps as nodes in one row, left to right in run order, on a
 /// dotted canvas that scrolls both ways and zooms (buttons, or Ctrl + wheel).
 /// The layout is automatic: nodes cannot be placed by hand, only moved
-/// left/right from their menu.
+/// left/right from their menu. Wires show which response field feeds which
+/// input; dragging a field's pin onto an input of a later step connects them.
 class FlowCanvas extends ConsumerStatefulWidget {
   const FlowCanvas({super.key, required this.flow, required this.endpoints});
 
@@ -43,7 +49,13 @@ class FlowCanvas extends ConsumerStatefulWidget {
 class _FlowCanvasState extends ConsumerState<FlowCanvas> {
   final _horizontal = ScrollController();
   final _vertical = ScrollController();
+  final _contentKey = GlobalKey();
   double _zoom = 1;
+
+  /// The field whose pin is being dragged (its step and row), and where the
+  /// pointer is, in canvas coordinates.
+  ({int step, int field})? _drag;
+  Offset? _ghostTo;
 
   @override
   void dispose() {
@@ -65,6 +77,60 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
   Future<void> _addStep() async {
     final endpoint = await showAddStepPicker(context, ref);
     if (endpoint != null) await _flows.addStep(_flow.id, FlowStep(endpointId: endpoint.id));
+  }
+
+  void _dragUpdate(int step, int field, Offset globalPosition) {
+    final box = _contentKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    setState(() {
+      _drag = (step: step, field: field);
+      _ghostTo = box.globalToLocal(globalPosition);
+    });
+  }
+
+  void _dragEnd() => setState(() {
+        _drag = null;
+        _ghostTo = null;
+      });
+
+  /// Connects [drag]'s field to the input [variable] of step [toStep], or says
+  /// why not when a step in between already sets that name.
+  Future<void> _connect(FieldDrag drag, int toStep, String variable) async {
+    switch (connectField(_flow, fromStep: drag.stepIndex, path: drag.path, toStep: toStep, variable: variable)) {
+      case Connected(:final step):
+        await _flows.updateStep(_flow.id, drag.stepIndex, step);
+      case Shadowed(:final stepIndex):
+        final name = widget.endpoints[_flow.steps[stepIndex].endpointId]?.name ?? '${stepIndex + 1}';
+        showToast(ref, context.l10n.wireShadowed(name, '{{$variable}}'));
+    }
+  }
+
+  /// The menu of an input fed by an earlier step: Disconnect, saying how many
+  /// steps lose that value.
+  Future<void> _showDisconnect(int toStep, String variable, Offset globalPosition) async {
+    final environment = ref.read(environmentsProvider).value?.active?.resolvedVariables ?? const <String, String>{};
+    final origin = resolveInputOrigin(_flow, toStep, variable, environment);
+    if (origin is! FromStep) return;
+    final consumers =
+        consumersOf(_flow, widget.endpoints, environment, fromStep: origin.stepIndex, variable: variable);
+    final l10n = context.l10n;
+    final disconnect = await showMenu<bool>(
+      context: context,
+      position: RelativeRect.fromLTRB(globalPosition.dx, globalPosition.dy, globalPosition.dx, globalPosition.dy),
+      items: [
+        PopupMenuItem(
+          key: ValueKey('disconnect-$toStep-$variable'),
+          value: true,
+          child: Text(consumers > 1 ? '${l10n.wireDisconnect} · ${l10n.wireUsedBy(consumers)}' : l10n.wireDisconnect),
+        ),
+      ],
+    );
+    if (disconnect != true) return;
+    await _flows.updateStep(
+      _flow.id,
+      origin.stepIndex,
+      disconnectVariable(_flow, fromStep: origin.stepIndex, variable: variable),
+    );
   }
 
   void _select(int index) {
@@ -137,92 +203,131 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
     final contentWidth = nodeLeft(count) + addNodeWidth + canvasPadding;
     final tallest = models.fold<double>(addNodeHeight + 48, (h, m) => math.max(h, m.height));
     final contentHeight = canvasPadding * 2 + tallest;
+    final wires = computeWires(models);
+    final drag = _drag;
 
-    final content = SizedBox(
-      key: const Key('flow-canvas-content'),
-      width: contentWidth,
-      height: contentHeight,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          const Positioned.fill(child: CustomPaint(painter: _DotGridPainter())),
-          for (var i = 0; i + 1 < count; i++)
-            Positioned(
-              left: nodeLeft(i) + nodeWidth + (nodeGap - 20) / 2,
-              top: canvasPadding + headerHeight / 2 - 10,
-              child: const Icon(Icons.arrow_forward, size: 20, color: AppColors.outline),
-            ),
-          for (final model in models)
-            Positioned(
-              left: nodeLeft(model.index),
-              top: canvasPadding,
-              child: StepNode(
-                model: model,
-                flow: flow,
-                endpoints: widget.endpoints,
-                selected: selected == model.index,
-                captureTokens: session.captureTokens,
-                locked: running,
-                hasRunResults: run.results.any((r) => r != null),
-                status: _status(context, run, model),
-                onSelect: () => _select(model.index),
-                onAction: (action) => _onAction(model.index, action),
+    Widget content(double width, double height) => SizedBox(
+          key: const Key('flow-canvas-content'),
+          width: width,
+          height: height,
+          child: Stack(
+            key: _contentKey,
+            clipBehavior: Clip.none,
+            children: [
+              const Positioned.fill(child: CustomPaint(painter: _DotGridPainter())),
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: WirePainter(
+                    wires: wires,
+                    ghostFrom: drag == null ? null : _ghostStart(models, drag),
+                    ghostTo: _ghostTo,
+                  ),
+                ),
               ),
-            ),
-          Positioned(
-            left: nodeLeft(count),
-            top: canvasPadding,
-            width: addNodeWidth,
-            height: addNodeHeight,
-            child: Center(
-              child: HeaderGhostButton(
-                key: const Key('add-step-button'),
-                label: count == 0 ? context.l10n.canvasAddFirstStep : context.l10n.canvasAddStep,
-                onPressed: running ? () {} : _addStep,
+              for (final wire in wires)
+                Positioned(
+                  key: ValueKey('wire-${wire.fromStep}-${wire.toStep}-${wire.variable}'),
+                  left: wire.midpoint.dx - 6,
+                  top: wire.midpoint.dy - 6,
+                  width: 12,
+                  height: 12,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTapUp: (details) => _showDisconnect(wire.toStep, wire.variable, details.globalPosition),
+                    child: const MouseRegion(cursor: SystemMouseCursors.click),
+                  ),
+                ),
+              for (var i = 0; i + 1 < count; i++)
+                Positioned(
+                  left: nodeLeft(i) + nodeWidth + (nodeGap - 20) / 2,
+                  top: canvasPadding + headerHeight / 2 - 10,
+                  child: const Icon(Icons.arrow_forward, size: 20, color: AppColors.outline),
+                ),
+              for (final model in models)
+                Positioned(
+                  left: nodeLeft(model.index) - pinOverhang,
+                  top: canvasPadding,
+                  child: StepNode(
+                    model: model,
+                    flow: flow,
+                    endpoints: widget.endpoints,
+                    selected: selected == model.index,
+                    captureTokens: session.captureTokens,
+                    locked: running,
+                    hasRunResults: run.results.any((r) => r != null),
+                    status: _status(context, run, model),
+                    dragFromStep: drag?.step,
+                    onSelect: () => _select(model.index),
+                    onAction: (action) => _onAction(model.index, action),
+                    onFieldDragUpdate: (field, position) => _dragUpdate(model.index, field, position),
+                    onFieldDragEnd: _dragEnd,
+                    onConnect: (variable, fieldDrag) => _connect(fieldDrag, model.index, variable),
+                    onOriginTap: (variable, position) => _showDisconnect(model.index, variable, position),
+                  ),
+                ),
+              Positioned(
+                left: nodeLeft(count),
+                top: canvasPadding,
+                width: addNodeWidth,
+                height: addNodeHeight,
+                child: Center(
+                  child: HeaderGhostButton(
+                    key: const Key('add-step-button'),
+                    label: count == 0 ? context.l10n.canvasAddFirstStep : context.l10n.canvasAddStep,
+                    onPressed: running ? () {} : _addStep,
+                  ),
+                ),
               ),
-            ),
+              if (count == 0)
+                Positioned(
+                  left: canvasPadding,
+                  top: canvasPadding + addNodeHeight + AppSpacing.sm,
+                  child: Text(
+                    context.l10n.flowsNoSteps,
+                    key: const Key('empty-flow-state'),
+                    style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
+                  ),
+                ),
+            ],
           ),
-          if (count == 0)
-            Positioned(
-              left: canvasPadding,
-              top: canvasPadding + addNodeHeight + AppSpacing.sm,
-              child: Text(
-                context.l10n.flowsNoSteps,
-                key: const Key('empty-flow-state'),
-                style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
-              ),
-            ),
-        ],
-      ),
-    );
+        );
 
     return LayoutBuilder(
-      builder: (context, constraints) => Stack(
-        key: const Key('flow-canvas'),
-        children: [
-          Positioned.fill(
-            child: ColoredBox(
-              color: AppColors.surfaceContainerLowest,
-              child: Listener(
-                onPointerSignal: (event) {
-                  if (event is PointerScrollEvent && HardwareKeyboard.instance.isControlPressed) {
-                    _setZoom(_zoom + (event.scrollDelta.dy < 0 ? zoomStep : -zoomStep));
-                  }
-                },
-                child: Scrollbar(
-                  controller: _vertical,
-                  notificationPredicate: (notification) => notification.depth == 1,
+      builder: (context, constraints) {
+        // The canvas fills the view (dots everywhere) and grows past it when the row is longer.
+        final width = math.max(contentWidth, constraints.maxWidth / _zoom);
+        final height = math.max(contentHeight, constraints.maxHeight / _zoom);
+        return Stack(
+          key: const Key('flow-canvas'),
+          children: [
+            Positioned.fill(
+              child: ColoredBox(
+                color: AppColors.surfaceContainerLowest,
+                child: Listener(
+                  onPointerSignal: (event) {
+                    if (event is PointerScrollEvent && HardwareKeyboard.instance.isControlPressed) {
+                      _setZoom(_zoom + (event.scrollDelta.dy < 0 ? zoomStep : -zoomStep));
+                    }
+                  },
                   child: Scrollbar(
-                    controller: _horizontal,
-                    child: SingleChildScrollView(
+                    controller: _vertical,
+                    notificationPredicate: (notification) => notification.depth == 1,
+                    child: Scrollbar(
                       controller: _horizontal,
-                      scrollDirection: Axis.horizontal,
                       child: SingleChildScrollView(
-                        controller: _vertical,
-                        child: SizedBox(
-                          width: contentWidth * _zoom,
-                          height: contentHeight * _zoom,
-                          child: FittedBox(fit: BoxFit.fill, alignment: Alignment.topLeft, child: content),
+                        controller: _horizontal,
+                        scrollDirection: Axis.horizontal,
+                        child: SingleChildScrollView(
+                          controller: _vertical,
+                          child: SizedBox(
+                            width: width * _zoom,
+                            height: height * _zoom,
+                            child: FittedBox(
+                              fit: BoxFit.fill,
+                              alignment: Alignment.topLeft,
+                              child: content(width, height),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -230,19 +335,27 @@ class _FlowCanvasState extends ConsumerState<FlowCanvas> {
                 ),
               ),
             ),
-          ),
-          Positioned(
-            right: AppSpacing.md,
-            bottom: AppSpacing.md,
-            child: _ZoomControls(
-              zoom: _zoom,
-              onZoom: _setZoom,
-              onFit: () => _setZoom(constraints.maxWidth / contentWidth),
+            Positioned(
+              right: AppSpacing.md,
+              bottom: AppSpacing.md,
+              child: _ZoomControls(
+                zoom: _zoom,
+                onZoom: _setZoom,
+                onFit: () => _setZoom(constraints.maxWidth / contentWidth),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
+  }
+
+  /// Where the ghost wire of a drag starts: the dragged field's pin.
+  Offset? _ghostStart(List<NodeModel> models, ({int step, int field}) drag) {
+    if (drag.step >= models.length) return null;
+    final model = models[drag.step];
+    if (drag.field >= model.visibleFields.length) return null;
+    return fieldPinOffset(model, drag.field);
   }
 }
 
